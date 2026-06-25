@@ -1,0 +1,39 @@
+# === NO SUBIR ESTO A GITHUB ===
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs y archivos temporales
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Archivos de configuracion LOCAL (si los hubiera)
+.env
+.env.local
+.env.production
+
+# Dependencias (por si se usa algun build tool en el futuro)
+node_modules/
+dist/
+build/
+
+# Backup files (siempre hay uno por error)
+*.backup
+*-backup.*
+index-backup.html
+admin-backup.html
+
+# Credenciales y claves (proteccion extra)
+*.key
+*.pem
+secrets.json
