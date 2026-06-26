@@ -592,8 +592,8 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         successHTML += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
         
         // Datos del turno para captura de pantalla
-        successHTML += '<div style="background:rgba(120,194,180,0.15);border:1px solid rgba(120,194,180,0.4);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
-        successHTML += '<h4 style="color:rgba(120,194,180,0.9);margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
+        successHTML += '<div style="background:rgba(120,194,180,0.25);border:1px solid rgba(120,194,180,0.6);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
+        successHTML += '<h4 style="color:rgba(255,255,255,0.85);margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
         
         // Buscar ID del turno en los campos ocultos del formulario
         var idTurno = document.getElementById("selectedSlotId") ? document.getElementById("selectedSlotId").value : "";
@@ -631,8 +631,8 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         successHTML += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
         
         // Direccion con link a Maps y WhatsApp
-        successHTML += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:12px">';
-        successHTML += '<p style="margin:0 0 4px;color:rgba(120,194,180,0.9);font-size:0.8rem">📍 Direccion del consultorio</p>';
+        successHTML += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:12px">';
+        successHTML += '<p style="margin:0 0 4px;color:rgba(255,255,255,0.7);font-size:0.8rem">📍 Direccion del consultorio</p>';
         successHTML += '<p style="margin:0 0 8px;color:rgba(255,255,255,0.9);font-size:0.8rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
         successHTML += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
         successHTML += '<a href="' + CONFIG.negocio.googleMapsUrl + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.75rem;font-weight:600">🗺️ Ver en Google Maps</a>';
