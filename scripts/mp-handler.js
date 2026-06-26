@@ -835,19 +835,51 @@ function handleMercadoPagoReturn() {
                     }
                 }
             } else {
-                var whatsappMsg = encodeURIComponent('Hola! Realice un pago pero mi turno no se confirmo. Comprobante: ' + collectionId);
-                var whatsappLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsg;
+                // El estado NO es 'Reservado' ni 'Disponible' — puede ser 'Reservado Temporal', 'Bloqueado', etc.
+                // Verificar si el pago realmente fue aprobado por MP
+                if (status === 'approved') {
+                    // Pago SI fue aprobado pero el turno no está confirmado — es un PAGO HUERFANO real
+                    var whatsappMsg = encodeURIComponent('Hola! Realice un pago pero mi turno no se confirmo. Comprobante: ' + collectionId);
+                    var whatsappLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsg;
 
-                var senaDiv4 = document.getElementById('senaRequired');
-                if (senaDiv4) {
-                    senaDiv4.style.display = 'block';
-                    var errorHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                        + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
-                        + '<h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Exito</h3>'
-                        + '<p>Tu dinero esta seguro en la cuenta de Mercado Pago. Nuestro equipo verificara el comprobante y te contactara para asignarte el turno mas pronto posible.</p>'
-                        + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
-                        + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
-                    senaDiv4.innerHTML = errorHtml;
+                    var senaDiv4 = document.getElementById('senaRequired');
+                    if (senaDiv4) {
+                        senaDiv4.style.display = 'block';
+                        var errorHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                            + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
+                            + '<h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Exito</h3>'
+                            + '<p>Tu dinero esta seguro en la cuenta de Mercado Pago. Nuestro equipo verificara el comprobante y te contactara para asignarte el turno mas pronto posible.</p>'
+                            + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
+                            + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+                        senaDiv4.innerHTML = errorHtml;
+                    }
+                } else {
+                    // El usuario NO aprobó el pago en MP — solo volvió a la tienda sin pagar
+                    clearActiveTurnoStorage();
+                    if(window._senaTimerId) clearInterval(window._senaTimerId);
+                    
+                    releaseTempReservation();
+
+                    var senaDivNoPago = document.getElementById('senaRequired');
+                    if (senaDivNoPago) {
+                        senaDivNoPago.style.display = 'block';
+                        var noPagoHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                            + '<div style="font-size:3rem;margin-bottom:16px">🚫</div>'
+                            + '<h3 style="color:#FFD700;margin-bottom:8px">Pago Cancelado</h3>'
+                            + '<p>No completaste el pago en Mercado Pago. Tu turno fue liberado porque expiro el tiempo de reserva.</p>'
+                            + '<button id="btnElegirOtroTurno" style="display:inline-block;margin:16px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+                        senaDivNoPago.innerHTML = noPagoHtml;
+
+                        setTimeout(function(){
+                            var btnOtro = document.getElementById('btnElegirOtroTurno');
+                            if(btnOtro) {
+                                btnOtro.addEventListener('click', function(){
+                                    resetBookingForm();
+                                    loadAvailableSlots();
+                                });
+                            }
+                        }, 100);
+                    }
                 }
             }
         })
