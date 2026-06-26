@@ -667,8 +667,8 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    // Padding inferior aumentado a 80px para dar espacio al botón de Google Calendar (flujo Mercado Pago)
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 80px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    // Padding inferior aumentado para dar espacio al botón de Google Calendar (flujo Mercado Pago) — sin fondo para usar el verde existente
+                    var successHtml = '<div style="padding:28px 24px 80px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
