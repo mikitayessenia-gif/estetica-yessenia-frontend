@@ -649,6 +649,11 @@ function handleMercadoPagoReturn() {
 
     hideAllSections();
 
+    // Ocultar inmediatamente el formulario y headers para que no se vea feo
+    var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
+    var h2 = document.querySelector('.cta-content h2'); if(h2) h2.style.display="none";
+    var firstP = document.querySelectorAll('.cta-content p')[0]; if(firstP) firstP.style.display="none";
+
     var senaDiv = document.getElementById('senaRequired');
     if (!senaDiv) {
         senaDiv = document.createElement('div');
@@ -659,10 +664,10 @@ function handleMercadoPagoReturn() {
     }
     var mainContent = document.querySelector('.cta-content');
     if (mainContent) {
-        var loadHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-            + '<div style="font-size:3rem;margin-bottom:16px">✅</div>'
-            + '<h3 style="color:#FFD700;margin-bottom:8px">Confirmando tu pago...</h3>'
-            + '<p>Validando comprobante <strong>' + collectionId + '</strong> con Mercado Pago</p>'
+        var loadHtml = '<div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:40px 24px;max-width:550px;margin:0 auto;text-align:center">'
+            + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
+            + '<h3 style="color:#78C2B4;margin-bottom:8px;font-size:1.4rem">Confirmando tu pago...</h3>'
+            + '<p style="opacity:0.9;margin-bottom:16px">Estamos validando tu comprobante con Mercado Pago</p>'
             + '<div class="spinner" style="margin:20px auto"></div></div>';
         senaDiv.innerHTML = loadHtml;
         if (mainContent.contains(senaDiv)) {
