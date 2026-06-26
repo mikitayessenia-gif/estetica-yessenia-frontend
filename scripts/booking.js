@@ -550,6 +550,13 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         // Reducir padding de la seccion completa para eliminar espacio gigante arriba
         reservarSection.style.paddingTop = "10px";
         reservarSection.style.paddingBottom = "30px";
+        
+        // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
+        var policyText2 = document.getElementById("policyText");
+        if(policyText2){
+            policyText2.style.marginTop = "16px";
+            policyText2.style.marginBottom = "8px";
+        }
     }
     
     clearActiveTurnoStorage();

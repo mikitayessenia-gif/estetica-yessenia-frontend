@@ -687,6 +687,13 @@ function handleMercadoPagoReturn() {
                         if(policyP2) policyP2.style.marginBottom = "5px";
                     }
                     
+                    // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
+                    var policyText2 = document.getElementById("policyText");
+                    if(policyText2){
+                        policyText2.style.marginTop = "16px";
+                        policyText2.style.marginBottom = "8px";
+                    }
+                    
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
                     var tratSuccess = data.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : "");
                     var fechaSuccess = data.fecha ? formatFechaDisplay(data.fecha) : (window._pendingSenaData ? window._pendingSenaData.fecha : "");
