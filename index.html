@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yessenia Centro de Estética | Tu piel mas luminosa y saludable</title>
     <meta name="description" content="Tratamientos esteticos profesionales: limpieza facial, peeling quimico, dermoabrasion. Reservate tu turno online.">
-    <!-- Ocultar politica de reservas por defecto (se muestra solo si NO viene de Mercado Pago) -->
-    <style>
-        #policyText { display: none !important; }
-    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -528,16 +524,6 @@
         // Start the retry loop immediately
         tryUpdate();
    })();
-    </script>
-    <!-- Mostrar politica de reservas SOLO si NO venimos de Mercado Pago -->
-    <script>
-        (function() {
-            var params = new URLSearchParams(window.location.search);
-            if (!params.get('collection_id') && !params.get('status')) {
-                var p = document.getElementById('policyText');
-                if (p) p.style.display = '';
-            }
-        })();
     </script>
 </body>
 </html>

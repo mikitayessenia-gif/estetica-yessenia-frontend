@@ -615,35 +615,29 @@ function handleMercadoPagoReturn() {
 
     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
     
-    // Ocultar texto de política de reservas (está FUERA del form, no se oculta con él)
-    var policyText = document.getElementById('policyText');
-    if(policyText) policyText.style.display = 'none';
-
-    // Ocultar TODOS los elementos de .cta-content (no solo el primero)
+    // Ocultar h2 y primer parrafo de .cta-content (igual que booking.js)
     var ctaContent = document.querySelector('.cta-content');
     if(ctaContent){
-        ctaContent.style.paddingTop = '0 !important';
-        ctaContent.style.paddingBottom = '0 !important';
-        var allElements = ctaContent.querySelectorAll('h2, p, a, div');
-        allElements.forEach(function(el){ el.style.display = 'none'; });
+        var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="none";
+        var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="none";
+        ctaContent.style.paddingTop = "20px";
+        ctaContent.style.paddingBottom = "20px";
     }
 
-    // Ocultar toda la sección de reservas también
+    // Reducir padding de la seccion completa (igual que booking.js)
     var reservarSection = document.getElementById('reservar');
     if(reservarSection){
-        reservarSection.style.paddingTop = '0 !important';
-        reservarSection.style.paddingBottom = '0 !important';
+        reservarSection.style.paddingTop = "10px";
+        reservarSection.style.paddingBottom = "30px";
     }
 
     var senaDiv = document.getElementById('senaRequired');
     if (!senaDiv) {
         senaDiv = document.createElement('div');
         senaDiv.id = 'senaRequired';
-        senaDiv.style.cssText = 'display:block; padding: 80px 12px 40px 12px; text-align: center;';
+        senaDiv.style.display = 'block';
     } else {
         senaDiv.style.display = 'block';
-        senaDiv.style.paddingTop = '80px !important';
-        senaDiv.style.paddingBottom = '40px !important';
     }
     var mainContent = document.querySelector('.cta-content');
     if (mainContent) {
@@ -673,19 +667,24 @@ function handleMercadoPagoReturn() {
                     
                     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
                     
-                    // Compactar la sección para igualar el flujo directo (booking.js)
+                    // Compactar la sección para igualar EXACTAMENTE el flujo directo (booking.js linea 534-552)
                     var reservarSection2 = document.getElementById("reservar");
                     if(reservarSection2){
-                        reservarSection2.style.paddingTop = "10px !important";
-                        reservarSection2.style.paddingBottom = "30px !important";
+                        reservarSection2.style.paddingTop = "10px";
+                        reservarSection2.style.paddingBottom = "30px";
                     }
                     var ctaContent2 = reservarSection2?.querySelector(".cta-content");
                     if(ctaContent2){
-                        ctaContent2.style.paddingTop = "20px !important";
-                        ctaContent2.style.paddingBottom = "20px !important";
+                        // Ocultar h2 y subtitulo (primer p) para eliminar espacios gigantes
+                        var h2r = ctaContent2.querySelector("h2"); if(h2r) h2r.style.display="none";
+                        var firstP2 = ctaContent2.querySelectorAll("p")[0]; if(firstP2) firstP2.style.display="none";
+                        // Reducir padding del contenedor para eliminar espacios vacios
+                        ctaContent2.style.paddingTop = "20px";
+                        ctaContent2.style.paddingBottom = "20px";
+                        // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
                         var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
-                        var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1 || p.textContent.indexOf("Política de reserva") !== -1; });
-                        if(policyP2) policyP2.style.marginBottom = "5px !important";
+                        var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
+                        if(policyP2) policyP2.style.marginBottom = "5px";
                     }
                     
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
