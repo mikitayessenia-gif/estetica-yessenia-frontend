@@ -46,15 +46,8 @@ codigo-backup.gs
 # Admin app - contiene credenciales y logica sensible
 admin-app/
 
-# User app - copia local del frontend principal
-user-app/
-
 # Test data con credenciales de Mercado Pago
 "usuarios de mercado pago de prueba"/
 
 # Esquema de tablas Google Sheets (datos sensibles)
 "esquema de tablas google sheets"/
-
-# Archivos de documentacion interna (no necesarios para el deploy)
-DOC-SISTEMA-RESERVAS.md
-README.md
