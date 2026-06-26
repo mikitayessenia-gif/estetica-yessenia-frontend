@@ -775,7 +775,7 @@ function handleMercadoPagoReturn() {
                         successHtml += '</div></div>';
                         
                         successHtml += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;margin-bottom:16px">📅 Guardar en Google Calendar</button>';
+                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 16px auto">📅 Guardar en Google Calendar</button>';
                         successHtml += '</div>'; // cierra card principal
                         
                         senaDiv2.innerHTML = successHtml;
