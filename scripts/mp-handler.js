@@ -667,9 +667,8 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    // CORRECCIÓN AQUÍ: Cambiado el padding-bottom de 72px a 32px para equilibrar el espacio interno,
-                    // y cambiado el margin del botón abajo (de 16px a 40px) para crear el espacio solicitado.
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:24px;max-width:550px;margin:0 auto;text-align:center">'
+                    // Padding inferior aumentado a 80px para dar espacio al botón de Google Calendar (flujo Mercado Pago)
+                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 80px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
@@ -720,8 +719,7 @@ function handleMercadoPagoReturn() {
                         successHtml += '</div></div>';
                         
                         successHtml += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-                        // MARGEN DE 40PX EN EL RETORNO DE MERCADO PAGO:
-                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 40px auto">📅 Guardar en Google Calendar</button>';
+                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 20px auto">📅 Guardar en Google Calendar</button>';
                         successHtml += '</div>';
                         
                         senaDiv2.innerHTML = successHtml;
