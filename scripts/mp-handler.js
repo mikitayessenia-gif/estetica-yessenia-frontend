@@ -614,16 +614,32 @@ function handleMercadoPagoReturn() {
     hideAllSections();
 
     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
-    var h2 = document.querySelector('.cta-content h2'); if(h2) h2.style.display="none";
-    var firstP = document.querySelectorAll('.cta-content p')[0]; if(firstP) firstP.style.display="none";
+    
+    // Ocultar TODOS los elementos de .cta-content (no solo el primero)
+    var ctaContent = document.querySelector('.cta-content');
+    if(ctaContent){
+        ctaContent.style.paddingTop = '0 !important';
+        ctaContent.style.paddingBottom = '0 !important';
+        var allElements = ctaContent.querySelectorAll('h2, p, a, div');
+        allElements.forEach(function(el){ el.style.display = 'none'; });
+    }
+
+    // Ocultar toda la sección de reservas también
+    var reservarSection = document.getElementById('reservar');
+    if(reservarSection){
+        reservarSection.style.paddingTop = '0 !important';
+        reservarSection.style.paddingBottom = '0 !important';
+    }
 
     var senaDiv = document.getElementById('senaRequired');
     if (!senaDiv) {
         senaDiv = document.createElement('div');
         senaDiv.id = 'senaRequired';
-        senaDiv.style.cssText = 'display:block;';
+        senaDiv.style.cssText = 'display:block; padding: 80px 12px 40px 12px; text-align: center;';
     } else {
         senaDiv.style.display = 'block';
+        senaDiv.style.paddingTop = '80px !important';
+        senaDiv.style.paddingBottom = '40px !important';
     }
     var mainContent = document.querySelector('.cta-content');
     if (mainContent) {
