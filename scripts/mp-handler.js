@@ -1,3 +1,29 @@
+// ========== Date/Time Formatters ==========
+function formatFechaDisplay(val) {
+    if (!val) return "";
+    try {
+        var d = new Date(val);
+        if (isNaN(d.getTime())) {
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(val))) return val;
+            return val;
+        }
+        return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+    } catch(e) { return val; }
+}
+
+function formatHoraDisplay(val) {
+    if (!val) return "";
+    try {
+        var d = new Date(val);
+        if (!isNaN(d.getTime())) {
+            return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        }
+        var m = String(val).match(/(\d{1,2}):(\d{2})/);
+        if (m) return String(parseInt(m[1])).padStart(2,'0') + ':' + m[2];
+        return val;
+    } catch(e) { return val; }
+}
+
 // ========== STORAGE HELPERS: Persist active turno across page reloads ==========
 function saveActiveTurno(idTurno, minutosExpiracion) {
     try {
@@ -79,30 +105,8 @@ function restoreSenaTimerFromStorage() {
                     var nombreSuccess = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
                     var tratSuccess = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
                     
-                    var fechaSuccess = "";
-                    var horaSuccess = "";
-                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
-                        fechaSuccess = window._pendingSenaData.fecha;
-                        horaSuccess = window._pendingSenaData.hora;
-                    } else if (apiData.fecha) {
-                        try {
-                            var fechaObj2 = new Date(apiData.fecha);
-                            var day2 = String(fechaObj2.getDate()).padStart(2, '0');
-                            var month2 = String(fechaObj2.getMonth() + 1).padStart(2, '0');
-                            var year2 = fechaObj2.getFullYear();
-                            fechaSuccess = day2 + "/" + month2 + "/" + year2;
-                        } catch(e) { fechaSuccess = apiData.fecha; }
-                    }
-                    if (window._pendingSenaData && window._pendingSenaData.hora) {
-                        horaSuccess = window._pendingSenaData.hora;
-                    } else if (apiData.horaInicio) {
-                        try {
-                            var horaObj2 = new Date(apiData.horaInicio);
-                            var h2 = String(horaObj2.getHours()).padStart(2, '0');
-                            var m2 = String(horaObj2.getMinutes()).padStart(2, '0');
-                            horaSuccess = h2 + ":" + m2;
-                        } catch(e) { horaSuccess = "no definido"; }
-                    }
+                    var fechaSuccess = (window._pendingSenaData && window._pendingSenaData.fecha) ? window._pendingSenaData.fecha : (apiData.fecha ? formatFechaDisplay(apiData.fecha) : "");
+                    var horaSuccess = (window._pendingSenaData && window._pendingSenaData.hora) ? window._pendingSenaData.hora : (apiData.horaInicio ? formatHoraDisplay(apiData.horaInicio) : "no definido");
                     
                     showBookingSuccess(nombreSuccess, tratSuccess, fechaSuccess, horaSuccess);
                     return true;
@@ -138,30 +142,8 @@ function restoreSenaTimerFromStorage() {
                   var nombreSuc = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
                     var tratSuc = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
                     
-                    var fechaSuc = "";
-                    var horaSuc = "";
-                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
-                        fechaSuc = window._pendingSenaData.fecha;
-                        horaSuc = window._pendingSenaData.hora;
-                    } else if (apiData.fecha) {
-                        try {
-                            var fechaObj3 = new Date(apiData.fecha);
-                            var day3 = String(fechaObj3.getDate()).padStart(2, '0');
-                            var month3 = String(fechaObj3.getMonth() + 1).padStart(2, '0');
-                            var year3 = fechaObj3.getFullYear();
-                            fechaSuc = day3 + "/" + month3 + "/" + year3;
-                        } catch(e) { fechaSuc = apiData.fecha; }
-                    }
-                    if (window._pendingSenaData && window._pendingSenaData.hora) {
-                        horaSuc = window._pendingSenaData.hora;
-                    } else if (apiData.horaInicio) {
-                        try {
-                            var horaObj3 = new Date(apiData.horaInicio);
-                            var h3 = String(horaObj3.getHours()).padStart(2, '0');
-                            var m3 = String(horaObj3.getMinutes()).padStart(2, '0');
-                            horaSuc = h3 + ":" + m3;
-                        } catch(e) { horaSuc = "no definido"; }
-                    }
+                    var fechaSuc = (window._pendingSenaData && window._pendingSenaData.fecha) ? window._pendingSenaData.fecha : (apiData.fecha ? formatFechaDisplay(apiData.fecha) : "");
+                    var horaSuc = (window._pendingSenaData && window._pendingSenaData.hora) ? window._pendingSenaData.hora : (apiData.horaInicio ? formatHoraDisplay(apiData.horaInicio) : "no definido");
                     
                     showBookingSuccess(nombreSuc, tratSuc, fechaSuc, horaSuc);
                     return;
@@ -209,31 +191,8 @@ function restoreSenaTimerFromStorage() {
                     var storedNombre = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
                     var storedTratamiento = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
                     
-                    var storedFecha = "";
-                    var storedHora = "";
-                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
-                        storedFecha = window._pendingSenaData.fecha;
-                        storedHora = window._pendingSenaData.hora;
-                    } else if (apiData.fecha) {
-                        try {
-                            var fechaObj = new Date(apiData.fecha);
-                            var day = String(fechaObj.getDate()).padStart(2, '0');
-                            var month = String(fechaObj.getMonth() + 1).padStart(2, '0');
-                            var year = fechaObj.getFullYear();
-                            storedFecha = day + "/" + month + "/" + year;
-                        } catch(e) { storedFecha = apiData.fecha; }
-                    }
-                    if (window._pendingSenaData && window._pendingSenaData.hora) {
-                        // hora ya viene en formato HH:MM desde el frontend
-                        storedHora = window._pendingSenaData.hora;
-                    } else if (apiData.horaInicio) {
-                        try {
-                            var horaObj = new Date(apiData.horaInicio);
-                            var h = String(horaObj.getHours()).padStart(2, '0');
-                            var m = String(horaObj.getMinutes()).padStart(2, '0');
-                            storedHora = h + ":" + m;
-                        } catch(e) { storedHora = "no definido"; }
-                    }
+                    var storedFecha = (window._pendingSenaData && window._pendingSenaData.fecha) ? window._pendingSenaData.fecha : (apiData.fecha ? formatFechaDisplay(apiData.fecha) : "");
+                    var storedHora = (window._pendingSenaData && window._pendingSenaData.hora) ? window._pendingSenaData.hora : (apiData.horaInicio ? formatHoraDisplay(apiData.horaInicio) : "no definido");
                     
                     var storedMontoSena = (window._pendingSenaData && window._pendingSenaData.montoSena) ? window._pendingSenaData.montoSena : 0;
                     if (!storedMontoSena || storedMontoSena === 0) {
@@ -725,11 +684,14 @@ function handleMercadoPagoReturn() {
                 if (senaDiv2) {
                     senaDiv2.style.display = 'block';
                     
+                    // Ocultar formulario de reserva
+                    var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
+                    
                     // Usar datos del backend si están disponibles, sino fallback a localStorage
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
                     var tratSuccess = data.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : "");
-                    var fechaSuccess = data.fecha || (window._pendingSenaData ? window._pendingSenaData.fecha : "");
-                    var horaSuccess = data.horaInicio || (window._pendingSenaData ? window._pendingSenaData.hora : "");
+                    var fechaSuccess = data.fecha ? formatFechaDisplay(data.fecha) : (window._pendingSenaData ? window._pendingSenaData.fecha : "");
+                    var horaSuccess = data.horaInicio ? formatHoraDisplay(data.horaInicio) : (window._pendingSenaData ? window._pendingSenaData.hora : "");
                     
                     // Guardar para Google Calendar
                     window._bookingData = { 

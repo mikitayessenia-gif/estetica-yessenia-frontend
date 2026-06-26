@@ -520,6 +520,23 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
     var senaDiv = document.getElementById("senaRequired"); if(senaDiv) senaDiv.style.display="none";
     var apiError = document.getElementById("apiError"); if(apiError) apiError.style.display="none";
     clearActiveTurnoStorage();
+    
+    // Formatear fecha/hora si vienen en formato ISO
+    try {
+        if (fecha && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+            var fd = new Date(fecha);
+            fecha = String(fd.getDate()).padStart(2,'0') + '/' + String(fd.getMonth()+1).padStart(2,'0') + '/' + fd.getFullYear();
+        }
+        if (hora && hora.indexOf(':') === -1) {
+            var hd = new Date(hora);
+            if (!isNaN(hd.getTime())) {
+                hora = String(hd.getHours()).padStart(2,'0') + ':' + String(hd.getMinutes()).padStart(2,'0');
+            }
+        } else if (hora && hora.indexOf(':') > 0) {
+            var hm = hora.match(/(\d{1,2}):(\d{2})/);
+            if (hm) hora = String(parseInt(hm[1])).padStart(2,'0') + ':' + hm[2];
+        }
+    } catch(e) {}
     showAllSections();
     clearReservaFlowFlag();
     var successDiv = document.getElementById("bookingSuccess");
