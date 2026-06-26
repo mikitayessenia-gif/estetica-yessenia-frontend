@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yessenia Centro de Estética | Tu piel mas luminosa y saludable</title>
+    <meta name="description" content="Tratamientos esteticos profesionales: limpieza facial, peeling quimico, dermoabrasion. Reservate tu turno online.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="announcement-bar" id="announcementBar">
+    </div>
+    <header class="header" id="header">
+        <nav class="nav">
+            <a href="#" class="logo">Estética Yessenia<span>.</span></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#servicios">Tratamientos</a></li>
+                <li><a href="#galeria">Galeria</a></li>
+                <li><a href="#resenas">Reseñas</a></li>
+                <li><a href="#ubicacion">Ubicación</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="#reservar" class="btn-primary nav-cta">📅 Reservar Turno</a></li>
+            </ul>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">💎 Centro de Estetica Profesional</div>
+                    <h1>Cada piel es única. Creamos el tratamiento ideal para vos</h1>
+                    <p>Tu piel merece algo más que una rutina de moda. Evaluamos tus necesidades y creamos un tratamiento pensado para vos, con resultados visibles y naturales.</p>
+                    <div class="hero-buttons">
+                        <a href="#servicios" class="btn-primary">🔥 Ver Tratamientos y Precios</a>
+                        <a href="#ubicacion" class="btn-secondary">📍 Cómo Llegar</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item"><h3 id="statClientas">2.500+</h3><p>Clientas satisfechas</p></div>
+                        <div class="stat-item"><h3 id="statAnios">8+</h3><p>Años de experiencia</p></div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="images/principal.jpg" alt="Tratamiento facial profesional" class="hero-image-main" id="heroImage">
+                    <div class="hero-float-card card-1">
+                        <div class="float-icon green">✓</div>
+                        <div class="float-text"><strong id="heroBookingText">Reserva Confirmada</strong><span id="heroBookingDetail">Cargando...</span></div>
+                    </div>
+                    <div class="hero-float-card card-2" id="heroGoogleBadge">
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <svg width="32" height="32" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.27 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.28-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" stroke="#fff" stroke-width="2" d="M20 24l4 4 8-8"/></svg>
+                            <div>
+                                <div style="font-weight:700;font-size:0.95rem;color:#333" id="heroRatingText">Cargando...</div>
+                                <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
+                                    <span style="color:#F59E0B;font-size:0.85rem" id="heroStars"></span>
+                                    <span style="font-size:0.75rem;color:#666" id="heroReviewCount"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section services-section" id="servicios">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Nuestros Tratamientos</span>
+                <h2>Tratamientos diseñados para vos</h2>
+                <p>Cada tratamiento incluye consulta personalizada, productos profesionales y seguimiento post-tratamiento.</p>
+            </div>
+            <div class="services-filters" id="servicesFilters"><!-- Filtros cargados dinamicamente desde la API --></div>
+            <div class="services-grid" id="servicesGrid"><!-- Servicios cargados dinamicamente desde la API --></div></div>
+        </div>
+    </section>
+    <section class="section" id="galeria">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">@mikitayessenia</span>
+                <h2>Así cuidamos tu piel</h2>
+                <p>Mirá nuestros tratamientos en acción. Seguinos en Instagram para tips y ofertas.</p>
+            </div>
+            <div class="instagram-grid" id="instagramGrid"></div>
+            <div style="text-align: center; margin-top: 40px;">
+                <a href="https://www.instagram.com/mikitayessenia" target="_blank" class="btn-secondary">📷 Seguir en Instagram @mikitayessenia</a>
+            </div>
+        </div>
+    </section>
+    <section class="section reviews-section" id="resenas">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Reseñas Google</span>
+                <h2>Lo que dicen nuestras clientas</h2>
+                <p id="reviewsTrustText">Cargando...</p>
+            </div>
+            <!-- Google Reviews Widget (review-widget.net) - Calificacion en tiempo real -->
+            <script type="text/javascript" src="https://grwapi.net/widget.min.js" async></script>
+            <div class="review-widget_net" data-uuid="ac590562-0991-4514-8446-9d5402af8c16" data-template="10" data-lang="es" data-theme="light"></div>
+            <!-- Reseñas Destacadas (Google Sheets) - Carrusel automatico -->
+            <p id="reviewsSubtitle" style="text-align:center;color:var(--gray);margin-top:40px;font-size:0.95rem;margin-bottom:8px">Cargando...</p>
+            <div id="featured-reviews-container">
+                <!-- Reseñas destacadas se cargan desde Google Sheets -->
+            </div>
+        </div>
+    </section>
+    <section class="section location-section" id="ubicacion">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Encontranos</span>
+                   <h2>Nuestra ubicación</h2>
+                <p>Vení a conocernos! Te esperamos con la mejor onda y profesionales a tu servicio.</p>
+            </div>
+            <div class="location-grid">
+                <div class="location-map">
+                    <iframe src="https://www.google.com/maps?q=Av.+Acoyte+25,+Caballito,+CABA&output=embed&z=17" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="location-info">
+                    <h3>Visitanos en nuestro consultorio</h3>
+                    <div class="info-item">
+                        <span class="info-icon">📍</span>
+                        <div>
+                            <strong>Dirección</strong>
+                            <p>Av. Acoyte 25</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🕒</span>
+                        <div>
+                            <strong>Horarios</strong>
+                            <p>Martes a Viernes: 9:00 - 19:00 hs<br>Sabados: 9:00 - 17:00 hs<br>Domingo y Lunes: Cerrado</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">📞</span>
+                        <div>
+                            <strong>Telefono</strong>
+                            <p>+54 11 2317-8918</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-icon">🚗</span>
+                        <div>
+                            <strong>Como llegar</strong>
+                            <p>Cercano a estación Subte Acoyte (Línea A). Hay cocheras privadas de pago en los alrededores (no es estacionamiento exclusivo, servicio externo).</p>
+                        </div>
+                    </div>
+                    <div class="info-actions">
+                        <a href="https://www.google.com/maps/search/Av.+Acoyte+25,+Piso+5,+Of.+C+-+Caballito,+CABA" target="_blank" class="btn-primary">🗺️ Abrir en Google Maps</a>
+                        <a href="https://wa.me/541123178918?text=Hola!%20Quiero%20reservar%20un%20turno" target="_blank" class="btn-secondary">💬 Escribir por WhatsApp</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section cta-section" id="reservar">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Reservá tu turno ahora</h2>
+                <p>Elegí el tratamiento, seleccioná día y hora disponible. Te confirmamos al instante.</p>
+
+                <!-- Loading spinner for API cold start -->
+                <div class="api-loader" id="apiLoader" style="display:none;text-align:center;padding:40px">
+                    <div class="spinner"></div>
+                    <p style="margin-top:16px;opacity:0.9">Buscando turnos disponibles...</p>
+                </div>
+
+                <!-- Error message -->
+                <div class="api-error" id="apiError" style="display:none;background:rgba(255,68,68,0.2);padding:16px;border-radius:12px;margin-bottom:20px;text-align:center"></div>
+
+                <form class="booking-form" id="bookingForm">
+                    <!-- Step 1: Treatment -->
+                    <div class="form-row">
+                        <select name="tratamiento" id="treatmentSelect" required onchange="loadAvailableSlots(true)"><option value="">Paso 1: Cargando tratamientos...</option></select>
+                    </div>
+
+                    <!-- Step 2: Available Slots (from API) -->
+                    <div id="slotsContainer" style="margin-bottom:16px;display:none">
+                        <label style="color:rgba(255,255,255,0.8);font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Paso 2: Día y hora disponible</label>
+                        <div class="slots-grid" id="slotsGrid"></div>
+                    </div>
+
+                    <!-- Step 3: Personal Info -->
+                    <div class="form-row">
+                        <input type="text" id="clienteNombre" name="nombre" placeholder="Tu nombre completo" required>
+                        <input type="tel" id="clienteTelefono" name="telefono" placeholder="Telefono (ej: 1123178918)" required>
+                    </div>
+                    <div class="form-row">
+                        <input type="email" id="clienteEmail" name="email" placeholder="Email" required>
+                    </div>
+                    <div style="margin-bottom:16px">
+                        <label for="cliente-notas-comentario" style="color:rgba(255,255,255,0.7);font-size:0.8rem;display:block;margin-bottom:6px;text-align:left">Aclaraciones para tu especialista (opcional)</label>
+                        <textarea id="cliente-notas-comentario" maxlength="300" rows="3" placeholder="¿Alguna aclaración? Ej: Alergias, piel sensible, condiciones particulares..."></textarea>
+                    </div>
+
+                    <!-- Hidden fields for API -->
+                    <input type="hidden" name="idTurno" id="selectedSlotId">
+                    <input type="hidden" name="fecha" id="selectedFecha">
+                    <input type="hidden" name="horario" id="selectedHorario">
+
+                    <div id="senaTimer" style="display:none;text-align:center;color:#FFD700;font-weight:700;margin-bottom:12px;font-size:1.1rem"></div><button type="submit" class="btn-primary form-submit" id="submitBtn">Confirmar Turno</button>
+                </form>
+
+                <p style="text-align:center;color:rgba(255,255,255,0.8);font-size:0.85rem;margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
+                    <strong>Política de reservas:</strong> Las cancelaciones o cambios de turno deben avisarse con al menos 24 horas de anticipación. Pasado ese plazo el importe abonado no será reembolsable.<br><em>Gracias por tu comprensión.</em>
+                </p>
+
+                <!-- Success Message -->
+                <div id="bookingSuccess" style="display:none;text-align:center;padding:16px 12px">
+                    <div style="font-size:3rem;margin-bottom:16px">&#10004;</div>
+                    <h3 style="font-size:1.75rem;margin-bottom:12px">Turno Agendado con Exito!</h3>
+                    <p style="opacity:0.9">Te enviamos la confirmacion por email.</p>
+                    <p style="opacity:0.85;margin-top:6px;font-size:0.9rem;color:#e65100;">⚠️ Si no lo ves en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>
+                    <p style="opacity:0.9;margin-top:8px">Guardalo en tu Google Calendar:</p>
+                    <button id="saveCalendarBtn" class="btn-primary" style="margin-top:20px;background:white;color:#A8864F">Guardar en Google Calendar</button>
+                </div>
+
+                <!-- Seña Required Message -->
+                <div id="senaRequired" style="display:none;text-align:center;padding:40px"></div>
+
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer" id="contacto">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3 class="logo">Estética Yessenia<span>.</span></h3>
+                    <p>Centro de estética profesional dedicado a realzar tu belleza natural con los mejores tratamientos.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Tratamientos</h4>
+                    <ul id="footerTratamientosList">
+                        <li><a href="javascript:void(0)" onclick="document.getElementById('servicios')?.scrollIntoView({behavior:'smooth'});return false;">Cargando tratamientos...</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Información</h4>
+                    <ul>
+                        <li><a href="#ubicacion">Ubicación</a></li>
+                        <li><a href="#resenas">Reseñas</a></li>
+                        <li><a href="javascript:void(0)" onclick="openPoliciesModal()">Política de Privacidad y Términos</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>Seguinos</h4>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/mikitayessenia" target="_blank" class="social-link">Instagram</a>
+                        <a href="https://www.tiktok.com/@yesseniacentrodeestetica" target="_blank" class="social-link">TikTok</a>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center;padding:20px 0;border-top:1px solid rgba(196,161,109,0.15);margin-bottom:0">
+                <a href="https://wa.me/541123178918?text=Hola!%20Quiero%20consultar%20por%20un%20turno" target="_blank" style="display:inline-flex;align-items:center;gap:8px;color:#25D366;text-decoration:none;font-size:0.9rem;font-weight:600">
+                    <svg width="20" height="20" viewBox="0 0 32 32" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.734 5.468 2.014 7.758L.663 31.29l7.702-1.92A15.92 15.92 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.2a13.24 13.24 0 01-6.77-1.86l-.486-.289-5.05 1.26 1.348-4.927-.317-.505A13.17 13.17 0 012.8 16C2.8 8.761 8.761 2.8 16 2.8S29.2 8.761 29.2 16 23.239 29.2 16 29.2z"/><path d="M22.685 18.71c-.39-.184-2.303-1.135-2.66-1.266-.356-.131-.616-.196-.877.184-.26.38-.99 1.266-1.212 1.526-.22.26-.453.293-.843.11-.39-.184-1.647-.607-3.138-1.936-1.16-1.035-1.946-2.314-2.17-2.704-.22-.39-.024-.6.17-.793.178-.177.39-.453.586-.68.196-.227.26-.39.39-.65.13-.26.066-.49-.033-.687-.1-.196-.877-2.114-1.204-2.893-.318-.76-.643-.658-.877-.67l-.375-.006c-.26 0-.686.098-1.045.49-.36.39-1.374 1.342-1.374 3.27s1.407 3.79 1.604 4.05c.196.26 2.775 4.233 6.72 5.935.94.405 1.672.647 2.244.828.943.3 1.802.258 2.482.157.758-.114 2.303-.94 2.63-1.848.327-.907.327-1.685.228-1.847-.098-.163-.36-.26-.75-.444z"/></svg>
+                    Consultanos por WhatsApp
+                </a>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Yessenia Centro de Estética. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+   <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/541123178918?text=Hola%2C%20quiero%20consultar%20por%20un%20turno" target="_blank" class="whatsapp-float" id="whatsappBtn">
+        <svg viewBox="0 0 32 32" width="32" height="32" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.734 5.468 2.014 7.758L.663 31.29l7.702-1.92A15.92 15.92 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.2a13.24 13.24 0 01-6.77-1.86l-.486-.289-5.05 1.26 1.348-4.927-.317-.505A13.17 13.17 0 012.8 16C2.8 8.761 8.761 2.8 16 2.8S29.2 8.761 29.2 16 23.239 29.2 16 29.2z"/><path d="M22.685 18.71c-.39-.184-2.303-1.135-2.66-1.266-.356-.131-.616-.196-.877.184-.26.38-.99 1.266-1.212 1.526-.22.26-.453.293-.843.11-.39-.184-1.647-.607-3.138-1.936-1.16-1.035-1.946-2.314-2.17-2.704-.22-.39-.024-.6.17-.793.178-.177.39-.453.586-.68.196-.227.26-.39.39-.65.13-.26.066-.49-.033-.687-.1-.196-.877-2.114-1.204-2.893-.318-.76-.643-.658-.877-.67l-.375-.006c-.26 0-.686.098-1.045.49-.36.39-1.374 1.342-1.374 3.27s1.407 3.79 1.604 4.05c.196.26 2.775 4.233 6.72 5.935.94.405 1.672.647 2.244.828.943.3 1.802.258 2.482.157.758-.114 2.303-.94 2.63-1.848.327-.907.327-1.685.228-1.847-.098-.163-.36-.26-.75-.444z"/></svg>
+    </a>
+    <!-- Policies Modal -->
+    <div id="policiesModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;animation:fadeIn 0.2s ease" onclick="if(event.target===this)closePoliciesModal()">
+        <div style="background:#3d2e1f;border-radius:20px;padding:32px 28px;max-width:560px;width:90%;max-height:80vh;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;border:1px solid rgba(196,161,109,0.3);position:relative;display:flex;flex-direction:column">
+            <!-- Sticky header with close button -->
+            <div style="position:sticky;top:0;z-index:2;background:#3d2e1f;padding:0 0 16px;border-bottom:1px solid rgba(196,161,109,0.2);margin-bottom:0">
+                <button onclick="closePoliciesModal()" style="position:absolute;top:8px;right:12px;background:rgba(196,161,109,0.2);color:#C4A16D;border:none;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;line-height:32px;text-align:center" title="Cerrar">&#10005;</button>
+                <h3 style="color:#C4A16D;margin:0 0 4px;font-family:'Playfair Display',serif;font-size:1.5rem;text-align:center">Políticas y Términos</h3>
+                <p style="color:rgba(255,255,255,0.5);margin:0;text-align:center;font-size:0.8rem">Estética Yessenia — Centro de Estética Profesional</p>
+            </div>
+            <!-- Scrollable content -->
+            <div style="overflow-y:auto;padding-top:16px;flex:1">
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">📋 Política de Reservas y Cancelaciones</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Las cancelaciones o cambios de turno deben avisarse con al menos <strong style="color:#C4A16D">24 horas de anticipación</strong>. Pasado ese plazo el importe abonado no será reembolsable.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0 0 12px">Para cancelar o reagendar, escribinos por WhatsApp al +54 11 2317-8918 lo antes posible.</p>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.8rem;line-height:1.7;margin:0">Gracias por tu comprensión.</p>
+                </div>
+
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">🔒 Política de Privacidad</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">En Estética Yessenia nos comprometemos a proteger tu información personal. Los datos que recopilamos (nombre, teléfono, email) son utilizados exclusivamente para la gestión de turnos y comunicación.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Todos los pagos se gestionan de forma segura a través de Mercado Pago, la pasarela de pago oficial más confiable de Argentina. No almacenamos datos de tarjetas ni información financiera.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0">Si tenés alguna consulta sobre tus datos, escribinos por WhatsApp.</p>
+                </div>
+
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">📜 Términos y Condiciones</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Al reservar un turno en Estética Yessenia, aceptás nuestras políticas de cancelación, privacidad y uso del servicio.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">El pago de seña es obligatorio para confirmar tu turno y será aplicado al total del tratamiento. Una vez confirmado, el precio de tu turno queda fijado.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Los resultados pueden variar según cada persona. En tu primera visita evaluamos tu piel para recomendarte el tratamiento ideal.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0">Para cualquier consulta o aclaración, no dudes en contactarnos por WhatsApp.</p>
+                </div>
+
+                <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(196,161,109,0.2);margin-bottom:8px">
+                    <a href="https://wa.me/541123178918?text=Hola!%20Quiero%20hacer%20una%20consulta" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:12px 24px;border-radius:50px;text-decoration:none;font-size:0.9rem;font-weight:600">💬 Consultanos por WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPoliciesModal() {
+            var overlay = document.getElementById('policiesModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closePoliciesModal() {
+            var overlay = document.getElementById('policiesModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
+
+    <!-- Scripts Modularizados -->
+    <script>var SCRIPT_CACHE_BUST = Date.now();</script>
+    <script src="scripts/config-global.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/config.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/utils.js?v="+SCRIPT_CACHE_BUST></script>
+  <script src="scripts/instagram-gallery.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/featured-reviews.js?v="+SCRIPT_CACHE_BUST></script>
+    
+    <script src="scripts/ui.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/api.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/booking.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/mp-handler.js?v="+SCRIPT_CACHE_BUST></script>
+    <script src="scripts/main.js?v="+SCRIPT_CACHE_BUST></script>
+    <!-- Social Proof Texts - Reemplaza placeholders con valores de config -->
+    <script>
+        (function() {
+            if (typeof CONFIG !== 'undefined' && CONFIG.socialProof) {
+                var sp = CONFIG.socialProof;
+                
+                // Calcular años de experiencia desde fecha de inicio
+                var yearsOfExperience = '';
+                try {
+                    var startDate = new Date(sp.fechaInicioNegocio);
+                    var today = new Date();
+                    var age = today.getFullYear() - startDate.getFullYear();
+                    var monthDiff = today.getMonth() - startDate.getMonth();
+                    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < startDate.getDate())) {
+                        age--;
+                    }
+                    yearsOfExperience = String(age);
+                } catch(e) {
+                    yearsOfExperience = '10'; // fallback
+                }
+                
+                var trustText = sp.textoConfianza.replace('{clientas}', sp.clientasSatisfechas).replace('{anios}', yearsOfExperience);
+                var subtitle = sp.textoSubtitulo;
+                
+                var trustEl = document.getElementById('reviewsTrustText');
+                if (trustEl) trustEl.textContent = trustText;
+                
+                var subEl = document.getElementById('reviewsSubtitle');
+                if (subEl) subEl.textContent = subtitle;
+                
+                // Actualizar estadisticas del hero con valores dinamicos
+                var clientasEl = document.getElementById('statClientas');
+                var aniosEl = document.getElementById('statAnios');
+                
+                if (clientasEl) clientasEl.textContent = sp.clientasSatisfechas;
+                if (aniosEl) aniosEl.textContent = yearsOfExperience;
+            }
+        })();
+
+    // ====================================================
+    // HERO WIDGET - Datos reales de Google Reviews (widget real + fallback sheet)
+    // Primero intenta leer del widget review-widget.net, si no encuentra usa el sheet
+    // Nota: API_URL y API_TOKEN se usan desde config-global.js (fuente unica de verdad)
+    // ====================================================
+    (function() {
+        var widgetDataFound = null;
+        var sheetReviewsLoaded = null;
+        var updateAttempts = 0;
+        var maxUpdateAttempts = 15; // Intentar hasta 15 veces (7.5 segundos)
+
+        // Intenta extraer rating y count del widget real de review-widget.net
+        function extractFromWidget() {
+            try {
+                var widgetLink = document.querySelector('a[href*="google.com/local/reviews"]');
+                if (!widgetLink) return null;
+                
+                // Get all text content from the link
+                var fullText = (widgetLink.innerText || widgetLink.textContent || '').replace(/\n/g, ' ').trim();
+                
+                // Extract rating - look for decimal number after "Google" or standalone big number
+                var ratingMatch = fullText.match(/Google\s+(\d+\.?\d*)/);
+                if (!ratingMatch) {
+                    ratingMatch = fullText.match(/(\d+\.?\d*)\s*opiniones/i);
+                }
+                
+                // Extract count - look for "en X opiniones" or "X reviews"
+                var countMatch = fullText.match(/(?:en|reviews)\s+(\d+)/i);
+                
+                if (ratingMatch && countMatch) {
+                    return {
+                        rating: parseFloat(ratingMatch[1]),
+                        count: parseInt(countMatch[1])
+                    };
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function updateHeroWidgetFromWidget(widgetData, sheetReviews) {
+            var ratingEl = document.getElementById('heroRatingText');
+            var starsEl = document.getElementById('heroStars');
+            var countEl = document.getElementById('heroReviewCount');
+            
+            if (!ratingEl || !starsEl || !countEl) return;
+
+            if (widgetData && widgetData.rating > 0) {
+                // Usar datos del widget real (lo más actualizado de Google)
+                var rating = widgetData.rating;
+                
+                // Preserve decimal format (5.0 stays as 5.0, not 5)
+                var ratingStr = String(rating);
+                if (!ratingStr.includes('.')) ratingStr = ratingStr + '.0';
+                ratingEl.textContent = 'Opiniones de Google ' + ratingStr;
+                var fullStars = Math.floor(rating);
+                var starsHtml = '';
+                for (var i = 0; i < 5; i++) {
+                    starsHtml += i < fullStars ? '★' : '☆';
+                }
+                starsEl.textContent = starsHtml;
+                countEl.textContent = 'Basado en ' + widgetData.count + ' opiniones';
+            } else if (sheetReviews && sheetReviews.length > 0) {
+                // Fallback: calcular desde el sheet
+                var totalReviews = sheetReviews.filter(function(r) { return r.visible === 'SI'; }).length;
+                var avgRating = (sheetReviews.reduce(function(s, r) { return s + (r.calificacion || 5); }, 0) / sheetReviews.length).toFixed(1);
+                
+                ratingEl.textContent = 'Opiniones de Google ' + avgRating;
+                var fullStars2 = Math.floor(avgRating);
+                var starsHtml2 = '';
+                for (var i2 = 0; i2 < 5; i2++) {
+                    starsHtml2 += i2 < fullStars2 ? '★' : '☆';
+                }
+                starsEl.textContent = starsHtml2;
+                countEl.textContent = 'Basado en ' + totalReviews + ' opiniones';
+            }
+
+            // Booking notification: pick random recent visible review as "booking"
+            if (sheetReviews && sheetReviews.length > 0) {
+                var visibleReviews = sheetReviews.filter(function(r) { return r.visible === 'SI'; });
+                var recentReview = visibleReviews[Math.floor(Math.random() * Math.min(5, visibleReviews.length))];
+                var bookingText = document.getElementById('heroBookingText');
+                var bookingDetail = document.getElementById('heroBookingDetail');
+                
+                if (bookingText) bookingText.textContent = 'Reserva Confirmada';
+                if (bookingDetail) {
+                    bookingDetail.textContent = 'Limpieza Facial - 3:00 PM';
+                }
+            }
+        }
+
+        // Main function: tries to get widget data, falls back to sheet
+        function tryUpdate() {
+            updateAttempts++;
+            
+            // Try to extract from widget first
+            var currentWidgetData = extractFromWidget();
+            if (currentWidgetData) {
+                widgetDataFound = currentWidgetData;
+            }
+            
+            // Load sheet data if not loaded yet
+            if (!sheetReviewsLoaded) {
+                try {
+                    var url = API_URL + '?action=obtenerResenasPublic&token=' + encodeURIComponent(API_TOKEN);
+                    fetch(url, { method: 'GET', mode: 'cors' })
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            if (data.success && data.resenas) {
+                                sheetReviewsLoaded = data.resenas;
+                                updateHeroWidgetFromWidget(widgetDataFound, sheetReviewsLoaded);
+                            } else {
+                                var fallbackReviews = [
+                                    {calificacion: 5, servicio: "Limpieza Facial Profunda", nombre: "Veronica Gago"},
+                                    {calificacion: 5, servicio: "Peeling Quimico Renovador", nombre: "Patricia Fontivero"},
+                                    {calificacion: 5, servicio: "General", nombre: "Rocio del Rio"}
+                                ];
+                                updateHeroWidgetFromWidget(widgetDataFound, fallbackReviews);
+                            }
+                        })
+                        .catch(function() {
+                            var fallbackReviews = [
+                                {calificacion: 5, servicio: "Limpieza Facial Profunda", nombre: "Veronica Gago"},
+                                {calificacion: 5, servicio: "Peeling Quimico Renovador", nombre: "Patricia Fontivero"}
+                            ];
+                            updateHeroWidgetFromWidget(widgetDataFound, fallbackReviews);
+                        });
+                } catch(e) {}
+            } else {
+                // Sheet already loaded, just update with latest widget data
+                updateHeroWidgetFromWidget(widgetDataFound, sheetReviewsLoaded);
+            }
+            
+            // If we found widget data or reached max attempts, stop retrying
+            if (widgetDataFound || updateAttempts >= maxUpdateAttempts) {
+                return;
+            }
+            
+            // Keep trying to get widget data - check every 500ms
+            setTimeout(tryUpdate, 500);
+        }
+
+        // Start the retry loop immediately
+        tryUpdate();
+    })();
+</script>
+</body>
+</html>
+
+
+

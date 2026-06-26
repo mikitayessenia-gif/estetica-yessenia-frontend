@@ -46,6 +46,9 @@ codigo-backup.gs
 # Admin app - contiene credenciales y logica sensible
 admin-app/
 
+# User app - copia local de referencia (NO usar para deploy, la app va en raiz)
+user-app/
+
 # Test data con credenciales de Mercado Pago
 "usuarios de mercado pago de prueba"/
 
