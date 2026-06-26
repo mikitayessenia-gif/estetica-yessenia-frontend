@@ -592,7 +592,56 @@ function handleMercadoPagoReturn() {
     var externalRef = params.get('external_reference');
     var preferenceId = params.get('preference_id');
 
-    if (!collectionId || !status) return false;
+    if (!collectionId || !status) {
+        // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
+        // NO hay pago que comprobar — simplemente limpiamos y redirigimos
+        clearActiveTurnoStorage();
+        if(window._senaTimerId) clearInterval(window._senaTimerId);
+        
+        releaseTempReservation();
+
+        var senaDivNoParams = document.getElementById('senaRequired');
+        if (!senaDivNoParams) {
+            senaDivNoParams = document.createElement('div');
+            senaDivNoParams.id = 'senaRequired';
+            senaDivNoParams.style.display = 'block';
+        } else {
+            senaDivNoParams.style.display = 'block';
+        }
+
+        senaDivNoParams.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+            + '<div style="font-size:3rem;margin-bottom:16px">🚫</div>'
+            + '<h3 style="color:#FFD700;margin-bottom:8px">Pago Cancelado</h3>'
+            + '<p>No completaste el pago en Mercado Pago. Tu turno fue liberado porque expiro el tiempo de reserva.</p>'
+            + '<p id="redirectMsgNP" style="opacity:0.6;font-size:0.85rem;margin:20px 0;letter-spacing:1px;text-transform:uppercase">↻ Redirigiendo a la página principal en <span id="countdownNP">8</span>s</p>'
+            + '<button id="btnElegirOtroTurnoNP" style="display:inline-block;margin:8px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+
+        var redirectCountdownNP = 8;
+        
+        var redirectTimerNP = setInterval(function(){
+            redirectCountdownNP--;
+            var countdownSpan = document.getElementById('countdownNP');
+            if(countdownSpan) {
+                countdownSpan.textContent = redirectCountdownNP;
+            }
+            if(redirectCountdownNP <= 0) {
+                clearInterval(redirectTimerNP);
+                window.location.href = '/';
+            }
+        }, 1000);
+
+        setTimeout(function(){
+            var btnOtroNP = document.getElementById('btnElegirOtroTurnoNP');
+            if(btnOtroNP) {
+                btnOtroNP.addEventListener('click', function(){
+                    clearInterval(redirectTimerNP);
+                    window.location.href = '/';
+                });
+            }
+        }, 100);
+
+        return false;
+    }
 
     if (!externalRef) {
         var storedTurno = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
