@@ -1,8 +1,8 @@
 # === NO SUBIR ESTO A GITHUB ===
 
 # Archivos locales (backend, admin, configs sensibles)
-# Estos archivos viven en ._local/ y no se trackean por git
-._local/
+# Estos archivos viven en _local/ y no se trackean por git
+_local/
 
 # Editor / IDE
 .vscode/

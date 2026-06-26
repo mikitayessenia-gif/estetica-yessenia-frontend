@@ -1,147 +1,125 @@
-# Estructura del Proyecto - Estética Yessenia
+﻿# Estructura del Proyecto - Estetica Yessenia
 
-## 🚀 DEPLOYMENT ACTUAL (GitHub Pages)
+## DESPLIEGUE ACTUAL (GitHub Pages)
 
-**Fuente:** Raíz del repositorio (`main` branch) — **NO se puede usar otra carpeta**
+**Fuente:** Raiz del repositorio (main branch)
 **URL:** https://esteticamikitayessenia.ar/
-**Custom Domain:** `CNAME` → `esteticamikitayessenia.ar`
+**Custom Domain:** CNAME -> esteticamikitayessenia.ar
 
-### ⚠️ LIMITACIÓN DE GITHUB PAGES:
-GitHub Pages solo permite desplegar desde `/ (root)` o `/docs`. **NO permite seleccionar carpetas arbitrarias como `/user-app/`**. Por eso la app vive en la raíz.
-
-### Archivos que se despliegan:
-```
-/                          ← GitHub Pages sirve desde aquí (branch main)
-├── index.html             ← Página principal con formulario de reservas
-├── styles.css             ← Estilos CSS globales
-├── scripts/               ← Todos los JS del frontend
-│   ├── api.js             ← Comunicación con Google Apps Script backend
-│   ├── booking.js         ← Flujo de reservas (éxito, calendar, etc.)
-│   ├── mp-handler.js      ← Handler de Mercado Pago (retorno, seña)
-│   ├── config-global.js   ← Variables globales (API_URL, API_TOKEN)
-│   ├── config.js          ← Configuración de tratamientos, precios, horarios
-│   ├── featured-reviews.js← Carrusel de reseñas destacadas
-│   ├── google-reviews-config.js ← Config del widget Google Reviews
-│   ├── google-reviews.js  ← Widget de reviews de Google
-│   ├── instagram-gallery.js← Galería Instagram embed
-│   ├── main.js            ← Lógica principal (menu, header, etc.)
-│   ├── ui.js              ← Componentes UI dinámicos
-│   └── utils.js           ← Funciones utilitarias
+### Archivos que se despliegan (desde raiz):
+`
+/                          <- GitHub Pages sirve desde aqui (branch main)
+├── index.html             <- Pagina principal con formulario de reservas
+├── styles.css             <- Estilos CSS globales
+├── scripts/               <- Todos los JS del frontend
+│   ├── api.js             <- Comunicacion con Google Apps Script backend
+│   ├── booking.js         <- Flujo de reservas (exito, calendar, etc.)
+│   ├── mp-handler.js      <- Handler de Mercado Pago (retorno, sena)
+│   ├── config-global.js   <- Variables globales (API_URL, API_TOKEN)
+│   ├── config.js          <- Configuracion de tratamientos, precios, horarios
+│   ├── featured-reviews.js<- Carrusel de reseñas destacadas
+│   ├── google-reviews-config.js <- Config del widget Google Reviews
+│   ├── google-reviews.js  <- Widget de reviews de Google
+│   ├── instagram-gallery.js<- Galeria Instagram embed
+│   ├── main.js            <- Logica principal (menu, header, etc.)
+│   ├── ui.js              <- Componentes UI dinamicos
+│   └── utils.js           <- Funciones utilitarias
 ├── images/
-│   └── principal.jpg      ← Imagen hero principal
-├── .gitignore             ← Archivos excluidos del repositorio
-└── CNAME                  ← Dominio personalizado
-```
+│   └── principal.jpg      <- Imagen hero principal
+├── .gitignore             <- Archivos excluidos del repositorio
+└── CNAME                  <- Dominio personalizado
+`
 
 ---
 
-## 📁 Estructura completa del proyecto local
+## ESTRUCTURA LOCAL COMPLETA
 
-### Raíz - Archivos que van a GitHub (frontend + config):
-| Qué | Para qué |
-|-----|----------|
-| `index.html`, `styles.css` | Frontend principal (se despliega) |
-| `scripts/` | JavaScript del frontend (se despliega) |
-| `images/` | Imágenes estáticas (se despliega) |
-| `.gitignore`, `CNAME` | Configuración de git y dominio |
+### Raiz - Lo que se sube a GitHub (frontend):
+| Archivo/Carpeta | Uso |
+|-----------------|-----|
+| index.html | Pagina principal con formulario de reservas |
+| styles.css | Estilos CSS globales |
+| scripts/ | JavaScript del frontend (12 archivos) |
+| images/ | Imagen hero principal |
+| .gitignore | Reglas de git (que ignorar) |
+| CNAME | Dominio personalizado |
 
-### Raíz - Archivos que NO van a GitHub:
-| Qué | Dónde | Por qué no va a GitHub | En `.gitignore`? |
-|-----|-------|----------------------|------------------|
-| `codigo.gs` | Raíz | Backend Google Apps Script - tokens API, URLs secretas, credenciales | ✅ Sí (líneas 40-42) |
-| `admin-app/` | Raíz | Panel administrativo - contiene lógica y credenciales sensibles | ✅ Sí (línea 45) |
-| `user-app/` | Raíz | **Copia local de referencia** — misma app que en la raíz, pero ignorada por git. Útil para tener una versión limpia sin archivos sensibles mezclados. | ✅ Sí (línea 48) |
-| `usuarios de mercado pago de prueba/` | Raíz | Datos de test de Mercado Pago (emails, contraseñas) | ✅ Sí (línea 51) |
-| `esquema de tablas google sheets/` | Raíz | Esquema de tablas Google Sheets con datos sensibles | ✅ Sí (línea 54) |
+### Raiz - Lo que NO se sube a GitHub:
+| Archivo/Carpeta | Uso | En .gitignore? |
+|-----------------|-----|------------------|
+| _local/ | Carpeta con TODO lo local (backend, admin, docs) | Si (linea 6) |
 
----
-
-## 🔄 user-app/ — ¿Qué es y para qué sirve?
-
-**user-app/** es una **copia local idéntica a la raíz** que se mantiene como referencia. Contiene exactamente los mismos archivos frontend (`index.html`, `styles.css`, `scripts/`, `images/`) pero está ignorada por git.
-
-### ¿Para qué sirve?
-- Tener una copia limpia de solo el frontend (sin `.gs`, sin admin, sin datos sensibles mezclados)
-- Referencia rápida sin tener que buscar en medio de archivos de configuración
-- Backup local del frontend desplegable
-
-### ¿Se usa para deployment?
-**NO.** La app se despliega desde la raíz (`/`). user-app/ es solo referencia local.
+### Dentro de _local/:
+| Archivo/Carpeta | Uso |
+|-----------------|-----|
+| codigo.gs | Backend Google Apps Script - tokens API, URLs secretas, credenciales |
+| dmin-app/ | Panel administrativo - contiene logica y credenciales sensibles |
+| README.md | Documentacion general del proyecto |
+| NOTAS-PROYECTO.md | Esta documentacion de estructura del proyecto |
+| DOC-SISTEMA-RESERVAS.md | Documentacion interna del sistema de reservas |
+| "usuarios de mercado pago de prueba"/ | Datos de test de Mercado Pago (emails, passwords) |
+| "esquema de tablas google sheets"/ | Esquema de tablas Google Sheets con datos sensibles |
 
 ---
 
-## 🔒 Archivos SENSIBLES (NUNCA subir a GitHub)
-
-Estos archivos contienen credenciales y NUNCA deben estar en el repositorio:
-
-| Archivo | Qué contiene | Riesgo si se sube |
-|---------|-------------|-------------------|
-| `codigo.gs` | Tokens de Mercado Pago, API keys, URLs secretas de Google Sheets | Exposición total del backend |
-| `admin-app/` | Credenciales de admin panel | Acceso no autorizado al panel |
-| `usuarios de mercado pago de prueba/` | Emails y contraseñas de cuentas test MP | Compromiso de cuentas de testing |
-| `esquema de tablas google sheets/` | Estructura de BD con datos sensibles | Exposición de datos de clientes |
-
-**Si estos archivos aparecen en un commit, ELIMINARLOS DEL HISTORIAL inmediatamente.**
-
----
-
-## 🔄 Flujo de trabajo correcto
+## FLUJO DE TRABAJO CORRECTO
 
 ### Pasos para hacer cambios:
-1. **Editar archivos en la raíz** → Modificar `scripts/booking.js`, `index.html`, etc. (NUNCA en `user-app/`)
-2. **Verificar que no hay archivos sensibles** → Asegurar que no se incluyeron `.gs`, `admin-app/`, etc.
-3. **Commit limpio** → Solo frontend: `git add index.html styles.css scripts/`
-4. **Push a GitHub** → `git push origin main`
-5. **Esperar deploy** → GitHub Pages despliega en ~2-5 minutos
-6. **Forzar recarga** → En el navegador: `Shift+F5` (GitHub Pages puede hacer caché)
+1. **Editar archivos en la raiz** -> Modificar scripts/booking.js, index.html, etc.
+2. **Verificar que no hay archivos sensibles** -> Asegurar que no se incluyeron .gs, dmin-app/, etc.
+3. **Commit limpio** -> Solo frontend: git add index.html styles.css scripts/
+4. **Push a GitHub** -> git push origin main
+5. **Esperar deploy** -> GitHub Pages despliega en ~2-5 minutos
+6. **Forzar recarga** -> En el navegador: Shift+F5 (GitHub Pages puede hacer cache)
 
 ### Comandos de git para ver estado:
-```bash
+`ash
 git status                          # Ver archivos modificados
-git diff --stat                     # Ver qué archivos cambiaron
-git log --oneline -3                # Ver últimos 3 commits
+git diff --stat                     # Ver que archivos cambiaron
+git log --oneline -3                # Ver ultimos 3 commits
 git remote -v                       # Ver URL del repositorio remoto
-```
+`
 
 ---
 
-## 🆘 Si el deploy falla (X roja)
+## SI EL DEPLOY FALLA (X roja)
 
-1. Verificar que NO hay archivos `.gs` ni `admin-app/` en el commit:
-   ```bash
+1. Verificar que NO hay archivos .gs ni dmin-app/ en el commit:
+   `ash
    git log --oneline -3 --stat
-   ```
+   `
 2. Si hay archivos sensibles, hacer force push de un commit limpio:
-   ```bash
+   `ash
    git reset --soft <commit-ultimo-verde>
    git add index.html styles.css scripts/
    git commit -m "fix: limpiar deploy"
    git push --force origin main
-   ```
+   `
 
 ---
 
-## 📝 Notas importantes
+## NOTAS IMPORTANTES
 
 ### Sobre GitHub Pages:
-- **Solo puede servir desde `/ (root)` o `/docs`** — no se pueden usar otras carpetas
-- El branch de despliegue es `main`
+- Solo puede servir desde / (root) o /docs/ - no se pueden usar otras carpetas
+- El branch de despliegue es main
 - Los cambios tardan ~2-5 minutos en propagarse
-- Si no se actualiza, forzar recarga con `Shift+F5` (caché del navegador)
+- Si no se actualiza, forzar recarga con Shift+F5 (cache del navegador)
 
-### Sobre user-app/:
-- Es una copia local idéntica a la raíz (`index.html`, `styles.css`, `scripts/`, `images/`)
-- Está ignorada por git (`.gitignore` línea 48)
-- **NO se usa para deployment** — la app se despliega desde la raíz
-- Sirve como referencia limpia del frontend
+### Sobre archivos locales:
+- La carpeta _local/ contiene todo lo que NO va a GitHub
+- Incluye backend (codigo.gs), admin panel, configs sensibles, docs internos
+- Esta carpeta se ignora por .gitignore linea 6
+- Nunca mover archivos de _local/ a la raiz y hacer commit
 
 ### Sobre el backend:
-- El backend (`codigo.gs`) corre en Google Apps Script (no en este repositorio)
+- El backend (codigo.gs) corre en Google Apps Script (no en este repositorio)
 - Se edita directamente en la consola de Google Apps Script o localmente
 - NUNCA se sube a GitHub por seguridad
-- La comunicación frontend↔backend es vía CORS (fetch a la URL del script)
+- La comunicacion frontend<->backend es via CORS (fetch a la URL del script)
 
 ### Sobre el admin panel:
-- El panel administrativo (`admin-app/`) contiene lógica y credenciales sensibles
+- El panel administrativo (dmin-app/) contiene logica y credenciales sensibles
 - No se despliega en GitHub Pages ni se sube al repositorio
 - Se accede de forma local o mediante hosting privado
+
