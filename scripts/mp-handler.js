@@ -610,11 +610,11 @@ function handleMercadoPagoReturn() {
         }
 
         senaDivNoParams.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-            + '<div style="font-size:3rem;margin-bottom:16px">🚫</div>'
-            + '<h3 style="color:#FFD700;margin-bottom:8px">Pago Cancelado</h3>'
-            + '<p>No completaste el pago en Mercado Pago. Tu turno fue liberado porque expiro el tiempo de reserva.</p>'
-            + '<p id="redirectMsgNP" style="opacity:0.6;font-size:0.85rem;margin:20px 0;letter-spacing:1px;text-transform:uppercase">↻ Redirigiendo a la página principal en <span id="countdownNP">8</span>s</p>'
-            + '<button id="btnElegirOtroTurnoNP" style="display:inline-block;margin:8px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+            + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
+            + '<h3 style="color:#FFD700;margin-bottom:8px;font-size:1.3rem">Volviste a la tienda</h3>'
+            + '<p style="opacity:0.85;margin-bottom:20px">Serás redirigido a la página principal en <strong id="countdownNP">8</strong> segundos.</p>'
+            + '<p style="opacity:0.6;font-size:0.8rem;margin-bottom:16px">Si querés completar tu reserva, elegí otro turno desde el botón de abajo.</p>'
+            + '<button id="btnElegirOtroTurnoNP" style="display:inline-block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
 
         var redirectCountdownNP = 8;
         
@@ -622,7 +622,7 @@ function handleMercadoPagoReturn() {
             redirectCountdownNP--;
             var countdownSpan = document.getElementById('countdownNP');
             if(countdownSpan) {
-                countdownSpan.textContent = redirectCountdownNP;
+                countdownSpan.textContent = Math.max(0, redirectCountdownNP);
             }
             if(redirectCountdownNP <= 0) {
                 clearInterval(redirectTimerNP);
