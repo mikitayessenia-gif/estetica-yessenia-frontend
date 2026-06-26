@@ -535,10 +535,15 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
     if(reservarSection){
         var ctaContent = reservarSection.querySelector(".cta-content");
         if(ctaContent){
+            // Ocultar h2 y subtitulo (primer p) para eliminar espacios gigantes
             var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="none";
-            // Ocultar SOLO el primer <p> (subtitulo), no la politica
             var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="none";
+            // Reducir padding del contenedor para eliminar espacios vacios
+            ctaContent.style.paddingTop = "20px";
+            ctaContent.style.paddingBottom = "20px";
         }
+        // Reducir padding de la seccion completa (era 100px desde CSS .section)
+        reservarSection.style.paddingTop = "40px";
     }
     
     clearActiveTurnoStorage();

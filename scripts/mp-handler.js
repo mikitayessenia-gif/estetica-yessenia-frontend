@@ -689,6 +689,13 @@ function handleMercadoPagoReturn() {
                     if(reservarSection2){
                         var h2r = reservarSection2.querySelector("h2"); if(h2r) h2r.style.display="none";
                         var pr = reservarSection2.querySelectorAll("p")[0]; if(pr) pr.style.display="none";
+                        var ctaContent2 = reservarSection2.querySelector(".cta-content");
+                        if(ctaContent2){
+                            ctaContent2.style.paddingTop = "20px";
+                            ctaContent2.style.paddingBottom = "20px";
+                        }
+                        // Reducir padding de la seccion completa (era 100px desde CSS .section)
+                        reservarSection2.style.paddingTop = "40px";
                     }
                     
                     // Usar datos del backend si están disponibles, sino fallback a localStorage
