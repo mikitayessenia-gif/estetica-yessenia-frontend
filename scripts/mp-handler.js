@@ -770,8 +770,7 @@ function handleMercadoPagoReturn() {
                         successHtml += '</div>';
                         
                         senaDiv2.innerHTML = successHtml;
-                        // Forzar padding inferior consistente con pagina principal
-                        senaDiv2.style.paddingBottom = '40px !important';
+                        // Usar padding del HTML inline (ya no sumar extra)
                         
                         setTimeout(function(){
                             var cb = document.getElementById("saveCalendarBtn");

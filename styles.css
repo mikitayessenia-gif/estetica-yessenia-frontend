@@ -774,17 +774,17 @@ body {
     scroll-margin-top: 80px;
 }
 
-/* Add top margin to payment card to clear sticky header on mobile */
+/* Add top margin to payment card to clear sticky header on mobile — reduced from 60px */
 @media (max-width: 768px) {
     #senaRequired > div:first-child {
-        margin-top: 60px !important;
+        margin-top: 10px !important;
         padding-bottom: 0 !important;
     }
 }
 
-/* Ensure more spacing for payment area visibility */
+/* Ensure more spacing for payment area visibility — reduced from 52px to 10px */
 #senaRequired > div:first-child {
-    margin-top: 52px !important;
+    margin-top: 10px !important;
 }
 
 /* Ensure MercadoPago brick iframes render properly within scroll flow */
