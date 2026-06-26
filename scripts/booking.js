@@ -548,8 +548,8 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             if(policyP) policyP.style.marginBottom = "5px";
         }
         // Reducir padding de la seccion completa para eliminar espacio gigante arriba
-        reservarSection.style.paddingTop = "20px";
-        reservarSection.style.paddingBottom = "40px";
+        reservarSection.style.paddingTop = "10px";
+        reservarSection.style.paddingBottom = "30px";
     }
     
     clearActiveTurnoStorage();
