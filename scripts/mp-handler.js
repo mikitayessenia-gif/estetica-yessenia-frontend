@@ -592,35 +592,26 @@ function handleMercadoPagoReturn() {
     var externalRef = params.get('external_reference');
     var preferenceId = params.get('preference_id');
 
-    if (!collectionId || !status) {
+  if (!collectionId || !status) {
         // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
-        // NO hay pago que comprobar — simplemente limpiamos y redirigimos
+        // NO hay pago que comprobar — simplemente limpiamos y redirigimos directo
         
-        // Verificar si ya mostramos este mensaje antes para no mostrarlo al recargar
-        try {
-            var mpReturnShown = sessionStorage.getItem("yessenia_mp_return_shown");
-            if (mpReturnShown) {
-                sessionStorage.removeItem("yessenia_mp_return_shown");
-                return false; // Ya se mostró, no volver a mostrar
-            }
-            sessionStorage.setItem("yessenia_mp_return_shown", "true");
-        } catch(e) {}
-
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
         
         releaseTempReservation();
 
-        var senaDivNoParams = document.getElementById('senaRequired');
-        if (!senaDivNoParams) {
-            senaDivNoParams = document.createElement('div');
-            senaDivNoParams.id = 'senaRequired';
-            senaDivNoParams.style.display = 'block';
-        } else {
-            senaDivNoParams.style.display = 'block';
+        // Limpiar cualquier mensaje residual del div senaRequired
+        var senaDivClear = document.getElementById('senaRequired');
+        if (senaDivClear) {
+            senaDivClear.innerHTML = '';
+            senaDivClear.style.display = 'none';
         }
 
-        senaDivNoParams.innerHTML = '<style>'
+        // Redirigir directamente sin mostrar mensaje
+        window.location.href = '/';
+        return false;
+    }
             + '@keyframes pulseGlow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}'
             + '@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}'
             + '@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}'
