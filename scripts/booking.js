@@ -541,6 +541,9 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             // Reducir padding del contenedor para eliminar espacios vacios
             ctaContent.style.paddingTop = "20px";
             ctaContent.style.paddingBottom = "20px";
+            
+            // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
+            var policyP = ctaContent.querySelectorAll("p")[1]; if(policyP) policyP.style.marginBottom = "20px";
         }
         // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
         reservarSection.style.paddingTop = "40px";
