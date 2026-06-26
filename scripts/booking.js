@@ -592,30 +592,30 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         successHTML += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
         
         // Datos del turno para captura de pantalla
-        successHTML += '<div style="background:rgba(120,194,180,0.25);border:1px solid rgba(120,194,180,0.6);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
+        successHTML += '<div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
         successHTML += '<h4 style="color:rgba(255,255,255,0.85);margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
         
         // Buscar ID del turno en los campos ocultos del formulario
         var idTurno = document.getElementById("selectedSlotId") ? document.getElementById("selectedSlotId").value : "";
         
-        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
         successHTML += '<span style="opacity:0.7;font-size:0.85rem">Cliente:</span>';
         successHTML += '<strong style="color:#fff;font-size:0.9rem">' + (nombre || "") + '</strong>';
         successHTML += '</div>';
         
         if (idTurno) {
-            successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+            successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
             successHTML += '<span style="opacity:0.7;font-size:0.85rem">Turno:</span>';
             successHTML += '<strong style="color:#FFD700;font-size:0.9rem">' + idTurno + '</strong>';
             successHTML += '</div>';
         }
         
-        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
         successHTML += '<span style="opacity:0.7;font-size:0.85rem">Tratamiento:</span>';
         successHTML += '<strong style="color:#fff;font-size:0.9rem">' + (tratamiento || "") + '</strong>';
         successHTML += '</div>';
         
-        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+        successHTML += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
         successHTML += '<span style="opacity:0.7;font-size:0.85rem">Fecha:</span>';
         successHTML += '<strong style="color:#fff;font-size:0.9rem">' + (fecha || "") + '</strong>';
         successHTML += '</div>';
@@ -631,7 +631,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         successHTML += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
         
         // Direccion con link a Maps y WhatsApp
-        successHTML += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:12px">';
+        successHTML += '<div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:16px;margin-bottom:16px">';
         successHTML += '<p style="margin:0 0 4px;color:rgba(255,255,255,0.7);font-size:0.8rem">📍 Direccion del consultorio</p>';
         successHTML += '<p style="margin:0 0 8px;color:rgba(255,255,255,0.9);font-size:0.8rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
         successHTML += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';

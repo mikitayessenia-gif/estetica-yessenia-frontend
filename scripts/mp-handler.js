@@ -676,27 +676,27 @@ function handleMercadoPagoReturn() {
                         successHtml += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
                         successHtml += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutes, revisá la carpeta de SPAM o Correos no deseados.</p>';
 
-                        successHtml += '<div style="background:rgba(120,194,180,0.25);border:1px solid rgba(120,194,180,0.6);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
+                        successHtml += '<div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
                         successHtml += '<h4 style="color:rgba(255,255,255,0.85);margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
                         
-                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
                         successHtml += '<span style="opacity:0.7;font-size:0.85rem">Cliente:</span>';
                         successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (nombreSuccess || "") + '</strong>';
                         successHtml += '</div>';
                         
                         if (idTurno) {
-                            successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                            successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
                             successHtml += '<span style="opacity:0.7;font-size:0.85rem">Turno:</span>';
                             successHtml += '<strong style="color:#FFD700;font-size:0.9rem">' + idTurno + '</strong>';
                             successHtml += '</div>';
                         }
                         
-                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
                         successHtml += '<span style="opacity:0.7;font-size:0.85rem">Tratamiento:</span>';
                         successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (tratSuccess || "") + '</strong>';
                         successHtml += '</div>';
                         
-                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.2)">';
                         successHtml += '<span style="opacity:0.7;font-size:0.85rem">Fecha:</span>';
                         successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (fechaSuccess || "") + '</strong>';
                         successHtml += '</div>';
@@ -710,7 +710,7 @@ function handleMercadoPagoReturn() {
                         
                         successHtml += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
 
-                        successHtml += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:12px;margin-bottom:12px">';
+                        successHtml += '<div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.35);border-radius:14px;padding:16px;margin-bottom:16px">';
                         successHtml += '<p style="margin:0 0 4px;color:rgba(255,255,255,0.7);font-size:0.8rem">📍 Direccion del consultorio</p>';
                         successHtml += '<p style="margin:0 0 8px;color:rgba(255,255,255,0.9);font-size:0.8rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
                         successHtml += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
