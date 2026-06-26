@@ -836,9 +836,13 @@ function handleMercadoPagoReturn() {
                 }
             } else {
                 // El estado NO es 'Reservado' ni 'Disponible' — puede ser 'Reservado Temporal', 'Bloqueado', etc.
-                // Verificar si el pago realmente fue aprobado por MP
-                if (status === 'approved') {
-                    // Pago SI fue aprobado pero el turno no está confirmado — es un PAGO HUERFANO real
+                // Si el turno sigue como 'Reservado Temporal', significa que el pago NO se confirmó en el servidor.
+                // Mercado Pago a veces devuelve status=approved incluso cuando el usuario volvió sin pagar.
+                // Por eso verificamos AMBAS cosas: el status de MP y el estado real del turno en la agenda.
+                
+                // Verificar si el pago realmente fue aprobado por MP Y confirmado en la agenda
+                if (status === 'approved' && data.estado !== 'Reservado Temporal' && data.estado !== 'Reservado Temp.') {
+                    // Pago SI fue aprobado y el turno no está en estado temporal — es un PAGO HUERFANO real
                     var whatsappMsg = encodeURIComponent('Hola! Realice un pago pero mi turno no se confirmo. Comprobante: ' + collectionId);
                     var whatsappLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsg;
 
