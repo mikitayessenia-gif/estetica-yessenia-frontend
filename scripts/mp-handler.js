@@ -620,22 +620,22 @@ function handleMercadoPagoReturn() {
     if(ctaContent){
         var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="none";
         var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="none";
-        ctaContent.style.paddingTop = "16px !important";
-        ctaContent.style.paddingBottom = "16px !important";
+        ctaContent.style.paddingTop = "10px !important";
+        ctaContent.style.paddingBottom = "10px !important";
     }
 
     // Reducir padding de la seccion completa (igual que booking.js)
     var reservarSection = document.getElementById('reservar');
     if(reservarSection){
-        reservarSection.style.paddingTop = "8px !important";
-        reservarSection.style.paddingBottom = "16px !important";
+        reservarSection.style.paddingTop = "4px !important";
+        reservarSection.style.paddingBottom = "8px !important";
     }
 
     // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
     var policyTextBefore = document.getElementById('policyText');
     if(policyTextBefore){
-        policyTextBefore.style.marginTop = "8px !important";
-        policyTextBefore.style.marginBottom = "4px !important";
+        policyTextBefore.style.marginTop = "4px !important";
+        policyTextBefore.style.marginBottom = "2px !important";
     }
 
     var senaDiv = document.getElementById('senaRequired');
@@ -677,8 +677,8 @@ function handleMercadoPagoReturn() {
                     // Compactar la sección para igualar EXACTAMENTE el flujo directo (booking.js linea 534-552)
                     var reservarSection2 = document.getElementById("reservar");
                     if(reservarSection2){
-                        reservarSection2.style.paddingTop = "10px !important";
-                        reservarSection2.style.paddingBottom = "30px !important";
+                        reservarSection2.style.paddingTop = "4px !important";
+                        reservarSection2.style.paddingBottom = "8px !important";
                     }
                     var ctaContent2 = reservarSection2?.querySelector(".cta-content");
                     if(ctaContent2){
@@ -686,19 +686,19 @@ function handleMercadoPagoReturn() {
                         var h2r = ctaContent2.querySelector("h2"); if(h2r) h2r.style.display="none";
                         var firstP2 = ctaContent2.querySelectorAll("p")[0]; if(firstP2) firstP2.style.display="none";
                         // Reducir padding del contenedor para eliminar espacios vacios
-                        ctaContent2.style.paddingTop = "20px !important";
-                        ctaContent2.style.paddingBottom = "20px !important";
+                        ctaContent2.style.paddingTop = "10px !important";
+                        ctaContent2.style.paddingBottom = "10px !important";
                         // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
                         var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
                         var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
-                        if(policyP2) policyP2.style.marginBottom = "5px !important";
+                        if(policyP2) policyP2.style.marginBottom = "2px !important";
                     }
                     
                     // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
                     var policyText2 = document.getElementById("policyText");
                     if(policyText2){
-                        policyText2.style.marginTop = "8px !important";
-                        policyText2.style.marginBottom = "4px !important";
+                        policyText2.style.marginTop = "4px !important";
+                        policyText2.style.marginBottom = "2px !important";
                     }
                     
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
