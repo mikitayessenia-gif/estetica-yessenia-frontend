@@ -547,9 +547,9 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             var policyP = allPs.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
             if(policyP) policyP.style.marginBottom = "20px";
         }
-        // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
-        reservarSection.style.paddingTop = "";
-        reservarSection.style.paddingBottom = "";
+        // Reducir padding de la seccion completa para eliminar espacio gigante arriba
+        reservarSection.style.paddingTop = "20px";
+        reservarSection.style.paddingBottom = "40px";
     }
     
     clearActiveTurnoStorage();
