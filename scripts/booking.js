@@ -585,7 +585,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             horaFin: calcularHoraFin(hora)
         };
         
-        var successHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 48px 24px;max-width:550px;margin:0 auto;text-align:center">';
+        var successHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 72px 24px;max-width:550px;margin:0 auto;text-align:center">';
         successHTML += '<div style="font-size:3rem;margin-bottom:12px">✅</div>';
         successHTML += '<h3 style="font-size:1.6rem;margin-bottom:6px;color:#FFD700">Turno Agendado con Exito!</h3>';
         successHTML += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
