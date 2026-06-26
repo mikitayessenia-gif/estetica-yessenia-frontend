@@ -545,7 +545,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
             var allPs = Array.from(ctaContent.querySelectorAll("p"));
             var policyP = allPs.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
-            if(policyP) policyP.style.marginBottom = "20px";
+            if(policyP) policyP.style.marginBottom = "5px";
         }
         // Reducir padding de la seccion completa para eliminar espacio gigante arriba
         reservarSection.style.paddingTop = "20px";
