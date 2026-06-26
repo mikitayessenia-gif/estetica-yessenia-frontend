@@ -668,7 +668,7 @@ function handleMercadoPagoReturn() {
                     };
 
                     // Padding inferior consistente con pagina principal (~50px total)
-                    var successHtml = '<div style="padding:28px 24px 30px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25);border-radius:16px">'
+                    var successHtml = '<div style="padding:28px 24px 30px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25);border-radius:16px;background:rgba(0,80,80,0.2)">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
