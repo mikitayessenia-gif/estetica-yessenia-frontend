@@ -426,31 +426,30 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     senaDiv.style.paddingBottom = '0';
     senaDiv.style.paddingLeft = '0';
     senaDiv.style.paddingRight = '0';
-    html += '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:20px 16px 20px 16px !important;max-width:550px;margin:0 auto">';
-    html += '<div style="font-size:1.75rem;margin-bottom:4px">⏳</div>';
-    html += '<h3 style="font-size:1.15rem;margin-bottom:2px;color:#FFD700">¡Tu Turno está Pre-Reservado!</h3>';
-    html += '<p style="opacity:0.8;margin-bottom:0;font-size:0.85rem">Guardamos tu lugar por <strong>'+totalMin+' minutos</strong></p>';
-    html += '<p style="opacity:0.6;font-size:0.7rem;margin-bottom:8px">Turno <strong>'+idTurno+'</strong></p>';
-    html += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px">';
-    html += '<div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Tratamiento</div>';
-    html += '<div style="font-size:0.95rem;font-weight:600;margin-bottom:2px">'+tratamiento+'</div>';
-    html += '<div style="display:flex;justify-content:space-between;font-size:0.8rem"><span style="opacity:0.7">Fecha</span><span>'+fecha+' - '+hora+'</span></div>';
+    html += '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:16px 16px !important;max-width:550px;margin:0 auto">';
+    html += '<div style="font-size:2rem;margin-bottom:4px">⏳</div>';
+    html += '<h3 style="font-size:1.1rem;margin-bottom:2px;color:#FFD700">¡Tu Turno está Pre-Reservado!</h3>';
+    html += '<p style="opacity:0.8;margin-bottom:0;font-size:0.8rem">Guardamos tu lugar por <strong>'+totalMin+' minutos</strong></p>';
+    html += '<p style="opacity:0.6;font-size:0.7rem;margin-bottom:6px">Turno <strong>'+idTurno+'</strong></p>';
+    html += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:8px 10px;margin-bottom:6px">';
+    html += '<div style="font-size:0.6rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">Tratamiento</div>';
+    html += '<div style="font-size:0.9rem;font-weight:600;margin-bottom:1px">'+tratamiento+'</div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.75rem"><span style="opacity:0.7">Fecha</span><span>'+fecha+' - '+hora+'</span></div>';
     html += '</div>';
-    html += '<div style="text-align:center;margin-bottom:8px;padding:10px;background:rgba(196,161,109,0.2);border-radius:10px;border:1px solid rgba(196,161,109,0.3)">';
-    html += '<div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Seña a pagar</div>';
-    html += '<div style="font-size:1.5rem;font-weight:700;color:#C4A16D">'+montoDisplay+'</div>';
+    html += '<div style="text-align:center;margin-bottom:6px;padding:8px;background:rgba(196,161,109,0.2);border-radius:10px;border:1px solid rgba(196,161,109,0.3)">';
+    html += '<div style="font-size:0.6rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">Seña a pagar</div>';
+    html += '<div style="font-size:1.4rem;font-weight:700;color:#C4A16D">'+montoDisplay+'</div>';
     html += '</div>';
     
     // Boton de pago con init_point directo (sin modal Wallet Brick)
-    html += '<div style="text-align:center;margin-bottom:6px">';
-    html += '<a href="'+mpLink+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
+    html += '<div style="text-align:center;margin-bottom:4px">';
+    html += '<a href="'+mpLink+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
     html += '</div>';
-    html += '<p style="text-align:center;opacity:0.75;font-size:0.75rem;margin-bottom:2px">Pago 100% seguro</p>';
-    html += '<p style="text-align:center;opacity:0.6;font-size:0.7rem;margin-bottom:6px">Aceptamos débito y crédito</p>';
+    html += '<p style="text-align:center;opacity:0.75;font-size:0.7rem;margin-bottom:2px">Pago 100% seguro</p>';
     
-    html += '<div id="senaTimerBig" style="text-align:center;font-size:1.75rem;font-weight:700;color:#FFD700;margin:4px 0">';
+    html += '<div id="senaTimerBig" style="text-align:center;font-size:1.5rem;font-weight:700;color:#FFD700;margin:6px 0">';
     html += totalMin + ':00</div>';
-    html += '<p style="text-align:center;opacity:0.6;font-size:0.75rem;margin-bottom:6px">Tiempo restante para completar el pago</p>';
+    html += '<p style="text-align:center;opacity:0.6;font-size:0.7rem;margin-bottom:4px">Tiempo restante para completar el pago</p>';
 
     if (!mpLink) {
         html = html.replace(
@@ -707,17 +706,17 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                        + '<div style="font-size:3rem;margin-bottom:16px">✅</div>'
-                        + '<h3 style="color:#FFD700;margin-bottom:8px">Turno Agendado con Exito!</h3>';
+                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                        + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
+                        + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
                     if (nombreSuccess && tratSuccess) {
                         // Mostrar datos completos del turno como en pagina 1
-                        successHtml += '<p style="opacity:0.9;margin-bottom:24px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
-                        successHtml += '<p style="color:#FFD700;font-size:0.85rem;margin-bottom:20px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
-                        
-                        successHtml += '<div style="background:rgba(168,134,79,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:14px;padding:20px;margin-bottom:20px;text-align:left">';
-                        successHtml += '<h4 style="color:#FFD700;margin:0 0 16px;font-size:1rem;text-align:center">📋 Tus Datos de Reserva</h4>';
+                        successHtml += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
+                        successHtml += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
+
+                        successHtml += '<div style="background:rgba(120,194,180,0.15);border:1px solid rgba(120,194,180,0.4);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
+                        successHtml += '<h4 style="color:#78C2B4;margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
                         
                         successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
                         successHtml += '<span style="opacity:0.7;font-size:0.85rem">Cliente:</span>';
@@ -748,18 +747,18 @@ function handleMercadoPagoReturn() {
                         
                         successHtml += '</div>'; // cierra card datos
                         
-                        successHtml += '<p style="opacity:0.6;font-size:0.75rem;margin:0 0 12px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
-                        
-                        successHtml += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:16px">';
-                        successHtml += '<p style="margin:0 0 6px;color:#FFD700;font-size:0.85rem">📍 Direccion del consultorio</p>';
-                        successHtml += '<p style="margin:0 0 10px;color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
+                        successHtml += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
+
+                        successHtml += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:12px">';
+                        successHtml += '<p style="margin:0 0 4px;color:#78C2B4;font-size:0.8rem">📍 Direccion del consultorio</p>';
+                        successHtml += '<p style="margin:0 0 8px;color:rgba(255,255,255,0.9);font-size:0.8rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
                         successHtml += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
-                        successHtml += '<a href="' + (CONFIG.negocio.googleMapsUrl || "https://maps.google.com") + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">🗺️ Ver en Google Maps</a>';
-                        successHtml += '<a href="https://wa.me/' + CONFIG.negocio.telefonoRaw + '?text=' + encodeURIComponent('Hola! Confirmé mi turno ' + (idTurno || '') + ' para ' + (tratSuccess || '') + ' el ' + (fechaSuccess || '') + ' a las ' + (horaSuccess || '') + ' hs.') + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">📱 Consultar por WhatsApp</a>';
+                        successHtml += '<a href="' + (CONFIG.negocio.googleMapsUrl || "https://maps.google.com") + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.75rem;font-weight:600">🗺️ Ver en Google Maps</a>';
+                        successHtml += '<a href="https://wa.me/' + CONFIG.negocio.telefonoRaw + '?text=' + encodeURIComponent('Hola! Confirmé mi turno ' + (idTurno || '') + ' para ' + (tratSuccess || '') + ' el ' + (fechaSuccess || '') + ' a las ' + (horaSuccess || '') + ' hs.') + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.75rem;font-weight:600">📱 Consultar por WhatsApp</a>';
                         successHtml += '</div></div>';
                         
-                        successHtml += '<p style="opacity:0.9;margin-bottom:12px;font-size:0.95rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">📅 Guardar en Google Calendar</button>';
+                        successHtml += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
+                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;cursor:pointer">📅 Guardar en Google Calendar</button>';
                         successHtml += '</div>'; // cierra card principal
                         
                         senaDiv2.innerHTML = successHtml;

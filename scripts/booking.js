@@ -567,15 +567,15 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             horaFin: calcularHoraFin(hora)
         };
         
-        var successHTML = '<div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
-        successHTML += '<div style="font-size:3rem;margin-bottom:16px">✅</div>';
-        successHTML += '<h3 style="font-size:1.75rem;margin-bottom:8px;color:#FFD700">Turno Agendado con Exito!</h3>';
-        successHTML += '<p style="opacity:0.9;margin-bottom:24px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
-        successHTML += '<p style="color:#FFD700;font-size:0.85rem;margin-bottom:20px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
+        var successHTML = '<div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:28px 24px;max-width:550px;margin:0 auto;text-align:center">';
+        successHTML += '<div style="font-size:3rem;margin-bottom:12px">✅</div>';
+        successHTML += '<h3 style="font-size:1.6rem;margin-bottom:6px;color:#FFD700">Turno Agendado con Exito!</h3>';
+        successHTML += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
+        successHTML += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
         
         // Datos del turno para captura de pantalla
-        successHTML += '<div style="background:rgba(168,134,79,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:14px;padding:20px;margin-bottom:20px;text-align:left">';
-        successHTML += '<h4 style="color:#FFD700;margin:0 0 16px;font-size:1rem;text-align:center">📋 Tus Datos de Reserva</h4>';
+        successHTML += '<div style="background:rgba(120,194,180,0.15);border:1px solid rgba(120,194,180,0.4);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
+        successHTML += '<h4 style="color:#78C2B4;margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
         
         // Buscar ID del turno en los campos ocultos del formulario
         var idTurno = document.getElementById("selectedSlotId") ? document.getElementById("selectedSlotId").value : "";
@@ -610,20 +610,20 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         successHTML += '</div>'; // cierra card datos
         
         // Nota para captura
-        successHTML += '<p style="opacity:0.6;font-size:0.75rem;margin:0 0 12px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
+        successHTML += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
         
         // Direccion con link a Maps y WhatsApp
-        successHTML += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:16px">';
-        successHTML += '<p style="margin:0 0 6px;color:#FFD700;font-size:0.85rem">📍 Direccion del consultorio</p>';
-        successHTML += '<p style="margin:0 0 10px;color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
+        successHTML += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px;margin-bottom:12px">';
+        successHTML += '<p style="margin:0 0 4px;color:#78C2B4;font-size:0.8rem">📍 Direccion del consultorio</p>';
+        successHTML += '<p style="margin:0 0 8px;color:rgba(255,255,255,0.9);font-size:0.8rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
         successHTML += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
-        successHTML += '<a href="' + CONFIG.negocio.googleMapsUrl + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">🗺️ Ver en Google Maps</a>';
-        successHTML += '<a href="https://wa.me/' + CONFIG.negocio.telefonoRaw + '?text=' + encodeURIComponent('Hola! Confirmé mi turno ' + (idTurno || '') + ' para ' + (tratamiento || '') + ' el ' + (fecha || '') + ' a las ' + (hora || '') + ' hs. Necesito hacer una consulta.') + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">📱 Consultar por WhatsApp</a>';
+        successHTML += '<a href="' + CONFIG.negocio.googleMapsUrl + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.75rem;font-weight:600">🗺️ Ver en Google Maps</a>';
+        successHTML += '<a href="https://wa.me/' + CONFIG.negocio.telefonoRaw + '?text=' + encodeURIComponent('Hola! Confirmé mi turno ' + (idTurno || '') + ' para ' + (tratamiento || '') + ' el ' + (fecha || '') + ' a las ' + (hora || '') + ' hs. Necesito hacer una consulta.') + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.75rem;font-weight:600">📱 Consultar por WhatsApp</a>';
         successHTML += '</div></div>';
         
         // Google Calendar button
-        successHTML += '<p style="opacity:0.9;margin-bottom:12px;font-size:0.95rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-        successHTML += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">📅 Guardar en Google Calendar</button>';
+        successHTML += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
+        successHTML += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;cursor:pointer">📅 Guardar en Google Calendar</button>';
         successHTML += '</div>'; // cierra card principal
         
         successDiv.innerHTML = successHTML;
