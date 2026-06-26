@@ -664,10 +664,10 @@ function handleMercadoPagoReturn() {
     }
     var mainContent = document.querySelector('.cta-content');
     if (mainContent) {
-        var loadHtml = '<div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:40px 24px;max-width:550px;margin:0 auto;text-align:center">'
+        var loadHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:40px 24px;max-width:550px;margin:0 auto;text-align:center">'
             + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
-            + '<h3 style="color:#78C2B4;margin-bottom:8px;font-size:1.4rem">Confirmando tu pago...</h3>'
-            + '<p style="opacity:0.9;margin-bottom:16px">Estamos validando tu comprobante con Mercado Pago</p>'
+            + '<h3 style="color:#FFD700;margin-bottom:8px;font-size:1.4rem">Confirmando tu pago...</h3>'
+            + '<p style="opacity:0.9;margin-bottom:16px;color:rgba(255,255,255,0.9)">Estamos validando tu comprobante con Mercado Pago</p>'
             + '<div class="spinner" style="margin:20px auto"></div></div>';
         senaDiv.innerHTML = loadHtml;
         if (mainContent.contains(senaDiv)) {
