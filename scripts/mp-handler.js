@@ -595,6 +595,17 @@ function handleMercadoPagoReturn() {
     if (!collectionId || !status) {
         // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
         // NO hay pago que comprobar — simplemente limpiamos y redirigimos
+        
+        // Verificar si ya mostramos este mensaje antes para no mostrarlo al recargar
+        try {
+            var mpReturnShown = sessionStorage.getItem("yessenia_mp_return_shown");
+            if (mpReturnShown) {
+                sessionStorage.removeItem("yessenia_mp_return_shown");
+                return false; // Ya se mostró, no volver a mostrar
+            }
+            sessionStorage.setItem("yessenia_mp_return_shown", "true");
+        } catch(e) {}
+
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
         
@@ -625,8 +636,7 @@ function handleMercadoPagoReturn() {
             + '<p style="opacity:0.8;margin-bottom:24px;font-size:0.95rem;line-height:1.5">No completaste el pago en Mercado Pago.<br>Serás redirigido a la página principal.</p>'
             + '<div class="redirect-bar"></div>'
             + '<div class="redirect-label">Redirigiendo en</div>'
-            + '<div class="redirect-timer" id="countdownNP">8</div>'
-            + '<button id="btnElegirOtroTurnoNP" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer;font-weight:600">🔄 Elegir otro turno</button></div>';
+            + '<div class="redirect-timer" id="countdownNP">8</div></div>';
 
         var redirectCountdownNP = 8;
         
