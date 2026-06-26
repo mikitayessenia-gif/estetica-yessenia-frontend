@@ -694,8 +694,9 @@ function handleMercadoPagoReturn() {
                             ctaContent2.style.paddingTop = "20px";
                             ctaContent2.style.paddingBottom = "20px";
                         }
-                        // Reducir padding de la seccion completa (era 100px desde CSS .section)
+                        // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
                         reservarSection2.style.paddingTop = "40px";
+                        reservarSection2.style.paddingBottom = "40px";
                     }
                     
                     // Usar datos del backend si están disponibles, sino fallback a localStorage

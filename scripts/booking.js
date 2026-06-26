@@ -542,8 +542,9 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             ctaContent.style.paddingTop = "20px";
             ctaContent.style.paddingBottom = "20px";
         }
-        // Reducir padding de la seccion completa (era 100px desde CSS .section)
+        // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
         reservarSection.style.paddingTop = "40px";
+        reservarSection.style.paddingBottom = "40px";
     }
     
     clearActiveTurnoStorage();
