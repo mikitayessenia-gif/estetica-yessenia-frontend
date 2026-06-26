@@ -525,6 +525,37 @@
         tryUpdate();
    })();
     </script>
+    <!-- FORCE compact spacing — placed at END with setTimeout to override everything -->
+    <style>
+        #policyText, p:has(strong), .cta-content p {
+            margin-top: 8px !important;
+            margin-bottom: 4px !important;
+        }
+        #reservar, .section {
+            padding-top: 16px !important;
+            padding-bottom: 20px !important;
+        }
+    </style>
+    <script>
+        // Force compact spacing after everything loads (including Google widget)
+        setTimeout(function() {
+            var policy = document.getElementById('policyText');
+            if (policy) {
+                policy.style.marginTop = '8px';
+                policy.style.marginBottom = '4px';
+            }
+            var reservar = document.getElementById('reservar');
+            if (reservar) {
+                reservar.style.paddingTop = '16px';
+                reservar.style.paddingBottom = '20px';
+            }
+            // Also force on all paragraphs in cta-content
+            var ctaPs = document.querySelectorAll('.cta-content p');
+            ctaPs.forEach(function(p) {
+                p.style.marginBottom = '4px';
+            });
+        }, 500);
+    </script>
 </body>
 </html>
 
