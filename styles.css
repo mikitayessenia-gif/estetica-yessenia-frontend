@@ -813,3 +813,26 @@ body {
     margin-top: 10px;
     padding-top: 10px;
 }
+
+/* Compact spacing when booking success is shown */
+#bookingSuccess[style*="display: block"],
+#senaRequired[style*="display: block"] {
+    position: relative;
+}
+
+/* Override default cta-content p margin-bottom (40px) — applies to ALL paragraphs including policy */
+.cta-content p {
+    margin-bottom: 8px !important;
+}
+
+/* Force compact section padding — overrides .section { padding: 100px 0 } */
+#reservar {
+    padding-top: 16px !important;
+    padding-bottom: 20px !important;
+}
+
+/* Policy text outside form — force compact margins */
+#policyText {
+    margin-top: 8px !important;
+    margin-bottom: 4px !important;
+}
