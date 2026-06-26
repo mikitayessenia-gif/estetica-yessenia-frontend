@@ -548,7 +548,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             if(policyP) policyP.style.marginBottom = "20px";
         }
         // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
-        reservarSection.style.paddingTop = "40px";
+        reservarSection.style.paddingTop = "20px";
         reservarSection.style.paddingBottom = "40px";
     }
     

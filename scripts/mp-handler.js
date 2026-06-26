@@ -699,7 +699,7 @@ function handleMercadoPagoReturn() {
                         if(policyP2) policyP2.style.marginBottom = "20px";
                         }
                         // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
-                        reservarSection2.style.paddingTop = "40px";
+                        reservarSection2.style.paddingTop = "20px";
                         reservarSection2.style.paddingBottom = "40px";
                     }
                     
