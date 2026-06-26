@@ -505,11 +505,14 @@ function resetBookingForm() {
     var slotsContainer = document.getElementById("slotsContainer");
     if (slotsContainer) slotsContainer.style.display = "block";
     
-    // Mostrar de nuevo el header del formulario
+    // Mostrar de nuevo header y subtitulo al resetear (dejar politica intacta)
     var reservarSection = document.getElementById("reservar");
     if(reservarSection){
-        var h2 = reservarSection.querySelector("h2"); if(h2) h2.style.display="";
-        var p = reservarSection.querySelectorAll("p")[0]; if(p) p.style.display="";
+        var ctaContent = reservarSection.querySelector(".cta-content");
+        if(ctaContent){
+            var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="";
+            var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="";
+        }
     }
     
     clearReservaFlowFlag();
@@ -527,11 +530,15 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
     var senaDiv = document.getElementById("senaRequired"); if(senaDiv) senaDiv.style.display="none";
     var apiError = document.getElementById("apiError"); if(apiError) apiError.style.display="none";
     
-    // Ocultar header del formulario de reserva cuando ya se confirmo
+    // Ocultar header del formulario cuando ya se confirmo (dejar politica intacta)
     var reservarSection = document.getElementById("reservar");
     if(reservarSection){
-        var h2 = reservarSection.querySelector("h2"); if(h2) h2.style.display="none";
-        var p = reservarSection.querySelectorAll("p")[0]; if(p) p.style.display="none";
+        var ctaContent = reservarSection.querySelector(".cta-content");
+        if(ctaContent){
+            var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="none";
+            // Ocultar SOLO el primer <p> (subtitulo), no la politica
+            var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="none";
+        }
     }
     
     clearActiveTurnoStorage();
