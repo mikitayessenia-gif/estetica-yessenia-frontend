@@ -683,7 +683,7 @@ function handleMercadoPagoReturn() {
 
                     // CORRECCIÓN AQUÍ: Cambiado el padding-bottom de 72px a 32px para equilibrar el espacio interno,
                     // y cambiado el margin del botón abajo (de 16px a 40px) para crear el espacio solicitado.
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
