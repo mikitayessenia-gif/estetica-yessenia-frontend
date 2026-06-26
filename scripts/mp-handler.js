@@ -723,7 +723,7 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:36px 24px 56px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:36px 24px 72px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
