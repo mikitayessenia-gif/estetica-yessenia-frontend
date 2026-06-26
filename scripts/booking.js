@@ -585,7 +585,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
             horaFin: calcularHoraFin(hora)
         };
         
-        var successHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px;max-width:550px;margin:0 auto;text-align:center">';
+        var successHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 32px 24px;max-width:550px;margin:0 auto;text-align:center">';
         successHTML += '<div style="font-size:3rem;margin-bottom:12px">✅</div>';
         successHTML += '<h3 style="font-size:1.6rem;margin-bottom:6px;color:#FFD700">Turno Agendado con Exito!</h3>';
         successHTML += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
@@ -641,7 +641,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         
         // Google Calendar button
         successHTML += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-        successHTML += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;margin-bottom:16px">📅 Guardar en Google Calendar</button>';
+        successHTML += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 16px auto">📅 Guardar en Google Calendar</button>';
         successHTML += '</div>'; // cierra card principal
         
         successDiv.innerHTML = successHTML;
