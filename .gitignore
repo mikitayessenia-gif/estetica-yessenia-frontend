@@ -1,5 +1,9 @@
 # === NO SUBIR ESTO A GITHUB ===
 
+# Archivos locales (backend, admin, configs sensibles)
+# Estos archivos viven en ._local/ y no se trackean por git
+._local/
+
 # Editor / IDE
 .vscode/
 .idea/
@@ -26,31 +30,3 @@ yarn-error.log*
 node_modules/
 dist/
 build/
-
-# Backup files (siempre hay uno por error)
-*.backup
-*-backup.*
-index-backup.html
-admin-backup.html
-
-# Credenciales y claves (proteccion extra)
-*.key
-*.pem
-secrets.json
-
-# Backend Google Apps Script - NO SUBIR A GITHUB
-codigo.gs
-codigo-backup.gs
-*.gs
-
-# Admin app - contiene credenciales y logica sensible
-admin-app/
-
-# User app - copia local de referencia (NO usar para deploy, la app va en raiz)
-user-app/
-
-# Test data con credenciales de Mercado Pago
-"usuarios de mercado pago de prueba"/
-
-# Esquema de tablas Google Sheets (datos sensibles)
-"esquema de tablas google sheets"/

@@ -1,0 +1,100 @@
+====================================================
+REPORTE DE ESTRUCTURA Y CONTEXTO DEL SISTEMA DE TURNOS
+====================================================
+
+--- PESTAÑA: AGENDA_TURNOS ---
+Columnas (26): [ID_Turno | Fecha | Día | Hora Inicio | Hora Fin | Estado_Turno | Cliente_Nombre | Cliente_Email | Cliente_Telefono | Tratamiento | Monto_Abonado | Monto_Faltante | Notas_Cliente | Duracion_Filas | ID_Bloqueado_Por_Duracion | Notas_Internas | ID_Preferencia_MP | Pago_Sena | Fecha_Reserva_Registro | Email_Enviado | Ics_Adjunto | Recordatorio_24h_Enviado | Recordatorio_3h_Enviado | Admin_Aprobo_24h | Admin_Aprobo_3h | Notas_Emails]
+Filas totales de datos: 3259
+Muestra de las primeras 10 filas:
+  Fila 2: [T-1 | 27/05/2026 | Miércoles | 9:00 | 11:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 3: [T-2 | 27/05/2026 | Miércoles | 11:00 | 13:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 4: [T-3 | 27/05/2026 | Miércoles | 13:00 | 15:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 5: [T-4 | 27/05/2026 | Miércoles | 15:00 | 17:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 6: [T-5 | 27/05/2026 | Miércoles | 17:00 | 19:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 7: [T-6 | 28/05/2026 | Jueves | 9:00 | 11:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 8: [T-7 | 28/05/2026 | Jueves | 11:00 | 13:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 9: [T-8 | 28/05/2026 | Jueves | 13:00 | 15:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 10: [T-9 | 28/05/2026 | Jueves | 15:00 | 17:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+  Fila 11: [T-10 | 28/05/2026 | Jueves | 17:00 | 19:00 | Disponible |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | ]
+
+--- PESTAÑA: PAGOS_CONFLICTIVOS ---
+Columnas (11): [Fecha_Alerta | ID_Turno_Original | ID_Pago_Real_MP | Cliente_Nombre | Cliente_Email | Cliente_Telefono | Tratamiento | Monto_Pagado | Estado_Turno_Al_Cargarse | Accion_Requerida | Notas_Cliente]
+Filas totales de datos: 10
+Muestra de las primeras 10 filas:
+  Fila 2: [04/06/2026 5:40:48 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 3: [04/06/2026 5:40:59 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 4: [08/06/2026 5:45:43 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 5: [08/06/2026 5:45:47 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 6: [12/06/2026 5:51:02 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 7: [12/06/2026 5:51:28 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 8: [16/06/2026 5:56:00 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 9: [16/06/2026 5:56:21 | T-20 | 162076001060 | hola2 | holados@mail.com | 1133700730 | Peeling Químico Renovador | 5400 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 10: [18/06/2026 2:50:36 | T-84 | 163795491361 | arnoldo | thiagoalejandro93@gmail.com | 1133700730 | Limpieza Facial Profunda | 13500 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+  Fila 11: [21/06/2026 4:21:09 | T-79 | 163540825516 | marina Valladolid | thiagoalejandro93@gmail.com | 1133700730 | Dermoabrasión Punta de Diamante corporal  | 19500 | Bloqueado | El turno expiró y fue tomado por otra clienta. | ]
+
+--- PESTAÑA: CONFIGURACION ---
+Columnas (3): [Parámetro de Configuración | Valor | Descripción / Unidad]
+Filas totales de datos: 9
+Muestra de las primeras 9 filas:
+  Fila 2: [Horas_Anticipacion_Cancelacion | 24 | Horas previas al turno permitidas para cancelar gratis]
+  Fila 3: [Porcentaje_Sena_Tratamiento | 30 | Porcentaje del valor del tratamiento que se cobrará como seña (0 a 100)]
+  Fila 4: [Margen_Error_Minutos | 15 | Minutos tolerables para cancelar gratis si el cliente se acaba de equivocar]
+  Fila 5: [Monto_Minimo_Sena_Pesos | 2000 | Monto mínimo en pesos por si el porcentaje da un número muy bajo]
+  Fila 6: [Tiempo_Expiracion_Reserva_Minutos | 5 | Minutos de tolerancia para mantener el turno en 'Reservado Temporal' antes de liberarlo si no paga.]
+  Fila 7: [Exigir_Sena_Todos | SI | Indica si se cobra seña a todo el mundo (SI) o solo a los clientes de la LISTA_NEGRA (NO).]
+  Fila 8: [Activar_Recordatorio_Dia_Anterior | SI | Activa el envío automático de correos el día previo al turno (SI/NO).]
+  Fila 9: [Hora_Envio_Recordatorio | 19 | Hora recomendada (formato 24h) para enviar los avisos sin molestar al cliente (ej: 19 para las 7 PM).]
+  Fila 10: [Admin_Email_Notificacion_Recordatorios |  | ]
+
+--- PESTAÑA: LISTA_NEGRA ---
+Columnas (4): [Email | Telefono | Nombre_Cliente | Motivo_Penalizacion]
+Filas totales de datos: 0
+Muestra de las primeras 0 filas:
+  (No hay filas de datos aún)
+
+--- PESTAÑA: HISTORIAL_CANCELACIONES ---
+Columnas (6): [Fecha_Cancelacion | ID_Turno_Cancelado | Cliente_Email | Cliente_Telefono | Tratamiento | Origen]
+Filas totales de datos: 4
+Muestra de las primeras 4 filas:
+  Fila 2: [27/05/2026 21:48:07 | T-3 | maria@test.com | 1112345678 | Limpieza Facial Profunda | Cancelación Gratuita]
+  Fila 3: [27/05/2026 23:04:17 | T-1 | test@test.com | 1199999999 | Peeling Químico Renovador | Cancelación Gratuita]
+  Fila 4: [27/05/2026 23:37:39 | T-8 | yy@yy | 12345 | Dermoabrasión Punta de Diamante | Cancelación Gratuita]
+  Fila 5: [31/05/2026 17:09:06 | T-22 | erick@nail | 1133700730 | erick | Cancelación Gratuita]
+
+--- PESTAÑA: RESENAS ---
+Columnas (8): [ID_Resena | Nombre | Calificacion | Comentario | Servicio | Fecha | Respuesta_Propietario | Visible]
+Filas totales de datos: 24
+Muestra de las primeras 10 filas:
+  Fila 2: [REV-1 | Verónica Gago | 5 | Excelente profesional!! Me atiendo con Yessenia hace años y me dio muy buenos resultados. Super recomendable!! | General | 2026-06-06 | Muchas gracias por compartir tu experiencia. ¡Te esperamos para seguir cuidando tu piel! ✨ | SI]
+  Fila 3: [REV-2 | Patricia Fontivero | 5 | Excelente profesional, 100% recomendada. Pone mucha dedicación en cada tratamiento | General | 2026-06-06 | Gracias por tu apoyo y por elegir nuestro espacio de estética. 🌷 | SI]
+  Fila 4: [REV-3 | Rocio del Rio | 5 | Yessi es una gran profesional y persona. Me atiendo desde hace 10 años y me ayudó a eliminar el acné de mi espalda. | Dermoabrasión Punta de Diamante corporal | 2026-06-12 |  | NO]
+  Fila 5: [REV-4 | SOFÍA | 5 | Un centro con garantía de que te van a atender con dedicación y profesionalismo. Yesse es muy dulce y atenta a todos los detalles. Pone a tu servicio todo lo que tiene, aparatología y productos. Desde que voy mi piel mejoro muchísimo. Gracias Yesse por tu atención!!✨ Un placer. | Tratamiento Facial Personalizado | 2026-06-10 | Muchas gracias por tu reseña! Fue un placer atenderte. Me alegra saber que tu experiencia fue positiva. Te espero para seguir cuidando tu piel. | NO]
+  Fila 6: [REV-5 | Daniela Ferreyra | 5 | Fue una experiencia muy linda, Yessenia es un amor. Los tratamientos son especializados según lo que necesite tu piel. No le escatima en nada, dato no menor. 🙌🏼 Trabaja de forma integral yo fui por una limpieza de cutis y me trabajo cuello, escolte y manos. Una genia. | Limpieza Facial Profunda | 2026-06-10 | 💖 Gracias por confiar en nuestro trabajo. Cada piel es única y nos encanta acompañarte en cada paso para lograr los mejores resultados. | NO]
+  Fila 7: [REV-6 | Clara Romanazzi | 5 | Hace muchos años que me atiendo con Yessenia y no la cambio por nada. Excelente persona y la mejor profesional. | General | 2026-06-10 | Agradecemos tu valoración y confianza. Trabajamos con dedicación para brindar una atención personalizada y resultados reales. | SI]
+  Fila 8: [REV-7 | Cinthia Gorretta | 5 | Ambiente cálido con una profesional de excelencia que brinda seguimiento en mi tratamiento llegando a resultados deseados. | Tratamiento Evolutivo / Seguimiento | 2026-06-10 | ⭐ Muchas gracias por tomarte el tiempo de compartir tu experiencia. Nos alegra saber que quedaste conforme. | SI]
+  Fila 9: [REV-8 | Christer Blanco Hausler | 5 | Excelente atención de Yesse. Me realicé una limpieza facial y un peeling, y quedé muy conforme con los resultados. Se nota su profesionalismo, dedicación y el cuidado que pone en cada detalle. Totalmente recomendable. Muchas gracias, nos vemos en 1 mes! | Limpieza Facial + Peeling Químico | 2026-06-10 | Tu opinión es muy valiosa para nosotros. Gracias por elegirnos y por recomendarnos. | SI]
+  Fila 10: [REV-9 | Nicolas Benitez | 5 | Dedicacion y profesionalismo, me atiendo hace año con yessenia, una genia, super recomendable. | General | 2026-06-10 | Gracias por tus palabras. Seguiremos trabajando con el mismo compromiso y dedicación de siempre. | SI]
+  Fila 11: [REV-10 | Natalia | 5 | Un placer atenderse con Yesse! Vas a limpiar tu carita y te hace brillar hasta las manos! Super profesional 👌🤩 | Limpieza Facial Profunda | 2026-06-09 | Fue un gusto recibirte en nuestro consultorio. Te esperamos cuando quieras volver. | SI]
+
+--- PESTAÑA: TRATAMIENTOS ---
+Columnas (10): [ID_Tratamiento | Nombre_Tratamiento | Precio | Duracion_Filas | Duracion_Texto | Link_Sena | link imagen tratemientos | descripcion_larga | Categoria | descripcion_corta]
+Filas totales de datos: 5
+Muestra de las primeras 5 filas:
+  Fila 2: [TRAT-1 | Limpieza Facial Profunda | 45000 | 1 | 2 horas |  | https://lh3.googleusercontent.com/d/1alwVrRwnF8mnjUJ2y68crKAk-rBBWpGL | {"intro":"Protocolo completo diseñado para renovar, higienizar y revitalizar la piel de manera eficaz. Trabajamos siempre rostro, cuello y escote, adaptando el tratamiento a las necesidades de cada paciente. Ideal para mantener una piel limpia, luminosa, saludable y preparada para recibir otros tratamientos estéticos. ✨","sections":[{"title":"Incluye","iconType":"arrow","items":[{"text":"Higiene profunda de la piel.","iconType":"check"},{"text":"Peeling suave para favorecer la renovación celular.","iconType":"check"},{"text":"Exfoliación según las necesidades de cada piel.","iconType":"check"},{"text":"Extracciones cuando corresponda.","iconType":"check"},{"text":"Alta frecuencia.","iconType":"check"},{"text":"Máscara específica según el biotipo cutáneo.","iconType":"check"},{"text":"Aplicación de principios activos.","iconType":"check"},{"text":"Cabina LED + masaje facial rostro, cuello y escote.","iconType":"check"},{"text":"Protección final.","iconType":"check"}]}]} | Facial | Protocolo completo diseñado para renovar, higienizar y revitalizar la piel de manera eficaz. Ideal para lucir un rostro limpio y luminoso.]
+  Fila 3: [TRAT-2 | Peeling Químico Renovador | 45000 | 1 | 2 horas |  | https://lh3.googleusercontent.com/d/1WUdZCRiNLaVNpIlLmLeGToF270xMo8IK | {"intro":"Tratamiento profesional diseñado para lograr una renovación profunda de la piel, mejorando visiblemente su textura, luminosidad y uniformidad. Indicado para pieles con manchas, fotoenvejecimiento, textura irregular, poros dilatados, marcas superficiales de acné y pérdida de luminosidad.","sections":[{"title":"Beneficios","iconType":"arrow","items":[{"text":"Atenúa manchas y unifica el tono de la piel.","iconType":"check"},{"text":"Favorece la renovación celular y estimula la producción natural de colágeno.","iconType":"check"},{"text":"Mejora la textura, suavidad cutánea y reduce poros dilatados.","iconType":"check"},{"text":"Ayuda a disminuir marcas superficiales de acné.","iconType":"check"},{"text":"Aporta luminosidad, efecto revitalizante y suaviza líneas finas.","iconType":"check"},{"text":"Favorece una piel más firme, uniforme y saludable.","iconType":"check"}]},{"title":"Zonas de aplicación","iconType":"arrow","items":[{"text":"Rostro, cuello, escote y otras áreas según evaluación profesional.","iconType":"check"}]}]} | Facial | Tratamiento profesional diseñado para lograr una renovación profunda de la piel, mejorando su textura, luminosidad y uniformidad.]
+  Fila 4: [TRAT-3 | Dermoabrasión Punta de Diamante corporal  | 65000 | 1 | 2 horas |  | https://lh3.googleusercontent.com/d/1Yc39RL2YARAyH1g0Sbm-it28iwYle3Yk | {"intro":"La microdermoabrasión corporal con punta de diamante es un tratamiento de exfoliación mecánica controlada que ayuda a eliminar células muertas acumuladas en la superficie, renovar la piel y mejorar su textura drásticamente. Indicada para piel áspera, engrosada, opaca, con foliculitis, manchas superficiales o falta de luminosidad.","sections":[{"title":"Beneficios","iconType":"arrow","items":[{"text":"Elimina células muertas acumuladas en la superficie de la piel.","iconType":"check"},{"text":"Favorece la renovación celular, microcirculación local y aporta luminosidad.","iconType":"check"},{"text":"Mejora la textura y suavidad de la piel, aclarando manchas superficiales.","iconType":"check"},{"text":"Complementa tratamientos para foliculitis y piel engrosada.","iconType":"check"},{"text":"Favorece una mejor penetración de principios activos.","iconType":"check"},{"text":"Ayuda a mejorar el aspecto de cicatrices superficiales y estrías recientes.","iconType":"check"},{"text":"Ideal como preparación para peelings y otros tratamientos corporales.","iconType":"check"}]},{"title":"Zonas de aplicación","iconType":"arrow","items":[{"text":"Espalda, glúteos, brazos, piernas, abdomen y otras áreas según evaluación profesional.","iconType":"check"}]},{"title":"Resultado","iconType":"arrow","items":[{"text":"La piel queda más suave, uniforme y receptiva a los tratamientos posteriores. ✨","iconType":"check"}]}]} | Corporal | Tratamiento de exfoliación mecánica controlada que ayuda a eliminar células muertas, renovar la piel corporal y mejorar su textura.]
+  Fila 5: [TRAT-4 | Dermapen con Exosomas o principios activos médicos | 45000 | 1 | 2 horas |  | https://lh3.googleusercontent.com/d/1rRq_hC3i0VojtaJmHL7K_smplmf5P10k | {"intro":"El Dermapen es un sistema avanzado de microagujas que realiza microcanales controlados en la piel para estimular los mecanismos naturales de regeneración celular y favorecer la absorción profunda de principios activos médicos de alta calidad.","sections":[{"title":"Beneficios","iconType":"arrow","items":[{"text":"Estimula la producción de colágeno y elastina, mejorando la firmeza.","iconType":"check"},{"text":"Atenúa líneas finas, signos de envejecimiento y cicatrices de acné.","iconType":"check"},{"text":"Contribuye a disminuir manchas, unificar el tono y reducir poros dilatados.","iconType":"check"},{"text":"Mejora la textura, suavidad y luminosidad de la piel.","iconType":"check"},{"text":"Favorece la hidratación profunda cuando se combina con activos específicos.","iconType":"check"},{"text":"Potencia al máximo los resultados de exosomas y principios activos médicos.","iconType":"check"},{"text":"Ayuda a lograr una piel más saludable, uniforme y revitalizada.","iconType":"check"}]}]} | Facial | Sistema de microagujas que realiza microcanales controlados para estimular la regeneración natural y la penetración de activos médicos.]
+  Fila 6: [TRAT-5 | Dermapen glow peeling  | 65000 | 2 | 4 horas |  | https://lh3.googleusercontent.com/d/1KkD6zZQsSsrpKOPBX5pkR6gvQbTaf4x9 | {"intro":"Un protocolo intensivo 'Glow' que combina Exfoliación + Dermapen + Activos Personalizados. Diseñado específicamente para devolver de forma inmediata la luminosidad, hidratación profunda y vitalidad a pieles apagadas, deshidratadas o con signos de cansancio.","sections":[{"title":"Incluye","iconType":"arrow","items":[{"text":"Exfoliación profesional previa.","iconType":"check"},{"text":"Aplicación de Dermapen.","iconType":"check"},{"text":"Principios activos seleccionados según la necesidad de la piel.","iconType":"check"},{"text":"Máscara calmante y protección final.","iconType":"check"}]},{"title":"Beneficios","iconType":"arrow","items":[{"text":"Elimina células muertas y mejora notablemente la renovación celular.","iconType":"check"},{"text":"Aporta un efecto glow y radiante inmediato, dejando la piel tersa.","iconType":"check"},{"text":"Favorece una hidratación profunda y mejora manchas superficiales o marcas leves.","iconType":"check"},{"text":"Potencia la absorción de principios activos y estimula colágeno.","iconType":"check"}]},{"title":"Resultado","iconType":"arrow","items":[{"text":"Una piel más luminosa, fresca, hidratada y revitalizada desde la primera sesión. ✨","iconType":"check"}]}]} | Facial | Protocolo intensivo de exfoliación y Dermapen con activos personalizados para devolver luminosidad, hidratación y vitalidad.]
+
+--- PESTAÑA: INSTAGRAM_REELS ---
+Columnas (6): [ID | URL | Caption | Emoji | Visible | Orden]
+Filas totales de datos: 4
+Muestra de las primeras 4 filas:
+  Fila 2: [reel_001 | https://www.instagram.com/reel/DYo8waxATgQ/?utm_source=ig_web_button_share_sheet | Tratamiento en acción | 🎬 | SI | 1]
+  Fila 3: [reel_002 | https://www.instagram.com/reel/DYWvAQkA1Rj/  | Limpieza profesional | 💧 | SI | 2]
+  Fila 4: [reel_003 | https://www.instagram.com/reel/DYRxxgvg-hh/ | Resultados reales | 💉 | SI | 3]
+  Fila 5: [reel_004 | https://www.instagram.com/reel/DYiNe0_JJuP/ | Nuestro espacio | 🏠 | SI | 4]
+
+====================================================
+FIN DEL REPORTE
+====================================================
