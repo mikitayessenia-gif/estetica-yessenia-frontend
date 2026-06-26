@@ -827,12 +827,34 @@ body {
 
 /* Force compact section padding — overrides .section { padding: 100px 0 } */
 #reservar {
-    padding-top: 16px !important;
-    padding-bottom: 20px !important;
+    padding-top: 4px !important;
+    padding-bottom: 8px !important;
 }
 
 /* Policy text outside form — force compact margins */
 #policyText {
-    margin-top: 8px !important;
-    margin-bottom: 4px !important;
+    margin-top: 4px !important;
+    margin-bottom: 2px !important;
+}
+
+/* CRITICAL: Override ANY hidden element with large margin that creates gap */
+.cta-content > *:not([style*="display: none"]):not([style*="display:none"]) {
+    margin-top: 4px !important;
+    margin-bottom: 2px !important;
+}
+
+/* Force remove gap between policy and success modal */
+.cta-content > p:last-of-type {
+    margin-top: 4px !important;
+    margin-bottom: 2px !important;
+}
+
+/* Override the hidden "Elegí el tratamiento" paragraph margin (40px) */
+.cta-content > p[style*="display: none"],
+.cta-content > p[style*="display:none"] {
+    display: none !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
 }
