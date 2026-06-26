@@ -7,10 +7,17 @@ function saveActiveTurno(idTurno, minutosExpiracion) {
     } catch(e) {}
 }
 
+function saveMontoSena(monto) {
+    try { sessionStorage.setItem("yessenia_monto_sena", String(monto || 0)); } catch(e) {}
+}
+
 function clearActiveTurnoStorage() {
     try {
         sessionStorage.removeItem(STORAGE_KEY_ACTIVE_TURN);
         sessionStorage.removeItem(STORAGE_KEY_EXPIRY_TS);
+        sessionStorage.removeItem("yessenia_preference_id");
+        sessionStorage.removeItem("yessenia_init_point");
+        sessionStorage.removeItem("yessenia_monto_sena");
     } catch(e) {}
 }
 
@@ -25,22 +32,101 @@ function getStoredTurnoData() {
     return null;
 }
 
+// ========== LOADER PARA VERIFICACION DE PRE-RESERVA ==========
+function showPreReservationLoader() {
+    var existing = document.getElementById('preReservaLoaderOverlay');
+    if (existing) existing.remove();
+    
+    var overlay = document.createElement('div');
+    overlay.id = 'preReservaLoaderOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(45,62,62,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;';
+    overlay.innerHTML = '<div style="color:#FFD700;font-size:1.5rem;font-weight:bold;text-align:center">Verificando tu reserva...</div>' +
+        '<div style="width:40px;height:40px;border:3px solid rgba(255,215,0,0.3);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite"></div>' +
+        '<style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(overlay);
+}
+
+function hidePreReservationLoader() {
+    var loader = document.getElementById('preReservaLoaderOverlay');
+    if (loader) loader.remove();
+}
+
 function restoreSenaTimerFromStorage() {
+    showPreReservationLoader();
+    
     var data = getStoredTurnoData();
-    if (!data) return false;
+    if (!data) {
+        hidePreReservationLoader();
+        return false;
+    }
     
     var now = Date.now();
     var remainingMs = data.expiryTime - now;
     
     if (remainingMs <= 0) {
-        clearActiveTurnoStorage();
-        releaseStoredTurno(data.idTurno);
-        return false;
+        // El timer local expiró pero el webhook pudo haber confirmado - verificar API primero
+        console.log("Timer local expirado, verificando si webhook ya confirmó turno:", data.idTurno);
+        return verificarEstadoTurno(data.idTurno)
+            .then(function(apiData) {
+                hidePreReservationLoader();
+                if (apiData.estado === 'Reservado' && apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
+                    console.log("Webhook ya confirmó el turno al expirar timer local, mostrando éxito");
+                    clearActiveTurnoStorage();
+                    stopStatusPolling();
+                    if(window._senaTimerId) clearInterval(window._senaTimerId);
+                    window._senaTimerId = null;
+                    
+                    var nombreSuccess = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
+                    var tratSuccess = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
+                    
+                    var fechaSuccess = "";
+                    var horaSuccess = "";
+                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
+                        fechaSuccess = window._pendingSenaData.fecha;
+                        horaSuccess = window._pendingSenaData.hora;
+                    } else if (apiData.fecha) {
+                        try {
+                            var fechaObj2 = new Date(apiData.fecha);
+                            var day2 = String(fechaObj2.getDate()).padStart(2, '0');
+                            var month2 = String(fechaObj2.getMonth() + 1).padStart(2, '0');
+                            var year2 = fechaObj2.getFullYear();
+                            fechaSuccess = day2 + "/" + month2 + "/" + year2;
+                        } catch(e) { fechaSuccess = apiData.fecha; }
+                    }
+                    if (window._pendingSenaData && window._pendingSenaData.hora) {
+                        horaSuccess = window._pendingSenaData.hora;
+                    } else if (apiData.horaInicio) {
+                        try {
+                            var horaObj2 = new Date(apiData.horaInicio);
+                            var h2 = String(horaObj2.getHours()).padStart(2, '0');
+                            var m2 = String(horaObj2.getMinutes()).padStart(2, '0');
+                            horaSuccess = h2 + ":" + m2;
+                        } catch(e) { horaSuccess = "no definido"; }
+                    }
+                    
+                    showBookingSuccess(nombreSuccess, tratSuccess, fechaSuccess, horaSuccess);
+                    return true;
+                }
+                // No confirmado - liberar turno como antes
+                console.log("Turno no confirmado, liberando...");
+                clearActiveTurnoStorage();
+                releaseStoredTurno(data.idTurno);
+                return false;
+            })
+            .catch(function(err) {
+                console.error("Error verificando estado al expirar timer:", err);
+                clearActiveTurnoStorage();
+                releaseStoredTurno(data.idTurno);
+                hidePreReservationLoader();
+                return false;
+            });
     }
     
     // Not expired locally - verify with API that the turno is still temp-reserved
     verificarEstadoTurno(data.idTurno)
         .then(function(apiData) {
+            hidePreReservationLoader();
+            
             // Si ya esta "Reservado", el webhook se ejecuto - confirmar exito directo
             if (apiData.estado === 'Reservado') {
                 if (apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
@@ -49,10 +135,35 @@ function restoreSenaTimerFromStorage() {
                     stopStatusPolling();
                     if(window._senaTimerId) clearInterval(window._senaTimerId);
                     window._senaTimerId = null;
-                    showBookingSuccess(window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente", 
-                                     window._pendingSenaData ? window._pendingSenaData.tratamiento : "",
-                                     window._pendingSenaData ? window._pendingSenaData.fecha : "",
-                                     window._pendingSenaData ? window._pendingSenaData.hora : "");
+                  var nombreSuc = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
+                    var tratSuc = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
+                    
+                    var fechaSuc = "";
+                    var horaSuc = "";
+                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
+                        fechaSuc = window._pendingSenaData.fecha;
+                        horaSuc = window._pendingSenaData.hora;
+                    } else if (apiData.fecha) {
+                        try {
+                            var fechaObj3 = new Date(apiData.fecha);
+                            var day3 = String(fechaObj3.getDate()).padStart(2, '0');
+                            var month3 = String(fechaObj3.getMonth() + 1).padStart(2, '0');
+                            var year3 = fechaObj3.getFullYear();
+                            fechaSuc = day3 + "/" + month3 + "/" + year3;
+                        } catch(e) { fechaSuc = apiData.fecha; }
+                    }
+                    if (window._pendingSenaData && window._pendingSenaData.hora) {
+                        horaSuc = window._pendingSenaData.hora;
+                    } else if (apiData.horaInicio) {
+                        try {
+                            var horaObj3 = new Date(apiData.horaInicio);
+                            var h3 = String(horaObj3.getHours()).padStart(2, '0');
+                            var m3 = String(horaObj3.getMinutes()).padStart(2, '0');
+                            horaSuc = h3 + ":" + m3;
+                        } catch(e) { horaSuc = "no definido"; }
+                    }
+                    
+                    showBookingSuccess(nombreSuc, tratSuc, fechaSuc, horaSuc);
                     return;
                 } else {
                     console.log("Turno ya tomado por otra persona al restaurar, liberando...");
@@ -67,22 +178,184 @@ function restoreSenaTimerFromStorage() {
                 resetBookingForm();
                 return;
             }
-            // Turno sigue activo en API - restore timer UI
-            var senaDiv2 = document.getElementById("senaRequired");
-            if (!senaDiv2) return;
-            startSenaTimerFromRemaining(data.idTurno, remainingMs);
+            
+            // Turno sigue activo en API - CREAR NUEVA PREFERENCIA MP (evitar webhook expirado)
+            console.log("Creando nueva preferencia MP para turno:", data.idTurno);
+            
+            crearNuevaPreferenciaMP(data.idTurno)
+                .then(function(prefData) {
+                    if (!prefData.success || !prefData.initPoint) {
+                        console.error("Error creando nueva preferencia:", prefData);
+                        var senaDiv2 = document.getElementById("senaRequired");
+                        if (senaDiv2) {
+                            senaDiv2.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                                + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
+                                + '<h3 style="color:#FFD700;margin-bottom:8px">Error al cargar el pago</h3>'
+                                + '<p>No pudimos generar el link de pago. Intenta nuevamente o contactanos por telefono.</p>'
+                                + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;margin-top:16px;background:#003366;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
+                            senaDiv2.style.display = "block";
+                        }
+                        return;
+                    }
+                    
+                    console.log("Nueva preferencia creada:", prefData.preferenceId);
+                    
+                    // Guardar nueva preferenceId e initPoint en sessionStorage
+                    try {
+                        sessionStorage.setItem("yessenia_preference_id", prefData.preferenceId);
+                        sessionStorage.setItem("yessenia_init_point", prefData.initPoint);
+                    } catch(e) {}
+                    
+                    var storedNombre = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
+                    var storedTratamiento = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
+                    
+                    var storedFecha = "";
+                    var storedHora = "";
+                    if (window._pendingSenaData && window._pendingSenaData.fecha) {
+                        storedFecha = window._pendingSenaData.fecha;
+                        storedHora = window._pendingSenaData.hora;
+                    } else if (apiData.fecha) {
+                        try {
+                            var fechaObj = new Date(apiData.fecha);
+                            var day = String(fechaObj.getDate()).padStart(2, '0');
+                            var month = String(fechaObj.getMonth() + 1).padStart(2, '0');
+                            var year = fechaObj.getFullYear();
+                            storedFecha = day + "/" + month + "/" + year;
+                        } catch(e) { storedFecha = apiData.fecha; }
+                    }
+                    if (window._pendingSenaData && window._pendingSenaData.hora) {
+                        // hora ya viene en formato HH:MM desde el frontend
+                        storedHora = window._pendingSenaData.hora;
+                    } else if (apiData.horaInicio) {
+                        try {
+                            var horaObj = new Date(apiData.horaInicio);
+                            var h = String(horaObj.getHours()).padStart(2, '0');
+                            var m = String(horaObj.getMinutes()).padStart(2, '0');
+                            storedHora = h + ":" + m;
+                        } catch(e) { storedHora = "no definido"; }
+                    }
+                    
+                    var storedMontoSena = (window._pendingSenaData && window._pendingSenaData.montoSena) ? window._pendingSenaData.montoSena : 0;
+                    if (!storedMontoSena || storedMontoSena === 0) {
+                        try { var ssMonto = sessionStorage.getItem("yessenia_monto_sena"); storedMontoSena = ssMonto ? Number(ssMonto) || 0 : 0; } catch(e) {}
+                    }
+                    
+                    // Restaurar datos pendientes para el timer y polling
+                    window._pendingSenaData = {
+                        idTurno: data.idTurno,
+                        tratamiento: storedTratamiento,
+                        nombre: storedNombre,
+                        fecha: storedFecha,
+                        hora: storedHora,
+                        montoSena: storedMontoSena
+                    };
+                    
+                    // Llamar a handleRequiresSena con la NUEVA preference para mostrar Wallet Brick completo
+                    handleRequiresSena(data.idTurno, storedTratamiento, storedNombre, storedFecha, storedHora, storedMontoSena, prefData.initPoint, prefData.preferenceId);
+                    
+                    // Ajustar el timer para que use el tiempo restante correcto
+                    setTimeout(function() {
+                        var timerEl = document.getElementById("senaTimer");
+                        if (timerEl) timerEl.style.display = "block";
+                        
+                        var totalSeconds = Math.ceil(remainingMs / 1000);
+                        if(window._senaTimerId) clearInterval(window._senaTimerId);
+                        
+                        window._senaTimerId = setInterval(function() {
+                            totalSeconds--;
+                            if (totalSeconds <= 0) {
+                                clearInterval(window._senaTimerId);
+                                releaseTempReservation();
+                                return;
+                            }
+                            var m = Math.floor(totalSeconds / 60);
+                            var s = totalSeconds % 60;
+                            var td = m + ":" + ((s<10?"0":"")+s);
+                            
+                            var te=document.getElementById("senaTimer"); if(te) te.textContent="⏳ Tiempo restante: "+td;
+                            var tb=document.getElementById("senaTimerBig"); if(tb) tb.textContent=td;
+                        }, 1000);
+                    }, 500);
+                })
+                .catch(function(err) {
+                    console.error("Error creando nueva preferencia:", err);
+                    // Fallback: mostrar solo timer con boton de pago alternativo si falla la API
+                    var senaDiv2 = document.getElementById("senaRequired");
+                    if (!senaDiv2) return;
+                    
+                    var oldPrefId = sessionStorage.getItem("yessenia_preference_id") || "";
+                    var oldInitPoint = sessionStorage.getItem("yessenia_init_point") || "";
+                    
+                    if (oldInitPoint) {
+                        startSenaTimerFromRemaining(data.idTurno, remainingMs, oldInitPoint);
+                    } else {
+                        startSenaTimerFromRemaining(data.idTurno, remainingMs);
+                    }
+                });
         })
         .catch(function(err) {
-            console.warn("No se pudo verificar turno en API al restaurar, confiando en localStorage:", err);
-            var senaDiv3 = document.getElementById("senaRequired");
-            if (!senaDiv3) return;
-            startSenaTimerFromRemaining(data.idTurno, remainingMs);
+            hidePreReservationLoader();
+            console.warn("No se pudo verificar turno en API al restaurar, intentando crear nueva preferencia igual:", err);
+            
+            // Si la verificacion falla, intentar crear nueva preferencia directamente
+            // (si el turno ya expiro, el backend devolvera error y mostramos fallback)
+            var storedNombre = window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente";
+            var storedTratamiento = window._pendingSenaData ? window._pendingSenaData.tratamiento : "";
+            var storedFecha = window._pendingSenaData ? window._pendingSenaData.fecha : "";
+            var storedHora = window._pendingSenaData ? window._pendingSenaData.hora : "";
+            var storedMontoSena = window._pendingSenaData ? (window._pendingSenaData.montoSena || 0) : 0;
+            if (!storedMontoSena) {
+                try { var ssMonto3 = sessionStorage.getItem("yessenia_monto_sena"); storedMontoSena = ssMonto3 ? Number(ssMonto3) || 0 : 0; } catch(e) {}
+            }
+
+            crearNuevaPreferenciaMP(data.idTurno)
+                .then(function(prefData) {
+                    if (prefData.success && prefData.initPoint) {
+                        console.log("Nueva preferencia creada despues de error de verificacion");
+                        try {
+                            sessionStorage.setItem("yessenia_preference_id", prefData.preferenceId);
+                            sessionStorage.setItem("yessenia_init_point", prefData.initPoint);
+                        } catch(e) {}
+                        
+                        window._pendingSenaData = {
+                            idTurno: data.idTurno,
+                            tratamiento: storedTratamiento,
+                            nombre: storedNombre,
+                            fecha: storedFecha,
+                            hora: storedHora,
+                            montoSena: storedMontoSena
+                        };
+                        
+                        handleRequiresSena(data.idTurno, storedTratamiento, storedNombre, storedFecha, storedHora, storedMontoSena, prefData.initPoint, prefData.preferenceId);
+                    } else {
+                        // Fallback final: mostrar boton de pago directo con initPoint viejo si existe
+                        console.log("No se pudo crear nueva preferencia, mostrando fallback");
+                        var oldInitPoint = sessionStorage.getItem("yessenia_init_point") || "";
+                        if (oldInitPoint) {
+                            startSenaTimerFromRemaining(data.idTurno, remainingMs, oldInitPoint);
+                        } else {
+                            startSenaTimerFromRemaining(data.idTurno, remainingMs);
+                        }
+                    }
+                })
+                .catch(function(err2) {
+                    console.error("Error final creando preferencia:", err2);
+                    var senaDiv3 = document.getElementById("senaRequired");
+                    if (!senaDiv3) return;
+                    
+                    var oldInitPoint = sessionStorage.getItem("yessenia_init_point") || "";
+                    if (oldInitPoint) {
+                        startSenaTimerFromRemaining(data.idTurno, remainingMs, oldInitPoint);
+                    } else {
+                        startSenaTimerFromRemaining(data.idTurno, remainingMs);
+                    }
+                });
         });
     
     return true;
 }
 
-function startSenaTimerFromRemaining(idTurno, remainingMs) {
+function startSenaTimerFromRemaining(idTurno, remainingMs, optionalInitPoint) {
     // Use exact remaining time - no extra buffer to keep frontend/backend in sync
     var totalSeconds = Math.ceil(remainingMs / 1000);
     if (totalSeconds <= 0) return;
@@ -103,7 +376,13 @@ function startSenaTimerFromRemaining(idTurno, remainingMs) {
     html += '<div id="senaTimerBig" style="text-align:center;font-size:2.5rem;font-weight:700;color:#FFD700;margin:16px 0">';
     html += displayTime + '</div>';
     html += '<p style="text-align:center;opacity:0.6;font-size:0.85rem;margin-bottom:20px">Tiempo restante para completar el pago</p>';
-    html += '<button id="cancelarReservaBtnRestored" style="display:block;margin:20px auto 0;background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">Cancelar y elegir otro turno</button>';
+    
+    // Si tenemos initPoint alternativo, mostrar boton de pago directo
+    if (optionalInitPoint) {
+        html += '<a href="'+optionalInitPoint+'" target="_blank" style="display:block;margin:0 auto 12px;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600;text-align:center">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
+    }
+    
+    html += '<button id="cancelarReservaBtnRestored" style="display:block;margin:8px auto 0;background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">Cancelar y elegir otro turno</button>';
     html += '</div>';
     
     senaDiv.innerHTML = html;
@@ -138,6 +417,9 @@ function startSenaTimerFromRemaining(idTurno, remainingMs) {
 
 // ========== Handle REQUIERE_SEÑA: Mercado Pago Payment Flow ==========
 function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena, initPoint, preferenceId) {
+    // Marcar que el usuario acaba de confirmar turno - evitar interferencias con verificacion automatica
+    markReservaFlowActive();
+    
     if(window._senaTimerId) clearInterval(window._senaTimerId);
     var form=document.getElementById("bookingForm");
     if(form) form.style.display="none";
@@ -159,9 +441,20 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     try {
         sessionStorage.setItem(STORAGE_KEY_ACTIVE_TURN, idTurno);
         sessionStorage.setItem(STORAGE_KEY_EXPIRY_TS, String(expiryTime));
+        sessionStorage.setItem("yessenia_preference_id", preferenceId || "");
+        sessionStorage.setItem("yessenia_init_point", mpLink || "");
     } catch(e) {}
     
     senaDiv.style.display="block";
+    
+    // Ensure payment area is pushed below sticky header on all devices
+    if (senaDiv.firstChild && senaDiv.firstChild.nodeType === 1) {
+        senaDiv.firstChild.style.marginTop = Math.max(senaDiv.firstChild.style.marginTop || '0', '20px');
+    }
+    
+    // Persist montoSena to sessionStorage for page reload restore
+    try { sessionStorage.setItem("yessenia_monto_sena", String(montoSena || 0)); } catch(e) {}
+    
     var montoDisplay = " $" + Number(montoSena).toLocaleString("es-AR") + " ARS";
     
     // Update the expiry time in sessionStorage to match actual config value
@@ -170,83 +463,160 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     } catch(e) {}
     
   var html = '';
-    html += '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto">';
-    html += '<div style="font-size:3rem;margin-bottom:16px">⏳</div>';
-    html += '<h3 style="font-size:1.5rem;margin-bottom:8px;color:#FFD700">¡Tu Turno está Pre-Reservado!</h3>';
-    html += '<p style="opacity:0.8;margin-bottom:4px">Guardamos tu lugar por <strong>'+totalMin+' minutos</strong> para que pagues la seña y lo confirmes.</p>';
-    html += '<p style="opacity:0.6;font-size:0.85rem;margin-bottom:12px">Turno <strong>'+idTurno+'</strong></p>';
-    html += '<div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin:16px 0">';
-    html += '<div style="font-size:0.85rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px">Tratamiento</div>';
-    html += '<div style="font-size:1.1rem;font-weight:600;margin-top:4px">'+tratamiento+'</div>';
-    html += '<div style="display:flex;justify-content:space-between;margin-top:8px"><span style="opacity:0.7">Fecha</span><span>'+fecha+' - '+hora+'</span></div>';
+    senaDiv.style.paddingTop = '0';
+    senaDiv.style.paddingBottom = '0';
+    senaDiv.style.paddingLeft = '0';
+    senaDiv.style.paddingRight = '0';
+    html += '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:20px 16px 20px 16px !important;max-width:550px;margin:0 auto">';
+    html += '<div style="font-size:1.75rem;margin-bottom:4px">⏳</div>';
+    html += '<h3 style="font-size:1.15rem;margin-bottom:2px;color:#FFD700">¡Tu Turno está Pre-Reservado!</h3>';
+    html += '<p style="opacity:0.8;margin-bottom:0;font-size:0.85rem">Guardamos tu lugar por <strong>'+totalMin+' minutos</strong></p>';
+    html += '<p style="opacity:0.6;font-size:0.7rem;margin-bottom:8px">Turno <strong>'+idTurno+'</strong></p>';
+    html += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-bottom:8px">';
+    html += '<div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Tratamiento</div>';
+    html += '<div style="font-size:0.95rem;font-weight:600;margin-bottom:2px">'+tratamiento+'</div>';
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.8rem"><span style="opacity:0.7">Fecha</span><span>'+fecha+' - '+hora+'</span></div>';
     html += '</div>';
-    html += '<div style="text-align:center;margin:20px 0;padding:16px;background:rgba(196,161,109,0.2);border-radius:12px;border:1px solid rgba(196,161,109,0.3)">';
-    html += '<div style="font-size:0.85rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px">Seña a pagar</div>';
-    html += '<div style="font-size:2rem;font-weight:700;color:#C4A16D;margin-top:4px">'+montoDisplay+'</div>';
+    html += '<div style="text-align:center;margin-bottom:8px;padding:10px;background:rgba(196,161,109,0.2);border-radius:10px;border:1px solid rgba(196,161,109,0.3)">';
+    html += '<div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Seña a pagar</div>';
+    html += '<div style="font-size:1.5rem;font-weight:700;color:#C4A16D">'+montoDisplay+'</div>';
     html += '</div>';
     
-    // Contenedor del Wallet Brick (Mercado Pago Modal)
-    html += '<div id="walletPaymentButton" style="text-align:center;margin-bottom:10px"></div>';
-    html += '<p style="text-align:center;opacity:0.75;font-size:0.85rem;margin-bottom:6px">Pago 100% seguro</p>';
-    html += '<p style="text-align:center;opacity:0.6;font-size:0.8rem;margin-bottom:12px">Aceptamos débito y crédito. No necesitás tener cuenta de Mercado Pago.</p>';
+    // Boton de pago con init_point directo (sin modal Wallet Brick)
+    html += '<div style="text-align:center;margin-bottom:6px">';
+    html += '<a href="'+mpLink+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
+    html += '</div>';
+    html += '<p style="text-align:center;opacity:0.75;font-size:0.75rem;margin-bottom:2px">Pago 100% seguro</p>';
+    html += '<p style="text-align:center;opacity:0.6;font-size:0.7rem;margin-bottom:6px">Aceptamos débito y crédito</p>';
     
-    html += '<div id="senaTimerBig" style="text-align:center;font-size:2.5rem;font-weight:700;color:#FFD700;margin:16px 0">';
+    html += '<div id="senaTimerBig" style="text-align:center;font-size:1.75rem;font-weight:700;color:#FFD700;margin:4px 0">';
     html += totalMin + ':00</div>';
-    html += '<p style="text-align:center;opacity:0.6;font-size:0.85rem;margin-bottom:20px">Tiempo restante para completar el pago</p>';
-
-    // Cargar SDK de MercadoPago.js V2 dinamicamente (si no esta ya cargado)
-    if (!window.MercadoPago) {
-        var mpScript = document.createElement('script');
-        mpScript.src = "https://sdk.mercadopago.com/js/v2";
-        mpScript.onload = function() { initWalletBrick(mpLink); };
-        document.head.appendChild(mpScript);
-    } else {
-        initWalletBrick(mpLink);
-    }
-
-    function initWalletBrick(mpInitPoint) {
-        // Inicializar SDK con PUBLIC_KEY (cambiar por la clave real de produccion)
-        var mpPublicKey = "TU_PUBLIC_KEY";
-        if (typeof MP_PUBLIC_KEY !== 'undefined' && MP_PUBLIC_KEY) {
-            mpPublicKey = MP_PUBLIC_KEY;
-        }
-
-        var mp = new MercadoPago(mpPublicKey, { locale: 'es-AR' });
-
-        // Renderizar Wallet Brick en el contenedor dedicado
-        mp.bricks().create("wallet", "walletPaymentButton", {
-            initialization: {
-                preferenceId: preferenceId || '',
-                redirectMode: 'modal'
-            },
-            customization: {
-                texts: { valueProp: 'smart_option', action: 'pay' }
-            },
-            render: function (bricksBuilder) {
-                bricksBuilder('wallet', 'walletPaymentButton');
-            }
-        }).catch(function(err) {
-            console.warn("Wallet Brick falló, usando fallback init_point:", err);
-            // Fallback: boton con init_point directo al navegador
-            var wpb = document.getElementById('walletPaymentButton');
-            if (wpb && mpInitPoint) {
-                wpb.innerHTML = '<a href="'+mpInitPoint+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
-                wpb.style.cssText = 'text-align:center;margin-bottom:10px;';
-            }
-        });
-    }
+    html += '<p style="text-align:center;opacity:0.6;font-size:0.75rem;margin-bottom:6px">Tiempo restante para completar el pago</p>';
 
     if (!mpLink) {
-        html += '<button id="simularPagoBtn" style="display:block;margin:0 auto;background:#FF8C00;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;border:none;cursor:pointer">⚠️ Simular Confirmación de Pago (Modo Testeo)</button>';
+        html = html.replace(
+            '<a href="'+mpLink+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>',
+            '<button id="simularPagoBtn" style="display:inline-block;background:#FF8C00;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;border:none;cursor:pointer">⚠️ Simular Confirmación de Pago (Modo Testeo)</button>'
+        );
         html += '<p style="text-align:center;opacity:0.6;font-size:0.8rem;margin-top:10px">Links de pago no configurados. Este botón simula el pago para testear.</p>';
-        setTimeout(function(){var b=document.getElementById("simularPagoBtn");if(b)b.addEventListener("click",function(){handlePaymentConfirmation(idTurno, tratamiento);});},100);
     }
     
-    html += '<button id="cancelarReservaBtn" style="display:block;margin:20px auto 0;background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">Cancelar y elegir otro turno</button>';
-    setTimeout(function(){var b=document.getElementById("cancelarReservaBtn");if(b)b.addEventListener("click",function(){cancelarReservaTemporal(idTurno);});},100);
-
+    html += '<button id="cancelarReservaBtn" style="display:block;margin:8px auto 4px;background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:10px 28px;font-size:0.9rem;border-radius:50px;cursor:pointer">Cancelar y elegir otro turno</button>';
     html += '</div>';
     senaDiv.innerHTML = html;
+    
+    setTimeout(function(){var b=document.getElementById("cancelarReservaBtn");if(b)b.addEventListener("click",function(){cancelarReservaTemporal(idTurno);});},100);
+    if (!mpLink) {
+        setTimeout(function(){var b=document.getElementById("simularPagoBtn");if(b)b.addEventListener("click",function(){handlePaymentConfirmation(idTurno, tratamiento);});},100);
+    }
+
+    // Scroll automatico al area de pago inmediatamente despues de mostrarla
+    function scrollToShowPayment() {
+        var target = senaDiv;
+            var headerHeight = 0;
+            var headerEl = document.querySelector('.header');
+            if (headerEl) {
+                headerHeight = headerEl.offsetHeight;
+            }
+            
+            // Get the absolute position of target from top of page
+            var targetRect = target.getBoundingClientRect();
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var targetTop = scrollTop + targetRect.top;
+            
+            // Scroll to bring target below header with padding
+            var scrollTarget = Math.max(0, targetTop - headerHeight - 16);
+            
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
+        }
+    
+    // Re-scroll after MercadoPago brick finishes rendering (iframe may use fixed positioning)
+    function repositionAfterMercadoPago() {
+        var walletBtn = document.getElementById('walletPaymentButton');
+        if (!walletBtn) return;
+        
+        var headerHeight = 0;
+        var headerEl = document.querySelector('.header');
+        if (headerEl) {
+            headerHeight = headerEl.offsetHeight;
+        }
+        
+        // Get current position of wallet button relative to viewport
+        var walletRect = walletBtn.getBoundingClientRect();
+        
+        // If wallet button is above or overlapping the header, scroll it into view
+        if (walletRect.top < headerHeight) {
+            var walletTop = window.pageYOffset + walletRect.top;
+            var scrollTarget = Math.max(0, walletTop - headerHeight - 210);
+            
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
+        } else if (walletRect.bottom > window.innerHeight) {
+            // Wallet button is below visible area - scroll down to show it
+            var walletBottom = window.pageYOffset + walletRect.bottom;
+            var scrollTarget = Math.max(0, walletBottom - window.innerHeight + 20);
+            
+            window.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // Observe walletPaymentButton for MercadoPago iframe injection
+    var walletBtn = document.getElementById('walletPaymentButton');
+    if (walletBtn) {
+        var observer = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes.length > 0) {
+                    // Check if an iframe was added (MercadoPago brick)
+                    var hasIframe = false;
+                    for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+                        var node = mutations[i].addedNodes[j];
+                        if (node.nodeType === 1 && node.tagName === 'IFRAME') {
+                            hasIframe = true;
+                            break;
+                        }
+                        if (node.nodeType === 1) {
+                            var innerIframes = node.querySelectorAll ? node.querySelectorAll('iframe') : [];
+                            if (innerIframes.length > 0) {
+                                hasIframe = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasIframe) {
+                        setTimeout(repositionAfterMercadoPago, 500);
+                        setTimeout(repositionAfterMercadoPago, 1500);
+                        setTimeout(repositionAfterMercadoPago, 3000);
+                        observer.disconnect();
+                    }
+                }
+            }
+        });
+        observer.observe(walletBtn, { childList: true, subtree: true });
+    }
+    
+    // Initial scroll to show payment area - reset to top first then scroll to payment
+    (function initPaymentScroll() {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        setTimeout(function() {
+            if (!senaDiv) return;
+            var rect = senaDiv.getBoundingClientRect();
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var targetTop = scrollTop + rect.top;
+            var headerHeight = 0;
+            var headerEl = document.querySelector('.header');
+            if (headerEl) headerHeight = headerEl.offsetHeight;
+            var scrollTarget = Math.max(0, targetTop - headerHeight - 210);
+            window.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+        }, 200);
+    })();
     
     startSenaTimer();
     startStatusPolling(idTurno);
@@ -354,12 +724,89 @@ function handleMercadoPagoReturn() {
                 var senaDiv2 = document.getElementById('senaRequired');
                 if (senaDiv2) {
                     senaDiv2.style.display = 'block';
+                    
+                    // Usar datos del backend si están disponibles, sino fallback a localStorage
+                    var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
+                    var tratSuccess = data.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : "");
+                    var fechaSuccess = data.fecha || (window._pendingSenaData ? window._pendingSenaData.fecha : "");
+                    var horaSuccess = data.horaInicio || (window._pendingSenaData ? window._pendingSenaData.hora : "");
+                    
+                    // Guardar para Google Calendar
+                    window._bookingData = { 
+                        nombre: nombreSuccess, 
+                        trat: tratSuccess, 
+                        fecha: fechaSuccess, 
+                        hora: horaSuccess,
+                        horaFin: calcularHoraFin(horaSuccess)
+                    };
+
                     var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:16px">✅</div>'
-                        + '<h3 style="color:#FFD700;margin-bottom:8px">Turno Procesado!</h3>'
-                        + '<p>Tu pago fue validado exitosamente. Estamos actualizando tu agenda.</p>'
+                        + '<h3 style="color:#FFD700;margin-bottom:8px">Turno Agendado con Exito!</h3>';
+
+                    if (nombreSuccess && tratSuccess) {
+                        // Mostrar datos completos del turno como en pagina 1
+                        successHtml += '<p style="opacity:0.9;margin-bottom:24px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
+                        successHtml += '<p style="color:#FFD700;font-size:0.85rem;margin-bottom:20px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
+                        
+                        successHtml += '<div style="background:rgba(168,134,79,0.15);border:1px solid rgba(255,215,0,0.3);border-radius:14px;padding:20px;margin-bottom:20px;text-align:left">';
+                        successHtml += '<h4 style="color:#FFD700;margin:0 0 16px;font-size:1rem;text-align:center">📋 Tus Datos de Reserva</h4>';
+                        
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<span style="opacity:0.7;font-size:0.85rem">Cliente:</span>';
+                        successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (nombreSuccess || "") + '</strong>';
+                        successHtml += '</div>';
+                        
+                        if (idTurno) {
+                            successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                            successHtml += '<span style="opacity:0.7;font-size:0.85rem">Turno:</span>';
+                            successHtml += '<strong style="color:#FFD700;font-size:0.9rem">' + idTurno + '</strong>';
+                            successHtml += '</div>';
+                        }
+                        
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<span style="opacity:0.7;font-size:0.85rem">Tratamiento:</span>';
+                        successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (tratSuccess || "") + '</strong>';
+                        successHtml += '</div>';
+                        
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.1)">';
+                        successHtml += '<span style="opacity:0.7;font-size:0.85rem">Fecha:</span>';
+                        successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (fechaSuccess || "") + '</strong>';
+                        successHtml += '</div>';
+                        
+                        successHtml += '<div style="display:flex;justify-content:space-between;padding:8px 0">';
+                        successHtml += '<span style="opacity:0.7;font-size:0.85rem">Horario:</span>';
+                        successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (horaSuccess || "") + ' hs</strong>';
+                        successHtml += '</div>';
+                        
+                        successHtml += '</div>'; // cierra card datos
+                        
+                        successHtml += '<p style="opacity:0.6;font-size:0.75rem;margin:0 0 12px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
+                        
+                        successHtml += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:16px">';
+                        successHtml += '<p style="margin:0 0 6px;color:#FFD700;font-size:0.85rem">📍 Direccion del consultorio</p>';
+                        successHtml += '<p style="margin:0 0 10px;color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.4">' + CONFIG.negocio.direccion + '</p>';
+                        successHtml += '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">';
+                        successHtml += '<a href="' + (CONFIG.negocio.googleMapsUrl || "https://maps.google.com") + '" target="_blank" style="display:inline-block;background:#4285F4;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">🗺️ Ver en Google Maps</a>';
+                        successHtml += '<a href="https://wa.me/' + CONFIG.negocio.telefonoRaw + '?text=' + encodeURIComponent('Hola! Confirmé mi turno ' + (idTurno || '') + ' para ' + (tratSuccess || '') + ' el ' + (fechaSuccess || '') + ' a las ' + (horaSuccess || '') + ' hs.') + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 16px;border-radius:50px;text-decoration:none;font-size:0.8rem;font-weight:600">📱 Consultar por WhatsApp</a>';
+                        successHtml += '</div></div>';
+                        
+                        successHtml += '<p style="opacity:0.9;margin-bottom:12px;font-size:0.95rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
+                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">📅 Guardar en Google Calendar</button>';
+                        successHtml += '</div>'; // cierra card principal
+                        
+                        senaDiv2.innerHTML = successHtml;
+                        
+                        setTimeout(function(){
+                            var cb = document.getElementById("saveCalendarBtn");
+                            if(cb) cb.addEventListener("click", openCalendar);
+                        }, 100);
+                    } else {
+                        // Fallback: mostrar mensaje simple si no hay datos suficientes
+                        successHtml += '<p>Tu pago fue validado exitosamente. Estamos actualizando tu agenda.</p>'
                         + '<button onclick="location.reload()" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Ver mi turno confirmado</button></div>';
-                    senaDiv2.innerHTML = successHtml;
+                        senaDiv2.innerHTML = successHtml;
+                    }
                 }
             } else if (data.estado === 'Disponible' || data.estado === 'Vencido Sin Confirmar') {
                 var senaDiv3 = document.getElementById('senaRequired');
@@ -497,6 +944,7 @@ function releaseTempReservation() {
     // Show "Tiempo Agotado" message directly instead of resetting form
     clearActiveTurnoStorage();
     stopStatusPolling();
+    clearReservaFlowFlag();
     
     var senaDiv = document.getElementById('senaRequired');
     if (senaDiv) {
@@ -522,6 +970,8 @@ function releaseTempReservation() {
 }
 
 function cancelarReservaTemporal(idTurno) {
+    clearReservaFlowFlag();
+    
     if (!idTurno) {
         clearActiveTurnoStorage();
         stopStatusPolling();

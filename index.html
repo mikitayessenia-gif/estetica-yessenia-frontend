@@ -20,7 +20,7 @@
                 <li><a href="#servicios">Tratamientos</a></li>
                 <li><a href="#galeria">Galeria</a></li>
                 <li><a href="#resenas">Reseñas</a></li>
-                <li><a href="#ubicacion">Ubicacion</a></li>
+                <li><a href="#ubicacion">Ubicación</a></li>
                 <li><a href="#contacto">Contacto</a></li>
                 <li><a href="#reservar" class="btn-primary nav-cta">📅 Reservar Turno</a></li>
             </ul>
@@ -112,20 +112,19 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-label">Encontranos</span>
-                <h2>Nuestra ubicacion</h2>
+                   <h2>Nuestra ubicación</h2>
                 <p>Vení a conocernos! Te esperamos con la mejor onda y profesionales a tu servicio.</p>
             </div>
             <div class="location-grid">
                 <div class="location-map">
                     <iframe src="https://www.google.com/maps?q=Av.+Acoyte+25,+Caballito,+CABA&output=embed&z=17" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    <div class="map-note">📌 Pin ajustable con tu direccion real en Google Maps</div>
                 </div>
                 <div class="location-info">
                     <h3>Visitanos en nuestro consultorio</h3>
                     <div class="info-item">
                         <span class="info-icon">📍</span>
                         <div>
-                            <strong>Direccion</strong>
+                            <strong>Dirección</strong>
                             <p>Av. Acoyte 25</p>
                         </div>
                     </div>
@@ -147,7 +146,7 @@
                         <span class="info-icon">🚗</span>
                         <div>
                             <strong>Como llegar</strong>
-                            <p>Cercano a estacion Subte Acoyte (Linea A). Hay cocheras privadas de pago en los alrededores (no es estacionamiento exclusivo, servicio externo).</p>
+                            <p>Cercano a estación Subte Acoyte (Línea A). Hay cocheras privadas de pago en los alrededores (no es estacionamiento exclusivo, servicio externo).</p>
                         </div>
                     </div>
                     <div class="info-actions">
@@ -176,7 +175,7 @@
                 <form class="booking-form" id="bookingForm">
                     <!-- Step 1: Treatment -->
                     <div class="form-row">
-                        <select name="tratamiento" id="treatmentSelect" required onchange="loadAvailableSlots()"><option value="">Paso 1: Cargando tratamientos...</option></select>
+                        <select name="tratamiento" id="treatmentSelect" required onchange="loadAvailableSlots(true)"><option value="">Paso 1: Cargando tratamientos...</option></select>
                     </div>
 
                     <!-- Step 2: Available Slots (from API) -->
@@ -207,7 +206,7 @@
                 </form>
 
                 <p style="text-align:center;color:rgba(255,255,255,0.8);font-size:0.85rem;margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
-                    <strong>Politica de reservas:</strong> Las cancelaciones o cambios de turno deben avisarse con al menos 24 horas de anticipacion. Pasado ese plazo el importe abonado no sera reembolsable.<br><em>Gracias por tu comprension.</em>
+                    <strong>Política de reservas:</strong> Las cancelaciones o cambios de turno deben avisarse con al menos 24 horas de anticipación. Pasado ese plazo el importe abonado no será reembolsable.<br><em>Gracias por tu comprensión.</em>
                 </p>
 
                 <!-- Success Message -->
@@ -232,21 +231,20 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <h3 class="logo">Estética Yessenia<span>.</span></h3>
-                    <p>Centro de estetica profesional dedicado a realzar tu belleza natural con los mejores tratamientos.</p>
+                    <p>Centro de estética profesional dedicado a realzar tu belleza natural con los mejores tratamientos.</p>
                 </div>
                 <div class="footer-links">
                     <h4>Tratamientos</h4>
                     <ul id="footerTratamientosList">
-                        <li><a href="#servicios">Cargando tratamientos...</a></li>
+                        <li><a href="javascript:void(0)" onclick="document.getElementById('servicios')?.scrollIntoView({behavior:'smooth'});return false;">Cargando tratamientos...</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
-                    <h4>Informacion</h4>
+                    <h4>Información</h4>
                     <ul>
-                        <li><a href="#ubicacion">Ubicacion</a></li>
+                        <li><a href="#ubicacion">Ubicación</a></li>
                         <li><a href="#resenas">Reseñas</a></li>
-                        <li><a href="#">Politica de Privacidad</a></li>
-                        <li><a href="#">Terminos y Condiciones</a></li>
+                        <li><a href="javascript:void(0)" onclick="openPoliciesModal()">Política de Privacidad y Términos</a></li>
                     </ul>
                 </div>
                 <div class="footer-social">
@@ -256,6 +254,12 @@
                         <a href="https://www.tiktok.com/@yesseniacentrodeestetica" target="_blank" class="social-link">TikTok</a>
                     </div>
                 </div>
+            </div>
+            <div style="text-align:center;padding:20px 0;border-top:1px solid rgba(196,161,109,0.15);margin-bottom:0">
+                <a href="https://wa.me/541123178918?text=Hola!%20Quiero%20consultar%20por%20un%20turno" target="_blank" style="display:inline-flex;align-items:center;gap:8px;color:#25D366;text-decoration:none;font-size:0.9rem;font-weight:600">
+                    <svg width="20" height="20" viewBox="0 0 32 32" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.734 5.468 2.014 7.758L.663 31.29l7.702-1.92A15.92 15.92 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.2a13.24 13.24 0 01-6.77-1.86l-.486-.289-5.05 1.26 1.348-4.927-.317-.505A13.17 13.17 0 012.8 16C2.8 8.761 8.761 2.8 16 2.8S29.2 8.761 29.2 16 23.239 29.2 16 29.2z"/><path d="M22.685 18.71c-.39-.184-2.303-1.135-2.66-1.266-.356-.131-.616-.196-.877.184-.26.38-.99 1.266-1.212 1.526-.22.26-.453.293-.843.11-.39-.184-1.647-.607-3.138-1.936-1.16-1.035-1.946-2.314-2.17-2.704-.22-.39-.024-.6.17-.793.178-.177.39-.453.586-.68.196-.227.26-.39.39-.65.13-.26.066-.49-.033-.687-.1-.196-.877-2.114-1.204-2.893-.318-.76-.643-.658-.877-.67l-.375-.006c-.26 0-.686.098-1.045.49-.36.39-1.374 1.342-1.374 3.27s1.407 3.79 1.604 4.05c.196.26 2.775 4.233 6.72 5.935.94.405 1.672.647 2.244.828.943.3 1.802.258 2.482.157.758-.114 2.303-.94 2.63-1.848.327-.907.327-1.685.228-1.847-.098-.163-.36-.26-.75-.444z"/></svg>
+                    Consultanos por WhatsApp
+                </a>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 Yessenia Centro de Estética. Todos los derechos reservados.</p>
@@ -267,6 +271,63 @@
     <a href="https://wa.me/541123178918?text=Hola%2C%20quiero%20consultar%20por%20un%20turno" target="_blank" class="whatsapp-float" id="whatsappBtn">
         <svg viewBox="0 0 32 32" width="32" height="32" fill="#25D366"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.734 5.468 2.014 7.758L.663 31.29l7.702-1.92A15.92 15.92 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.2a13.24 13.24 0 01-6.77-1.86l-.486-.289-5.05 1.26 1.348-4.927-.317-.505A13.17 13.17 0 012.8 16C2.8 8.761 8.761 2.8 16 2.8S29.2 8.761 29.2 16 23.239 29.2 16 29.2z"/><path d="M22.685 18.71c-.39-.184-2.303-1.135-2.66-1.266-.356-.131-.616-.196-.877.184-.26.38-.99 1.266-1.212 1.526-.22.26-.453.293-.843.11-.39-.184-1.647-.607-3.138-1.936-1.16-1.035-1.946-2.314-2.17-2.704-.22-.39-.024-.6.17-.793.178-.177.39-.453.586-.68.196-.227.26-.39.39-.65.13-.26.066-.49-.033-.687-.1-.196-.877-2.114-1.204-2.893-.318-.76-.643-.658-.877-.67l-.375-.006c-.26 0-.686.098-1.045.49-.36.39-1.374 1.342-1.374 3.27s1.407 3.79 1.604 4.05c.196.26 2.775 4.233 6.72 5.935.94.405 1.672.647 2.244.828.943.3 1.802.258 2.482.157.758-.114 2.303-.94 2.63-1.848.327-.907.327-1.685.228-1.847-.098-.163-.36-.26-.75-.444z"/></svg>
     </a>
+    <!-- Policies Modal -->
+    <div id="policiesModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;animation:fadeIn 0.2s ease" onclick="if(event.target===this)closePoliciesModal()">
+        <div style="background:#3d2e1f;border-radius:20px;padding:32px 28px;max-width:560px;width:90%;max-height:80vh;box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:slideUp 0.3s ease;border:1px solid rgba(196,161,109,0.3);position:relative;display:flex;flex-direction:column">
+            <!-- Sticky header with close button -->
+            <div style="position:sticky;top:0;z-index:2;background:#3d2e1f;padding:0 0 16px;border-bottom:1px solid rgba(196,161,109,0.2);margin-bottom:0">
+                <button onclick="closePoliciesModal()" style="position:absolute;top:8px;right:12px;background:rgba(196,161,109,0.2);color:#C4A16D;border:none;border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;line-height:32px;text-align:center" title="Cerrar">&#10005;</button>
+                <h3 style="color:#C4A16D;margin:0 0 4px;font-family:'Playfair Display',serif;font-size:1.5rem;text-align:center">Políticas y Términos</h3>
+                <p style="color:rgba(255,255,255,0.5);margin:0;text-align:center;font-size:0.8rem">Estética Yessenia — Centro de Estética Profesional</p>
+            </div>
+            <!-- Scrollable content -->
+            <div style="overflow-y:auto;padding-top:16px;flex:1">
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">📋 Política de Reservas y Cancelaciones</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Las cancelaciones o cambios de turno deben avisarse con al menos <strong style="color:#C4A16D">24 horas de anticipación</strong>. Pasado ese plazo el importe abonado no será reembolsable.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0 0 12px">Para cancelar o reagendar, escribinos por WhatsApp al +54 11 2317-8918 lo antes posible.</p>
+                    <p style="color:rgba(255,255,255,0.5);font-size:0.8rem;line-height:1.7;margin:0">Gracias por tu comprensión.</p>
+                </div>
+
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">🔒 Política de Privacidad</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">En Estética Yessenia nos comprometemos a proteger tu información personal. Los datos que recopilamos (nombre, teléfono, email) son utilizados exclusivamente para la gestión de turnos y comunicación.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Todos los pagos se gestionan de forma segura a través de Mercado Pago, la pasarela de pago oficial más confiable de Argentina. No almacenamos datos de tarjetas ni información financiera.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0">Si tenés alguna consulta sobre tus datos, escribinos por WhatsApp.</p>
+                </div>
+
+                <div style="border-top:1px solid rgba(196,161,109,0.2);padding-top:20px;margin-bottom:20px">
+                    <h4 style="color:#C4A16D;margin:0 0 12px;font-size:1rem;font-family:'Playfair Display',serif">📜 Términos y Condiciones</h4>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Al reservar un turno en Estética Yessenia, aceptás nuestras políticas de cancelación, privacidad y uso del servicio.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">El pago de seña es obligatorio para confirmar tu turno y será aplicado al total del tratamiento. Una vez confirmado, el precio de tu turno queda fijado.</p>
+                    <p style="color:rgba(255,255,255,0.8);font-size:0.9rem;line-height:1.7;margin:0 0 12px">Los resultados pueden variar según cada persona. En tu primera visita evaluamos tu piel para recomendarte el tratamiento ideal.</p>
+                    <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.7;margin:0">Para cualquier consulta o aclaración, no dudes en contactarnos por WhatsApp.</p>
+                </div>
+
+                <div style="text-align:center;padding-top:16px;border-top:1px solid rgba(196,161,109,0.2);margin-bottom:8px">
+                    <a href="https://wa.me/541123178918?text=Hola!%20Quiero%20hacer%20una%20consulta" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:12px 24px;border-radius:50px;text-decoration:none;font-size:0.9rem;font-weight:600">💬 Consultanos por WhatsApp</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPoliciesModal() {
+            var overlay = document.getElementById('policiesModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closePoliciesModal() {
+            var overlay = document.getElementById('policiesModalOverlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+    </script>
+
     <!-- Scripts Modularizados -->
     <script>var SCRIPT_CACHE_BUST = Date.now();</script>
     <script src="scripts/config-global.js?v="+SCRIPT_CACHE_BUST></script>

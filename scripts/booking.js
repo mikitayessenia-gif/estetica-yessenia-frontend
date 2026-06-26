@@ -137,15 +137,26 @@ function generateSlotsFromStructure(slots, duracionFilas) {
     return { byDate: byDate };
 }
 
-function loadAvailableSlots() {
+function loadAvailableSlots(clearHint) {
     var treatmentSelect = document.getElementById("treatmentSelect");
     var slotsContainer = document.getElementById("slotsContainer");
     var slotsGrid = document.getElementById("slotsGrid");
     var apiLoader = document.getElementById("apiLoader");
     var apiError = document.getElementById("apiError");
     if (!treatmentSelect || !slotsGrid) return;
+    
+    // Clear error message when user selects a treatment (so it's not permanent/annoying)
+    if(clearHint && apiError){
+        apiError.innerHTML = "";
+        apiError.style.display = "none";
+        apiError.style.background = "rgba(255,68,68,0.2)";
+    }
+    
     var selectedTreatment = treatmentSelect.value;
-    if (!selectedTreatment) { slotsContainer.style.display="none"; return; }
+    if (!selectedTreatment) { 
+        slotsContainer.style.display="none"; 
+        return; 
+    }
 
     var selectedTreatmentObj = ALL_TREATMENTS.find(function(t){return t.nombre === selectedTreatment});
     var duracionFilas = selectedTreatmentObj ? selectedTreatmentObj.duracionFilas : 1;
@@ -279,7 +290,14 @@ function loadAvailableSlots() {
                     html+='<button type="button" class="slot-btn" data-id="'+slot.id+'" data-fecha="'+date+'" data-hora="'+horaInicioDisplay+'">'+horaInicioDisplay+" - "+horaFinDisplay+'</button>';
                 });
             });
-            slotsGrid.innerHTML=html;
+           slotsGrid.innerHTML=html;
+
+            // Clear error area on success
+            var apiErrArea = document.getElementById("apiError");
+            if(apiErrArea){
+                apiErrArea.innerHTML = "";
+                apiErrArea.style.display = "none";
+            }
 
             slotsGrid.querySelectorAll(".slot-btn").forEach(function(btn){
                 btn.addEventListener("click",function(){
@@ -291,13 +309,62 @@ function loadAvailableSlots() {
                 });
             });
         })
-        .catch(function(){ if(apiLoader)apiLoader.style.display="none"; showError("No se pudo conectar con la agenda. Llamanos por telefono."); });
+      .catch(function(){
+            if(apiLoader)apiLoader.style.display="none";
+            
+            // Failed to load - show error again so user can retry
+            showError();
+        });
 }
 
 function showError(msg) { 
     var e = document.getElementById("apiError"); 
-    if(e){ e.style.display="block"; e.innerHTML="<p>"+msg+"</p>"; } 
+    if(e){ 
+        e.style.display="block"; 
+        var isConnError = !msg || msg.indexOf("conectar") !== -1 || msg.indexOf("Sin conexi") !== -1 || 
+                          msg.indexOf("error") === -1 && msg.indexOf("Error") === -1;
+        
+        if(isConnError){
+            e.innerHTML = '<p style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin:0 0 4px;text-align:center">&#9888; Problemas al conectarse con la agenda de turnos, volvé a intentar seleccionar tratamientos</p>'
+                + '<p style="color:rgba(255,255,255,0.4);font-size:0.7rem;margin:0;text-align:center">o escribinos por WhatsApp si seguís teniendo problemas</p>';
+            // Reset treatment select to "Paso 1" so user knows what to do next
+            var sel = document.getElementById("treatmentSelect");
+            if(sel && sel.value) sel.selectedIndex = 0;
+        } else {
+            e.innerHTML = '<p style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin:0;text-align:center">&#9888; ' + (msg || "Ocurri&#243; un problema.") + '</p>';
+        }
+    }
 }
+
+function hideApiError() {
+    var e = document.getElementById("apiError");
+    if(e){
+        e.innerHTML = "";
+        e.style.display = "none";
+        e.style.background = "rgba(255,68,68,0.2)";
+    }
+}
+
+function highlightTreatmentSelect(highlight) {
+    var select = document.getElementById("treatmentSelect");
+    if(!select) return;
+    if(highlight){
+        select.style.border = "2px solid #C4A16D";
+        select.style.boxShadow = "0 0 0 3px rgba(196,161,109,0.25)";
+        select.style.transition = "all 0.3s ease";
+    } else {
+        select.style.border = "";
+        select.style.boxShadow = "";
+    }
+}
+
+// Override loadAvailableSlots to handle retry state
+var originalLoadAvailableSlots = loadAvailableSlots;
+loadAvailableSlots = function(clearHint) {
+    // clearHint=true means called from onchange (user selected treatment)
+    // clearHint=false means called from handleRetrySlots (retry after error)
+    return originalLoadAvailableSlots(clearHint);
+};
 
 // ========== API: Submit Booking (reservar action) ==========
 var bookingForm = document.getElementById("bookingForm");
@@ -405,6 +472,7 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
                     .then(function(data) {
                         clearActiveTurnoStorage();
                         if(window._senaTimerId) clearInterval(window._senaTimerId);
+                        clearReservaFlowFlag();
                         
                         var sd = document.getElementById("senaRequired");
                         if(sd){ sd.style.display="none"; sd.innerHTML=""; }
@@ -436,6 +504,7 @@ function resetBookingForm() {
     if (form) form.style.display = "block";
     var slotsContainer = document.getElementById("slotsContainer");
     if (slotsContainer) slotsContainer.style.display = "block";
+    clearReservaFlowFlag();
     try {
         var reservarSection = document.getElementById("reservar");
         if (reservarSection) window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
@@ -452,6 +521,7 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
     var apiError = document.getElementById("apiError"); if(apiError) apiError.style.display="none";
     clearActiveTurnoStorage();
     showAllSections();
+    clearReservaFlowFlag();
     var successDiv = document.getElementById("bookingSuccess");
     if(successDiv){
         successDiv.style.display="block";

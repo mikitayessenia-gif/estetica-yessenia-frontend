@@ -39,6 +39,40 @@ function releaseStoredTurno(idTurno) {
     fetch(API_URL, {method:"POST", body:JSON.stringify({token:API_TOKEN, action:"cancelarReservaTemporal", idTurno:idTurno})}).catch(function(){});
 }
 
+// ========== VERIFICAR RESERVA ACTIVA POR EMAIL O TELEFONO (detectar pre-reserva al recargar pagina) ==========
+function verificarReservaActivaPorContacto(email, telefono) {
+    var params = 'token=' + encodeURIComponent(API_TOKEN);
+    if (email) params += '&email=' + encodeURIComponent(email.toLowerCase());
+    if (telefono) params += '&telefono=' + encodeURIComponent(telefono);
+    
+    var url = API_URL + '?action=verificarReservaActiva&' + params;
+    return fetch(url)
+        .then(function(r){return r.json()})
+        .then(function(data) { return data; })
+        .catch(function(err) {
+            console.error('Error verificando reserva activa:', err);
+            return { error: err.toString() };
+        });
+}
+
+// ========== CREAR NUEVA PREFERENCIA MP AL RESTAURAR SESION (evitar webhook expirado) ==========
+function crearNuevaPreferenciaMP(idTurno) {
+    return fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            token: API_TOKEN,
+            action: "crearNuevaPreferencia",
+            idTurno: idTurno
+        })
+    })
+    .then(function(r){return r.json()})
+    .then(function(data) { return data; })
+    .catch(function(err) {
+        console.error('Error creando nueva preferencia MP:', err);
+        return { error: err.toString() };
+    });
+}
+
 // ========== Polling: Check turno status every 10s during active timer ==========
 var _statusPollInterval = null;
 var _confirmadoLocalmente = false; // Flag para evitar falsos negativos despues de confirmacion
@@ -229,7 +263,8 @@ function loadTreatmentsFromAPI() {
             var apiErr = document.getElementById("apiError");
             if (apiErr) {
                 apiErr.style.display = "block";
-                apiErr.innerHTML = "<p>No se pudieron cargar los tratamientos. <a href='tel:" + CONFIG.negocio.telefonoRaw + "' target='_blank' style='color:#FFD700;font-weight:600'>Llamanos por telefono</a> para reservar.</p>";
+                var whatsappMsg = encodeURIComponent('Hola! Quiero reservar un turno. No pude cargar los tratamientos en la web');
+                apiErr.innerHTML = '<div style="background:white;border-radius:14px;padding:18px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06);max-width:380px;margin:0 auto"><p style="color:#4A9E9E;font-size:0.9rem;font-weight:700;margin-bottom:2px">No pudimos cargar los tratamientos</p><p style="font-size:0.75rem;color:#6B7F7F;margin-bottom:10px">Puede ser un problema temporal de conexi&#243;n.</p><div style="display:flex;flex-direction:column;gap:6px;align-items:center"><button onclick="loadTreatmentsFromAPI()" style="background:transparent;border:1.5px solid #C4A16D;color:#C4A16D;padding:8px 20px;border-radius:50px;font-weight:600;font-size:0.8rem;width:90%;cursor:pointer">&#128260; Reintentar</button><a href="https://wa.me/541123178918?text=' + whatsappMsg + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:8px 20px;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.8rem;width:90%">&#128172; WhatsApp</a></div></div>';
             }
         }
     }, 8000);

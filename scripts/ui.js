@@ -172,6 +172,8 @@ function interceptBookingNavigation() {
                 showExitConfirmationModal();
             }
         });
+        
+   
     });
 
     // También interceptar scroll hacia secciones ajenas durante booking activo
