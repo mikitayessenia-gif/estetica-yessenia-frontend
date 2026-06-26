@@ -620,15 +620,22 @@ function handleMercadoPagoReturn() {
     if(ctaContent){
         var h2 = ctaContent.querySelector("h2"); if(h2) h2.style.display="none";
         var firstP = ctaContent.querySelectorAll("p")[0]; if(firstP) firstP.style.display="none";
-        ctaContent.style.paddingTop = "20px";
-        ctaContent.style.paddingBottom = "20px";
+        ctaContent.style.paddingTop = "16px";
+        ctaContent.style.paddingBottom = "16px";
     }
 
     // Reducir padding de la seccion completa (igual que booking.js)
     var reservarSection = document.getElementById('reservar');
     if(reservarSection){
-        reservarSection.style.paddingTop = "10px";
-        reservarSection.style.paddingBottom = "30px";
+        reservarSection.style.paddingTop = "8px";
+        reservarSection.style.paddingBottom = "16px";
+    }
+
+    // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
+    var policyTextBefore = document.getElementById('policyText');
+    if(policyTextBefore){
+        policyTextBefore.style.marginTop = "8px";
+        policyTextBefore.style.marginBottom = "4px";
     }
 
     var senaDiv = document.getElementById('senaRequired');
@@ -641,7 +648,7 @@ function handleMercadoPagoReturn() {
     }
     var mainContent = document.querySelector('.cta-content');
     if (mainContent) {
-        var loadHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:40px 24px;max-width:550px;margin:0 auto;text-align:center">'
+        var loadHtml = '<div style="background:rgba(0,80,80,0.2);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)">'
             + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
             + '<h3 style="color:#FFD700;margin-bottom:8px;font-size:1.4rem">Confirmando tu pago...</h3>'
             + '<p style="opacity:0.9;margin-bottom:16px;color:rgba(255,255,255,0.9)">Estamos validando tu comprobante con Mercado Pago</p>'
