@@ -652,7 +652,21 @@ function handleMercadoPagoReturn() {
                     senaDiv2.style.display = 'block';
                     
                     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
-                    // Gemini: removido el re-ajuste forzado de paddings que deformaba el contenedor verde
+                    
+                    // Compactar la sección para igualar el flujo directo (booking.js)
+                    var reservarSection2 = document.getElementById("reservar");
+                    if(reservarSection2){
+                        reservarSection2.style.paddingTop = "10px !important";
+                        reservarSection2.style.paddingBottom = "30px !important";
+                    }
+                    var ctaContent2 = reservarSection2?.querySelector(".cta-content");
+                    if(ctaContent2){
+                        ctaContent2.style.paddingTop = "20px !important";
+                        ctaContent2.style.paddingBottom = "20px !important";
+                        var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
+                        var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1 || p.textContent.indexOf("Política de reserva") !== -1; });
+                        if(policyP2) policyP2.style.marginBottom = "5px !important";
+                    }
                     
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
                     var tratSuccess = data.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : "");
