@@ -693,8 +693,10 @@ function handleMercadoPagoReturn() {
                         if(ctaContent2){
                             ctaContent2.style.paddingTop = "20px";
                             ctaContent2.style.paddingBottom = "20px";
-                            // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
-                            var policyP2 = ctaContent2.querySelectorAll("p")[1]; if(policyP2) policyP2.style.marginBottom = "20px";
+                       // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
+                        var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
+                        var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
+                        if(policyP2) policyP2.style.marginBottom = "20px";
                         }
                         // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
                         reservarSection2.style.paddingTop = "40px";
