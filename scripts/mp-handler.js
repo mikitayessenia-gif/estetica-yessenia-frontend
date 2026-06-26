@@ -684,8 +684,13 @@ function handleMercadoPagoReturn() {
                 if (senaDiv2) {
                     senaDiv2.style.display = 'block';
                     
-                    // Ocultar formulario de reserva
+                    // Ocultar formulario y header al mostrar resultado final
                     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
+                    var reservarSection2 = document.getElementById("reservar");
+                    if(reservarSection2){
+                        var h2r = reservarSection2.querySelector("h2"); if(h2r) h2r.style.display="none";
+                        var pr = reservarSection2.querySelectorAll("p")[0]; if(pr) pr.style.display="none";
+                    }
                     
                     // Usar datos del backend si están disponibles, sino fallback a localStorage
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");

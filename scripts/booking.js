@@ -504,9 +504,16 @@ function resetBookingForm() {
     if (form) form.style.display = "block";
     var slotsContainer = document.getElementById("slotsContainer");
     if (slotsContainer) slotsContainer.style.display = "block";
+    
+    // Mostrar de nuevo el header del formulario
+    var reservarSection = document.getElementById("reservar");
+    if(reservarSection){
+        var h2 = reservarSection.querySelector("h2"); if(h2) h2.style.display="";
+        var p = reservarSection.querySelectorAll("p")[0]; if(p) p.style.display="";
+    }
+    
     clearReservaFlowFlag();
     try {
-        var reservarSection = document.getElementById("reservar");
         if (reservarSection) window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
     } catch(e) {}
 }
@@ -519,6 +526,14 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
     var senaDiv = document.getElementById("senaRequired"); if(senaDiv) senaDiv.style.display="none";
     var apiError = document.getElementById("apiError"); if(apiError) apiError.style.display="none";
+    
+    // Ocultar header del formulario de reserva cuando ya se confirmo
+    var reservarSection = document.getElementById("reservar");
+    if(reservarSection){
+        var h2 = reservarSection.querySelector("h2"); if(h2) h2.style.display="none";
+        var p = reservarSection.querySelectorAll("p")[0]; if(p) p.style.display="none";
+    }
+    
     clearActiveTurnoStorage();
     
     // Formatear fecha/hora si vienen en formato ISO
