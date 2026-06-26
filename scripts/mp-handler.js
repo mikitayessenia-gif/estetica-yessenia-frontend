@@ -667,8 +667,8 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    // Padding inferior aumentado para dar espacio al botón de Google Calendar (flujo Mercado Pago) — sin fondo para usar el verde existente
-                    var successHtml = '<div style="padding:28px 24px 50px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    // Padding inferior consistente con pagina principal (~50px total)
+                    var successHtml = '<div style="padding:28px 24px 30px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
@@ -723,8 +723,8 @@ function handleMercadoPagoReturn() {
                         successHtml += '</div>';
                         
                         senaDiv2.innerHTML = successHtml;
-                        // Forzar padding inferior en el contenedor padre para que el fondo verde se extienda
-                        senaDiv2.style.paddingBottom = '80px !important';
+                        // Forzar padding inferior consistente con pagina principal
+                        senaDiv2.style.paddingBottom = '40px !important';
                         
                         setTimeout(function(){
                             var cb = document.getElementById("saveCalendarBtn");

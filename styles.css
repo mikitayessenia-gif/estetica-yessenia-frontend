@@ -785,7 +785,6 @@ body {
 /* Ensure more spacing for payment area visibility */
 #senaRequired > div:first-child {
     margin-top: 52px !important;
-    padding-bottom: 0 !important;
 }
 
 /* Ensure MercadoPago brick iframes render properly within scroll flow */
