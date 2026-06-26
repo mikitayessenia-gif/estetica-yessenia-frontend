@@ -551,11 +551,11 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora) {
         reservarSection.style.paddingTop = "10px";
         reservarSection.style.paddingBottom = "30px";
         
-        // Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
+// Reducir margen del texto de politica (esta FUERA del form, hay que buscarlo directo)
         var policyText2 = document.getElementById("policyText");
         if(policyText2){
-            policyText2.style.marginTop = "16px";
-            policyText2.style.marginBottom = "8px";
+            policyText2.style.marginTop = "8px";
+            policyText2.style.marginBottom = "4px";
         }
     }
     
