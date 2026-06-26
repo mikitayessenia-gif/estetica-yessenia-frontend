@@ -90,7 +90,6 @@ function restoreSenaTimerFromStorage() {
     var remainingMs = data.expiryTime - now;
     
     if (remainingMs <= 0) {
-        // El timer local expiró pero el webhook pudo haber confirmado - verificar API primero
         console.log("Timer local expirado, verificando si webhook ya confirmó turno:", data.idTurno);
         return verificarEstadoTurno(data.idTurno)
             .then(function(apiData) {
@@ -111,7 +110,6 @@ function restoreSenaTimerFromStorage() {
                     showBookingSuccess(nombreSuccess, tratSuccess, fechaSuccess, horaSuccess);
                     return true;
                 }
-                // No confirmado - liberar turno como antes
                 console.log("Turno no confirmado, liberando...");
                 clearActiveTurnoStorage();
                 releaseStoredTurno(data.idTurno);
@@ -126,12 +124,10 @@ function restoreSenaTimerFromStorage() {
             });
     }
     
-    // Not expired locally - verify with API that the turno is still temp-reserved
     verificarEstadoTurno(data.idTurno)
         .then(function(apiData) {
             hidePreReservationLoader();
             
-            // Si ya esta "Reservado", el webhook se ejecuto - confirmar exito directo
             if (apiData.estado === 'Reservado') {
                 if (apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
                     console.log("Turno ya confirmado al restaurar desde storage, liberando...");
@@ -139,7 +135,7 @@ function restoreSenaTimerFromStorage() {
                     stopStatusPolling();
                     if(window._senaTimerId) clearInterval(window._senaTimerId);
                     window._senaTimerId = null;
-                  var nombreSuc = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
+                    var nombreSuc = (window._pendingSenaData && window._pendingSenaData.nombre) ? window._pendingSenaData.nombre : (apiData.clienteNombre || "Cliente");
                     var tratSuc = (window._pendingSenaData && window._pendingSenaData.tratamiento) ? window._pendingSenaData.tratamiento : (apiData.tratamiento || "");
                     
                     var fechaSuc = (window._pendingSenaData && window._pendingSenaData.fecha) ? window._pendingSenaData.fecha : (apiData.fecha ? formatFechaDisplay(apiData.fecha) : "");
@@ -161,7 +157,6 @@ function restoreSenaTimerFromStorage() {
                 return;
             }
             
-            // Turno sigue activo en API - CREAR NUEVA PREFERENCIA MP (evitar webhook expirado)
             console.log("Creando nueva preferencia MP para turno:", data.idTurno);
             
             crearNuevaPreferenciaMP(data.idTurno)
@@ -182,7 +177,6 @@ function restoreSenaTimerFromStorage() {
                     
                     console.log("Nueva preferencia creada:", prefData.preferenceId);
                     
-                    // Guardar nueva preferenceId e initPoint en sessionStorage
                     try {
                         sessionStorage.setItem("yessenia_preference_id", prefData.preferenceId);
                         sessionStorage.setItem("yessenia_init_point", prefData.initPoint);
@@ -199,7 +193,6 @@ function restoreSenaTimerFromStorage() {
                         try { var ssMonto = sessionStorage.getItem("yessenia_monto_sena"); storedMontoSena = ssMonto ? Number(ssMonto) || 0 : 0; } catch(e) {}
                     }
                     
-                    // Restaurar datos pendientes para el timer y polling
                     window._pendingSenaData = {
                         idTurno: data.idTurno,
                         tratamiento: storedTratamiento,
@@ -209,42 +202,35 @@ function restoreSenaTimerFromStorage() {
                         montoSena: storedMontoSena
                     };
                     
-                    // Llamar a handleRequiresSena con la NUEVA preference para mostrar Wallet Brick completo
                     handleRequiresSena(data.idTurno, storedTratamiento, storedNombre, storedFecha, storedHora, storedMontoSena, prefData.initPoint, prefData.preferenceId);
                     
-                    // Ajustar el timer para que use el tiempo restante correcto
-                    setTimeout(function() {
-                        var timerEl = document.getElementById("senaTimer");
-                        if (timerEl) timerEl.style.display = "block";
+                    var timerEl = document.getElementById("senaTimer");
+                    if (timerEl) timerEl.style.display = "block";
+                    
+                    var totalSeconds = Math.ceil(remainingMs / 1000);
+                    if(window._senaTimerId) clearInterval(window._senaTimerId);
+                    
+                    window._senaTimerId = setInterval(function() {
+                        totalSeconds--;
+                        if (totalSeconds <= 0) {
+                            clearInterval(window._senaTimerId);
+                            releaseTempReservation();
+                            return;
+                        }
+                        var m = Math.floor(totalSeconds / 60);
+                        var s = totalSeconds % 60;
+                        var td = m + ":" + ((s<10?"0":"")+s);
                         
-                        var totalSeconds = Math.ceil(remainingMs / 1000);
-                        if(window._senaTimerId) clearInterval(window._senaTimerId);
-                        
-                        window._senaTimerId = setInterval(function() {
-                            totalSeconds--;
-                            if (totalSeconds <= 0) {
-                                clearInterval(window._senaTimerId);
-                                releaseTempReservation();
-                                return;
-                            }
-                            var m = Math.floor(totalSeconds / 60);
-                            var s = totalSeconds % 60;
-                            var td = m + ":" + ((s<10?"0":"")+s);
-                            
-                            var te=document.getElementById("senaTimer"); if(te) te.textContent="⏳ Tiempo restante: "+td;
-                            var tb=document.getElementById("senaTimerBig"); if(tb) tb.textContent=td;
-                        }, 1000);
-                    }, 500);
+                        var te=document.getElementById("senaTimer"); if(te) te.textContent="⏳ Tiempo restante: "+td;
+                        var tb=document.getElementById("senaTimerBig"); if(tb) tb.textContent=td;
+                    }, 1000);
                 })
                 .catch(function(err) {
                     console.error("Error creando nueva preferencia:", err);
-                    // Fallback: mostrar solo timer con boton de pago alternativo si falla la API
                     var senaDiv2 = document.getElementById("senaRequired");
                     if (!senaDiv2) return;
                     
-                    var oldPrefId = sessionStorage.getItem("yessenia_preference_id") || "";
                     var oldInitPoint = sessionStorage.getItem("yessenia_init_point") || "";
-                    
                     if (oldInitPoint) {
                         startSenaTimerFromRemaining(data.idTurno, remainingMs, oldInitPoint);
                     } else {
@@ -256,8 +242,6 @@ function restoreSenaTimerFromStorage() {
             hidePreReservationLoader();
             console.warn("No se pudo verificar turno en API al restaurar, intentando crear nueva preferencia igual:", err);
             
-            // Si la verificacion falla, intentar crear nueva preferencia directamente
-            // (si el turno ya expiro, el backend devolvera error y mostramos fallback)
             var storedNombre = window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente";
             var storedTratamiento = window._pendingSenaData ? window._pendingSenaData.tratamiento : "";
             var storedFecha = window._pendingSenaData ? window._pendingSenaData.fecha : "";
@@ -287,7 +271,6 @@ function restoreSenaTimerFromStorage() {
                         
                         handleRequiresSena(data.idTurno, storedTratamiento, storedNombre, storedFecha, storedHora, storedMontoSena, prefData.initPoint, prefData.preferenceId);
                     } else {
-                        // Fallback final: mostrar boton de pago directo con initPoint viejo si existe
                         console.log("No se pudo crear nueva preferencia, mostrando fallback");
                         var oldInitPoint = sessionStorage.getItem("yessenia_init_point") || "";
                         if (oldInitPoint) {
@@ -315,7 +298,6 @@ function restoreSenaTimerFromStorage() {
 }
 
 function startSenaTimerFromRemaining(idTurno, remainingMs, optionalInitPoint) {
-    // Use exact remaining time - no extra buffer to keep frontend/backend in sync
     var totalSeconds = Math.ceil(remainingMs / 1000);
     if (totalSeconds <= 0) return;
     
@@ -336,7 +318,6 @@ function startSenaTimerFromRemaining(idTurno, remainingMs, optionalInitPoint) {
     html += displayTime + '</div>';
     html += '<p style="text-align:center;opacity:0.6;font-size:0.85rem;margin-bottom:20px">Tiempo restante para completar el pago</p>';
     
-    // Si tenemos initPoint alternativo, mostrar boton de pago directo
     if (optionalInitPoint) {
         html += '<a href="'+optionalInitPoint+'" target="_blank" style="display:block;margin:0 auto 12px;background:#003366;color:white;padding:18px 32px;font-size:1.15rem;border-radius:50px;text-decoration:none;font-weight:600;text-align:center">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
     }
@@ -376,7 +357,6 @@ function startSenaTimerFromRemaining(idTurno, remainingMs, optionalInitPoint) {
 
 // ========== Handle REQUIERE_SEÑA: Mercado Pago Payment Flow ==========
 function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena, initPoint, preferenceId) {
-    // Marcar que el usuario acaba de confirmar turno - evitar interferencias con verificacion automatica
     markReservaFlowActive();
     
     if(window._senaTimerId) clearInterval(window._senaTimerId);
@@ -392,8 +372,6 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     var mpLink = initPoint || (selectedTreatment ? (selectedTreatment.linkSena || "") : "");
     window._pendingPreferenceId = preferenceId || "";
     
-    // Use the ACTUAL config value from backend (loaded via loadConfigFromAPI), not a hardcoded default.
-    // This ensures frontend timer matches backend expiration exactly.
     var totalMin = TIEMPO_EXPIRACION_RESERVA_MINUTOS || 5;
     var expiryTime = Date.now() + (totalMin * 60 * 1000);
     
@@ -406,22 +384,19 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     
     senaDiv.style.display="block";
     
-    // Ensure payment area is pushed below sticky header on all devices
     if (senaDiv.firstChild && senaDiv.firstChild.nodeType === 1) {
         senaDiv.firstChild.style.marginTop = Math.max(senaDiv.firstChild.style.marginTop || '0', '20px');
     }
     
-    // Persist montoSena to sessionStorage for page reload restore
     try { sessionStorage.setItem("yessenia_monto_sena", String(montoSena || 0)); } catch(e) {}
     
     var montoDisplay = " $" + Number(montoSena).toLocaleString("es-AR") + " ARS";
     
-    // Update the expiry time in sessionStorage to match actual config value
     try {
         sessionStorage.setItem(STORAGE_KEY_EXPIRY_TS, String(expiryTime));
     } catch(e) {}
     
-  var html = '';
+    var html = '';
     senaDiv.style.paddingTop = '0';
     senaDiv.style.paddingBottom = '0';
     senaDiv.style.paddingLeft = '0';
@@ -441,7 +416,6 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     html += '<div style="font-size:1.4rem;font-weight:700;color:#C4A16D">'+montoDisplay+'</div>';
     html += '</div>';
     
-    // Boton de pago con init_point directo (sin modal Wallet Brick)
     html += '<div style="text-align:center;margin-bottom:4px">';
     html += '<a href="'+mpLink+'" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;font-weight:600">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
     html += '</div>';
@@ -468,30 +442,26 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
         setTimeout(function(){var b=document.getElementById("simularPagoBtn");if(b)b.addEventListener("click",function(){handlePaymentConfirmation(idTurno, tratamiento);});},100);
     }
 
-    // Scroll automatico al area de pago inmediatamente despues de mostrarla
     function scrollToShowPayment() {
         var target = senaDiv;
-            var headerHeight = 0;
-            var headerEl = document.querySelector('.header');
-            if (headerEl) {
-                headerHeight = headerEl.offsetHeight;
-            }
-            
-            // Get the absolute position of target from top of page
-            var targetRect = target.getBoundingClientRect();
-            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            var targetTop = scrollTop + targetRect.top;
-            
-            // Scroll to bring target below header with padding
-            var scrollTarget = Math.max(0, targetTop - headerHeight - 16);
-            
-            window.scrollTo({
-                top: scrollTarget,
-                behavior: 'smooth'
-            });
+        var headerHeight = 0;
+        var headerEl = document.querySelector('.header');
+        if (headerEl) {
+            headerHeight = headerEl.offsetHeight;
         }
+        
+        var targetRect = target.getBoundingClientRect();
+        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        var targetTop = scrollTop + targetRect.top;
+        
+        var scrollTarget = Math.max(0, targetTop - headerHeight - 16);
+        
+        window.scrollTo({
+            top: scrollTarget,
+            behavior: 'smooth'
+        });
+    }
     
-    // Re-scroll after MercadoPago brick finishes rendering (iframe may use fixed positioning)
     function repositionAfterMercadoPago() {
         var walletBtn = document.getElementById('walletPaymentButton');
         if (!walletBtn) return;
@@ -502,10 +472,8 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
             headerHeight = headerEl.offsetHeight;
         }
         
-        // Get current position of wallet button relative to viewport
         var walletRect = walletBtn.getBoundingClientRect();
         
-        // If wallet button is above or overlapping the header, scroll it into view
         if (walletRect.top < headerHeight) {
             var walletTop = window.pageYOffset + walletRect.top;
             var scrollTarget = Math.max(0, walletTop - headerHeight - 210);
@@ -515,7 +483,6 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
                 behavior: 'smooth'
             });
         } else if (walletRect.bottom > window.innerHeight) {
-            // Wallet button is below visible area - scroll down to show it
             var walletBottom = window.pageYOffset + walletRect.bottom;
             var scrollTarget = Math.max(0, walletBottom - window.innerHeight + 20);
             
@@ -526,13 +493,11 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
         }
     }
     
-    // Observe walletPaymentButton for MercadoPago iframe injection
     var walletBtn = document.getElementById('walletPaymentButton');
     if (walletBtn) {
         var observer = new MutationObserver(function(mutations) {
             for (var i = 0; i < mutations.length; i++) {
                 if (mutations[i].addedNodes.length > 0) {
-                    // Check if an iframe was added (MercadoPago brick)
                     var hasIframe = false;
                     for (var j = 0; j < mutations[i].addedNodes.length; j++) {
                         var node = mutations[i].addedNodes[j];
@@ -560,7 +525,6 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
         observer.observe(walletBtn, { childList: true, subtree: true });
     }
     
-    // Initial scroll to show payment area - reset to top first then scroll to payment
     (function initPaymentScroll() {
         window.scrollTo({ top: 0, behavior: 'instant' });
         setTimeout(function() {
@@ -649,7 +613,6 @@ function handleMercadoPagoReturn() {
 
     hideAllSections();
 
-    // Ocultar inmediatamente el formulario y headers para que no se vea feo
     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
     var h2 = document.querySelector('.cta-content h2'); if(h2) h2.style.display="none";
     var firstP = document.querySelectorAll('.cta-content p')[0]; if(firstP) firstP.style.display="none";
@@ -688,7 +651,6 @@ function handleMercadoPagoReturn() {
                 if (senaDiv2) {
                     senaDiv2.style.display = 'block';
                     
-                    // Ocultar formulario y header al mostrar resultado final
                     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
                     var reservarSection2 = document.getElementById("reservar");
                     if(reservarSection2){
@@ -698,23 +660,19 @@ function handleMercadoPagoReturn() {
                         if(ctaContent2){
                             ctaContent2.style.paddingTop = "20px";
                             ctaContent2.style.paddingBottom = "20px";
-                       // Reducir margen del parrafo de politica (CSS tiene margin-bottom: 40px en .cta-content p)
-                        var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
-                        var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
-                        if(policyP2) policyP2.style.marginBottom = "5px";
+                            var allPs2 = Array.from(ctaContent2.querySelectorAll("p"));
+                            var policyP2 = allPs2.find(function(p){ return p.textContent.indexOf("Política de reservas") !== -1; });
+                            if(policyP2) policyP2.style.marginBottom = "5px";
                         }
-                        // Reducir padding de la seccion completa (era 100px arriba y abajo desde CSS .section)
                         reservarSection2.style.paddingTop = "10px";
                         reservarSection2.style.paddingBottom = "30px";
                     }
                     
-                    // Usar datos del backend si están disponibles, sino fallback a localStorage
                     var nombreSuccess = data.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente");
                     var tratSuccess = data.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : "");
                     var fechaSuccess = data.fecha ? formatFechaDisplay(data.fecha) : (window._pendingSenaData ? window._pendingSenaData.fecha : "");
                     var horaSuccess = data.horaInicio ? formatHoraDisplay(data.horaInicio) : (window._pendingSenaData ? window._pendingSenaData.hora : "");
                     
-                    // Guardar para Google Calendar
                     window._bookingData = { 
                         nombre: nombreSuccess, 
                         trat: tratSuccess, 
@@ -723,14 +681,15 @@ function handleMercadoPagoReturn() {
                         horaFin: calcularHoraFin(horaSuccess)
                     };
 
-                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 72px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    // CORRECCIÓN AQUÍ: Cambiado el padding-bottom de 72px a 32px para equilibrar el espacio interno,
+                    // y cambiado el margin del botón abajo (de 16px a 40px) para crear el espacio solicitado.
+                    var successHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:28px 24px 32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                         + '<div style="font-size:3rem;margin-bottom:12px">✅</div>'
                         + '<h3 style="color:#FFD700;margin-bottom:6px">Turno Agendado con Exito!</h3>';
 
                     if (nombreSuccess && tratSuccess) {
-                        // Mostrar datos completos del turno como en pagina 1
                         successHtml += '<p style="opacity:0.9;margin-bottom:16px">' + CONFIG.mensajes.confirmacionTurno + '</p>';
-                        successHtml += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutos, revisá la carpeta de SPAM o Correos no deseados.</p>';
+                        successHtml += '<p style="color:#FFD700;font-size:0.8rem;margin-bottom:16px;opacity:0.85">⚠️ Si no recibes el email en 2 minutes, revisá la carpeta de SPAM o Correos no deseados.</p>';
 
                         successHtml += '<div style="background:rgba(120,194,180,0.15);border:1px solid rgba(120,194,180,0.4);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left">';
                         successHtml += '<h4 style="color:rgba(120,194,180,0.9);margin:0 0 12px;font-size:0.95rem;text-align:center">📋 Tus Datos de Reserva</h4>';
@@ -762,7 +721,7 @@ function handleMercadoPagoReturn() {
                         successHtml += '<strong style="color:#fff;font-size:0.9rem">' + (horaSuccess || "") + ' hs</strong>';
                         successHtml += '</div>';
                         
-                        successHtml += '</div>'; // cierra card datos
+                        successHtml += '</div>';
                         
                         successHtml += '<p style="opacity:0.6;font-size:0.7rem;margin:0 0 10px;line-height:1.4">⚠️ Te recomendamos hacer captura de pantalla como comprobante de tu reserva.</p>';
 
@@ -775,8 +734,9 @@ function handleMercadoPagoReturn() {
                         successHtml += '</div></div>';
                         
                         successHtml += '<p style="opacity:0.9;margin-bottom:8px;font-size:0.85rem">Guardalo en tu Google Calendar (con recordatorios):</p>';
-                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 16px auto">📅 Guardar en Google Calendar</button>';
-                        successHtml += '</div>'; // cierra card principal
+                        // MARGEN DE 40PX EN EL RETORNO DE MERCADO PAGO:
+                        successHtml += '<button id="saveCalendarBtn" class="btn-primary" style="background:white;color:#A8864F;padding:12px 24px;font-size:0.9rem;border-radius:50px;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;display:block;margin:0 auto 40px auto">📅 Guardar en Google Calendar</button>';
+                        successHtml += '</div>';
                         
                         senaDiv2.innerHTML = successHtml;
                         
@@ -785,7 +745,6 @@ function handleMercadoPagoReturn() {
                             if(cb) cb.addEventListener("click", openCalendar);
                         }, 100);
                     } else {
-                        // Fallback: mostrar mensaje simple si no hay datos suficientes
                         successHtml += '<p>Tu pago fue validado exitosamente. Estamos actualizando tu agenda.</p>'
                         + '<button onclick="location.reload()" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Ver mi turno confirmado</button></div>';
                         senaDiv2.innerHTML = successHtml;
@@ -888,15 +847,12 @@ function startSenaTimer() {
     var timerEl = document.getElementById("senaTimer");
     if(timerEl) timerEl.style.display="block";
     
-    // Get the actual expiry time from sessionStorage (set when turno was reserved)
     var storedExpiry = sessionStorage.getItem(STORAGE_KEY_EXPIRY_TS);
     var totalSeconds;
     if (storedExpiry) {
         var remainingMs = parseInt(storedExpiry, 10) - Date.now();
-        // Use exact remaining time - no buffer to keep frontend/backend in sync
         totalSeconds = Math.max(15, Math.ceil(remainingMs / 1000));
     } else {
-        // Fallback: use config value (no extra buffer needed)
         totalSeconds = (TIEMPO_EXPIRACION_RESERVA_MINUTOS || 5) * 60;
     }
     
@@ -924,7 +880,6 @@ function releaseTempReservation() {
         window._senaTimerId = null;
     }
 
-    // Show "Tiempo Agotado" message directly instead of resetting form
     clearActiveTurnoStorage();
     stopStatusPolling();
     clearReservaFlowFlag();
