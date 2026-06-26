@@ -615,6 +615,10 @@ function handleMercadoPagoReturn() {
 
     var form = document.getElementById("bookingForm"); if(form) form.style.display="none";
     
+    // Ocultar texto de política de reservas (está FUERA del form, no se oculta con él)
+    var policyText = document.getElementById('policyText');
+    if(policyText) policyText.style.display = 'none';
+
     // Ocultar TODOS los elementos de .cta-content (no solo el primero)
     var ctaContent = document.querySelector('.cta-content');
     if(ctaContent){

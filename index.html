@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yessenia Centro de Estética | Tu piel mas luminosa y saludable</title>
     <meta name="description" content="Tratamientos esteticos profesionales: limpieza facial, peeling quimico, dermoabrasion. Reservate tu turno online.">
+    <!-- Ocultar politica de reservas por defecto (se muestra solo si NO viene de Mercado Pago) -->
+    <style>
+        #policyText { display: none !important; }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
@@ -205,7 +209,7 @@
                     <div id="senaTimer" style="display:none;text-align:center;color:#FFD700;font-weight:700;margin-bottom:12px;font-size:1.1rem"></div><button type="submit" class="btn-primary form-submit" id="submitBtn">Confirmar Turno</button>
                 </form>
 
-                <p style="text-align:center;color:rgba(255,255,255,0.8);font-size:0.85rem;margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
+                <p id="policyText" style="text-align:center;color:rgba(255,255,255,0.8);font-size:0.85rem;margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.6">
                     <strong>Política de reservas:</strong> Las cancelaciones o cambios de turno deben avisarse con al menos 24 horas de anticipación. Pasado ese plazo el importe abonado no será reembolsable.<br><em>Gracias por tu comprensión.</em>
                 </p>
 
@@ -523,8 +527,18 @@
 
         // Start the retry loop immediately
         tryUpdate();
-    })();
-</script>
+   })();
+    </script>
+    <!-- Mostrar politica de reservas SOLO si NO venimos de Mercado Pago -->
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            if (!params.get('collection_id') && !params.get('status')) {
+                var p = document.getElementById('policyText');
+                if (p) p.style.display = '';
+            }
+        })();
+    </script>
 </body>
 </html>
 
