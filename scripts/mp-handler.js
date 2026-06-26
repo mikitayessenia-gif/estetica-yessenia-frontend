@@ -863,19 +863,41 @@ function handleMercadoPagoReturn() {
                     var senaDivNoPago = document.getElementById('senaRequired');
                     if (senaDivNoPago) {
                         senaDivNoPago.style.display = 'block';
+                        
+                        var redirectCountdown = 8;
+                        var countdownEl = null;
+                        
+                        function updateRedirectText() {
+                            if(countdownEl) {
+                                countdownEl.textContent = 'Redirigiendo a la página principal en ' + redirectCountdown + ' segundos...';
+                            }
+                        }
+                        
                         var noPagoHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                             + '<div style="font-size:3rem;margin-bottom:16px">🚫</div>'
                             + '<h3 style="color:#FFD700;margin-bottom:8px">Pago Cancelado</h3>'
                             + '<p>No completaste el pago en Mercado Pago. Tu turno fue liberado porque expiro el tiempo de reserva.</p>'
-                            + '<button id="btnElegirOtroTurno" style="display:inline-block;margin:16px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+                            + '<p id="redirectMsg" style="opacity:0.7;font-size:0.9rem;margin:16px 0">Pago no realizado — redirigiendo a la página principal...</p>'
+                            + '<button id="btnElegirOtroTurno" style="display:inline-block;margin:8px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
                         senaDivNoPago.innerHTML = noPagoHtml;
+
+                        countdownEl = document.getElementById('redirectMsg');
+                        
+                        var redirectTimer = setInterval(function(){
+                            redirectCountdown--;
+                            updateRedirectText();
+                            if(redirectCountdown <= 0) {
+                                clearInterval(redirectTimer);
+                                window.location.href = '/';
+                            }
+                        }, 1000);
 
                         setTimeout(function(){
                             var btnOtro = document.getElementById('btnElegirOtroTurno');
                             if(btnOtro) {
                                 btnOtro.addEventListener('click', function(){
-                                    resetBookingForm();
-                                    loadAvailableSlots();
+                                    clearInterval(redirectTimer);
+                                    window.location.href = '/';
                                 });
                             }
                         }, 100);
