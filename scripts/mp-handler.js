@@ -183,7 +183,7 @@ function restoreSenaTimerFromStorage() {
                                 + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
                                 + '<h3 style="color:#FFD700;margin-bottom:8px">Error al cargar el pago</h3>'
                                 + '<p>No pudimos generar el link de pago. Intenta nuevamente o contactanos por telefono.</p>'
-                                + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;margin-top:16px;background:#003366;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
+                                + '<a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;margin-top:16px;background:#003366;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
                             senaDiv2.style.display = "block";
                         }
                         return;
@@ -826,7 +826,7 @@ function handleMercadoPagoReturn() {
                             + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
                             + '<h3 style="color:#FFD700;margin-bottom:8px">Validando tu pago...</h3>'
                             + '<p>El webhook de Mercado Pago puede tardar unos segundos. Reintentando automaticamente...</p>'
-                            + '<button id="reintentarBtn" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Reintentar</button><br><a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;cursor:pointer">📞 Contactar por Telefono</a></div>';
+                            + '<button id="reintentarBtn" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Reintentar</button><br><a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;cursor:pointer">📞 Contactar por Telefono</a></div>';
                         senaDiv3.innerHTML = retryHtml;
 
                         var retries = 0;
@@ -875,7 +875,7 @@ function handleMercadoPagoReturn() {
                             + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
                             + '<h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Exito</h3>'
                             + '<p>Tu dinero esta seguro en la cuenta de Mercado Pago. Nuestro equipo verificara el comprobante y te contactara para asignarte el turno mas pronto posible.</p>'
-                            + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
+                            + '<a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
                             + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
                         senaDiv4.innerHTML = errorHtml;
                     }
@@ -941,7 +941,7 @@ function handleMercadoPagoReturn() {
                     + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
                     + '<h3 style="color:#FFD700;margin-bottom:12px">Error de conexion</h3>'
                     + '<p>No pudimos verificar tu pago en este momento. Tu dinero esta seguro en Mercado Pago.</p>'
-                    + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
+                    + '<a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
                     + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
                 senaDiv5.innerHTML = catchHtml;
             }
@@ -952,7 +952,7 @@ function showPagoHuerranoModal(mensaje) {
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
     senaDiv.style.display = "block";
-    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">🛒</div><h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Éxito</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">' + mensaje + '</p><div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left"><p style="margin:0;opacity:0.8;font-size:0.9rem">Tu dinero está seguro en la cuenta de Mercado Pago. Nuestro equipo verificará el comprobante y te contactará para asignarte el turno más pronto posible.</p></div><a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">🛒</div><h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Éxito</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">' + mensaje + '</p><div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left"><p style="margin:0;opacity:0.8;font-size:0.9rem">Tu dinero está seguro en la cuenta de Mercado Pago. Nuestro equipo verificará el comprobante y te contactará para asignarte el turno más pronto posible.</p></div><a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
 }
 
 function startSenaTimer() {
