@@ -607,7 +607,7 @@ function handleMercadoPagoReturn() {
     var preferenceId = params.get('preference_id');
 
  if (!collectionId || !status) {
-        // Usuario volvió sin completar el pago — limpiar todo y continuar normalmente
+        // Usuario volvió sin completar el pago — limpiar todo y retornar TRUE para evitar restoreSenaTimerFromStorage
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
         stopStatusPolling();
@@ -619,7 +619,7 @@ function handleMercadoPagoReturn() {
             senaDivClear.style.display = 'none';
         }
         
-        return false; // Continuar con flujo normal de main.js (no redirigir para evitar loop)
+        return true; // ← IMPORTANTE: retornar TRUE para que main.js NO ejecute restoreSenaTimerFromStorage()
     }
 
     // Si el status NO es 'approved', el usuario no pagó — limpiar todo y redirigir sin mostrar nada
@@ -637,7 +637,7 @@ function handleMercadoPagoReturn() {
         
         // Redirigir inmediatamente sin mostrar ningún mensaje
         window.location.replace('./');
-        return false;
+        return true; // ← IMPORTANTE: retornar TRUE para evitar restoreSenaTimerFromStorage()
     }
 
     if (!externalRef) {
