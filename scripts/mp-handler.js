@@ -594,8 +594,7 @@ function handleMercadoPagoReturn() {
 
  if (!collectionId || !status) {
         // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
-        // Limpiar todo y redirigir con transicion suave
-        
+        // Limpiar todo y redirigir directamente sin mostrar nada
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
         
@@ -607,24 +606,7 @@ function handleMercadoPagoReturn() {
             senaDivClear.style.display = 'none';
         }
 
-        // Mostrar overlay de transicion suave
-        var overlay = document.createElement('div');
-        overlay.id = 'mpRedirectOverlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(45,62,62,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;opacity:0;transition:opacity 0.5s ease-in;';
-        overlay.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(255,215,0,0.3);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite"></div>'
-            + '<style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
-        document.body.appendChild(overlay);
-
-        // Fade in
-        requestAnimationFrame(function(){
-            overlay.style.opacity = '1';
-        });
-
-        // Redirigir despues de la transicion
-        setTimeout(function(){
-            window.location.replace('./');
-        }, 800);
-
+        window.location.replace('./');
         return false;
     }
 
