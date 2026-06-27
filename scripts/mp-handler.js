@@ -620,7 +620,9 @@ function handleMercadoPagoReturn() {
             senaDivClear.style.display = 'none';
         }
 
-        window.location.replace('./');
+        // Limpiar URL de params y redirigir sin crear loop
+        var cleanUrl = window.location.origin + window.location.pathname;
+        window.location.replace(cleanUrl);
         return false;
     }
 
