@@ -632,7 +632,7 @@ function handleMercadoPagoReturn() {
             + '.redirect-label{font-size:0.85rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,215,0,0.6);margin-bottom:4px}'
             + '</style>'
             + '<div class="redirect-container" style="background:rgba(0,0,0,0.15);border-radius:16px;padding:40px 32px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,215,0,0.15)">'
-            + '<div class="redirect-icon" style="font-size:3rem;margin-bottom:20px">🛒</div>'
+            + '<div class="redirect-icon" style="font-size:3rem;margin-bottom:20px">&#x1F6D2;</div>'
             + '<h3 style="color:#FFD700;margin-bottom:6px;font-size:1.4rem;font-weight:600">Volviste a la tienda</h3>'
             + '<p style="opacity:0.8;margin-bottom:24px;font-size:0.95rem;line-height:1.5">No completaste el pago en Mercado Pago.<br>Serás redirigido a la página principal.</p>'
             + '<div class="redirect-bar"></div>'
