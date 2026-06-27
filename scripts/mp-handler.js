@@ -607,13 +607,19 @@ function handleMercadoPagoReturn() {
     var preferenceId = params.get('preference_id');
 
  if (!collectionId || !status) {
-        // Visita normal sin params de MP — limpiar cualquier mensaje residual y continuar
+        // Usuario volvió sin completar el pago — limpiar todo y continuar normalmente
+        clearActiveTurnoStorage();
+        if(window._senaTimerId) clearInterval(window._senaTimerId);
+        stopStatusPolling();
+        clearReservaFlowFlag();
+        
         var senaDivClear = document.getElementById('senaRequired');
         if (senaDivClear) {
             senaDivClear.innerHTML = '';
             senaDivClear.style.display = 'none';
         }
-        return false; // NO redirigir — continuar con flujo normal de main.js
+        
+        return false; // Continuar con flujo normal de main.js (no redirigir para evitar loop)
     }
 
     if (!externalRef) {
