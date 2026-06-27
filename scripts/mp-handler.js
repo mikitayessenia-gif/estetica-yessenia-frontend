@@ -1,3 +1,17 @@
+// ========== FIX: Asegurar que el body sea visible al cargar ==========
+(function() {
+    try {
+        document.body.style.opacity = '1';
+        var overlay = document.getElementById('mpRedirectOverlay');
+        if (overlay) overlay.remove();
+        var senaDiv = document.getElementById('senaRequired');
+        if (senaDiv) {
+            senaDiv.innerHTML = '';
+            senaDiv.style.display = 'none';
+        }
+    } catch(e) {}
+})();
+
 // ========== Date/Time Formatters ==========
 function formatFechaDisplay(val) {
     if (!val) return "";
