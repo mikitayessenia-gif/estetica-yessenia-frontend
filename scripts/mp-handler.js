@@ -607,20 +607,18 @@ function handleMercadoPagoReturn() {
     var preferenceId = params.get('preference_id');
 
  if (!collectionId || !status) {
-        // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
-        // Limpiar todo y redirigir directamente sin mostrar nada
+        // Visita normal — limpiar cualquier mensaje residual y redirigir sin crear loop
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
+        stopStatusPolling();
+        clearReservaFlowFlag();
         
-        releaseTempReservation();
-
         var senaDivClear = document.getElementById('senaRequired');
         if (senaDivClear) {
             senaDivClear.innerHTML = '';
             senaDivClear.style.display = 'none';
         }
-
-        // Limpiar URL de params y redirigir sin crear loop
+        
         var cleanUrl = window.location.origin + window.location.pathname;
         window.location.replace(cleanUrl);
         return false;
@@ -984,7 +982,10 @@ function startSenaTimer() {
         totalSeconds--;
         if (totalSeconds <= 0) {
             clearInterval(window._senaTimerId);
-            releaseTempReservation();
+            window._senaTimerId = null;
+            clearActiveTurnoStorage();
+            stopStatusPolling();
+            clearReservaFlowFlag();
             return;
         }
         var m = Math.floor(totalSeconds / 60);
@@ -994,39 +995,6 @@ function startSenaTimer() {
         var te=document.getElementById("senaTimer"); if(te) te.textContent="⏳ Tiempo restante: "+td;
         var tb=document.getElementById("senaTimerBig"); if(tb) tb.textContent=td;
     }, 1000);
-}
-
-function releaseTempReservation() {
-    if (window._senaTimerId) {
-        clearInterval(window._senaTimerId);
-        window._senaTimerId = null;
-    }
-
-    clearActiveTurnoStorage();
-    stopStatusPolling();
-    clearReservaFlowFlag();
-    
-    var senaDiv = document.getElementById('senaRequired');
-    if (senaDiv) {
-        senaDiv.style.display = 'block';
-        senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-            + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
-            + '<h3 style="color:#FFD700;margin-bottom:12px">Tiempo Agotado</h3>'
-            + '<p style="opacity:0.9;margin-bottom:8px">Tu tiempo para pagar expiró y el turno ya no está disponible.</p>'
-            + '<p style="opacity:0.7;font-size:0.9rem;margin-bottom:16px">Alguien más lo tomó o nadie lo confirmó a tiempo.</p>'
-            + '<button id="otroTurnoBtnExpired" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
-        
-        setTimeout(function(){
-            var btn = document.getElementById('otroTurnoBtnExpired');
-            if(btn) btn.addEventListener('click', function(){
-                resetBookingForm();
-                loadAvailableSlots();
-            });
-        }, 100);
-    }
-    
-    showAllSections();
-    window.scrollTo({top: 0, behavior:'smooth'});
 }
 
 function cancelarReservaTemporal(idTurno) {
