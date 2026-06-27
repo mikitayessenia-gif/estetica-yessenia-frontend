@@ -593,65 +593,37 @@ function handleMercadoPagoReturn() {
     var preferenceId = params.get('preference_id');
 
  if (!collectionId || !status) {
-        // Verificar si hay un turno temporal activo — si no, es una visita normal, no redirigimos
-        var storedTurno = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
-        if (!storedTurno) {
-            // Visita normal sin params de MP — limpiar cualquier mensaje residual y continuar
-            var senaDivClear = document.getElementById('senaRequired');
-            if (senaDivClear) {
-                senaDivClear.innerHTML = '';
-                senaDivClear.style.display = 'none';
-            }
-            return false;
-        }
+        // El usuario volvió de MP sin completar el proceso (clic en "Volver a la tienda")
+        // Limpiar todo y redirigir con transicion suave
         
-        // Había un turno temporal activo pero no llegaron params de MP
-        // Limpiar todo
         clearActiveTurnoStorage();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
         
         releaseTempReservation();
 
-        var senaDivNoParams = document.getElementById('senaRequired');
-        if (!senaDivNoParams) {
-            senaDivNoParams = document.createElement('div');
-            senaDivNoParams.id = 'senaRequired';
-            senaDivNoParams.style.display = 'block';
-        } else {
-            senaDivNoParams.style.display = 'block';
+        var senaDivClear = document.getElementById('senaRequired');
+        if (senaDivClear) {
+            senaDivClear.innerHTML = '';
+            senaDivClear.style.display = 'none';
         }
 
-        senaDivNoParams.innerHTML = '<style>'
-            + '@keyframes pulseGlow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.05)}}'
-            + '@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}'
-            + '@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}'
-            + '.redirect-container{animation:fadeInUp 0.6s ease-out}'
-            + '.redirect-icon{animation:pulseGlow 2s ease-in-out infinite}'
-            + '.redirect-bar{height:3px;border-radius:2px;background:linear-gradient(90deg,#C4A16D,#FFD700,#C4A16D);background-size:200% 100%;animation:shimmer 2s linear infinite;margin:20px auto;max-width:300px}'
-            + '.redirect-timer{font-size:2.5rem;font-weight:700;color:#FFD700;margin:16px 0;line-height:1}'
-            + '.redirect-label{font-size:0.85rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,215,0,0.6);margin-bottom:4px}'
-            + '</style>'
-            + '<div class="redirect-container" style="background:rgba(0,0,0,0.15);border-radius:16px;padding:40px 32px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,215,0,0.15)">'
-            + '<div class="redirect-icon" style="font-size:3rem;margin-bottom:20px">&#x1F6D2;</div>'
-            + '<h3 style="color:#FFD700;margin-bottom:6px;font-size:1.4rem;font-weight:600">Volviste a la tienda</h3>'
-            + '<p style="opacity:0.8;margin-bottom:24px;font-size:0.95rem;line-height:1.5">No completaste el pago en Mercado Pago.<br>Serás redirigido a la página principal.</p>'
-            + '<div class="redirect-bar"></div>'
-            + '<div class="redirect-label">Redirigiendo en</div>'
-            + '<div class="redirect-timer" id="countdownNP">8</div></div>';
+        // Mostrar overlay de transicion suave
+        var overlay = document.createElement('div');
+        overlay.id = 'mpRedirectOverlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(45,62,62,0.85);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;opacity:0;transition:opacity 0.5s ease-in;';
+        overlay.innerHTML = '<div style="width:40px;height:40px;border:3px solid rgba(255,215,0,0.3);border-top-color:#FFD700;border-radius:50%;animation:spin 0.8s linear infinite"></div>'
+            + '<style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+        document.body.appendChild(overlay);
 
-        var redirectCountdownNP = 8;
-        
-        var redirectTimerNP = setInterval(function(){
-            redirectCountdownNP--;
-            var countdownSpan = document.getElementById('countdownNP');
-            if(countdownSpan) {
-                countdownSpan.textContent = Math.max(0, redirectCountdownNP);
-            }
-            if(redirectCountdownNP <= 0) {
-                clearInterval(redirectTimerNP);
-                window.location.href = './';
-            }
-        }, 1000);
+        // Fade in
+        requestAnimationFrame(function(){
+            overlay.style.opacity = '1';
+        });
+
+        // Redirigir despues de la transicion
+        setTimeout(function(){
+            window.location.replace('./');
+        }, 800);
 
         return false;
     }
