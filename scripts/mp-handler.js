@@ -622,6 +622,24 @@ function handleMercadoPagoReturn() {
         return false; // Continuar con flujo normal de main.js (no redirigir para evitar loop)
     }
 
+    // Si el status NO es 'approved', el usuario no pagó — limpiar todo y redirigir sin mostrar nada
+    if (status !== 'approved') {
+        clearActiveTurnoStorage();
+        if(window._senaTimerId) clearInterval(window._senaTimerId);
+        stopStatusPolling();
+        clearReservaFlowFlag();
+        
+        var senaDivClear2 = document.getElementById('senaRequired');
+        if (senaDivClear2) {
+            senaDivClear2.innerHTML = '';
+            senaDivClear2.style.display = 'none';
+        }
+        
+        // Redirigir inmediatamente sin mostrar ningún mensaje
+        window.location.replace('./');
+        return false;
+    }
+
     if (!externalRef) {
         var storedTurno = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
         if (storedTurno) {
