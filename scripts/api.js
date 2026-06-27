@@ -206,7 +206,7 @@ function loadTreatmentsFromAPI() {
                 var senaDiv = document.getElementById("senaRequired");
                 if (senaDiv) {
                     senaDiv.style.display = "block";
-                    senaDiv.innerHTML = '<div style="background:rgba(255,193,7,0.15);border:2px solid #ffc107;border-radius:16px;padding:24px;text-align:center"><div style="font-size:2rem;margin-bottom:12px">⚠️</div><h3 style="color:#ffc107;margin-bottom:8px">Error de configuracion del servidor</h3><p style="opacity:0.9;font-size:0.9rem;max-width:450px;margin:0 auto 16px">La agenda necesita una actualizacion rapida en Google Sheets.</p><a href="https://wa.me/541123178918?text=' + encodeURIComponent('Hola! Necesito ayuda con mi turno.') + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:12px 24px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
+                    senaDiv.innerHTML = '<div style="background:rgba(255,193,7,0.15);border:2px solid #ffc107;border-radius:16px;padding:24px;text-align:center"><div style="font-size:2rem;margin-bottom:12px">⚠️</div><h3 style="color:#ffc107;margin-bottom:8px">Error de configuracion del servidor</h3><p style="opacity:0.9;font-size:0.9rem;max-width:450px;margin:0 auto 16px">La agenda necesita una actualizacion rapida en Google Sheets.</p><a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:12px 24px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
                 }
                 return;
             }
