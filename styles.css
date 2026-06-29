@@ -716,16 +716,41 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .wa-step span { font-size: 0.85rem; opacity: 0.85; }
 
 /* ========== SLOT SELECTOR STYLES ========== */
-.slots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; max-height: 200px; overflow-y: auto; padding: 4px; }
+.slots-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
+    gap: 10px; 
+    padding: 4px; 
+}
 .slot-btn {
     background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); color: white;
-    padding: 12px 8px; border-radius: 10px; cursor: pointer; transition: var(--transition);
-    text-align: center; font-size: 0.85rem;
+    padding: 14px 10px; border-radius: 12px; cursor: pointer; transition: var(--transition);
+    text-align: center; font-size: 0.9rem; font-weight: 500;
 }
 .slot-btn:hover { background: rgba(255,255,255,0.25); border-color: white; }
 .slot-btn.selected { background: white; color: var(--aqua-dark); border-color: white; font-weight: 700; }
-.slot-date-label { grid-column: 1 / -1; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); margin-top: 8px; margin-bottom: 4px; }
+.slot-date-label { grid-column: 1 / -1; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 6px; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
+
+/* Ocultar scrollbar de forma elegante (manteniendo funcionalidad) */
+.slots-grid::-webkit-scrollbar { width: 0; height: 0; }
+.slots-grid { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ========== MOBILE: Slots en columna sin scroll ========== */
+@media (max-width: 640px) {
+    .slots-grid { 
+        grid-template-columns: 1fr; 
+        gap: 8px; 
+        max-height: none; 
+        overflow: visible !important;
+    }
+    .slot-btn {
+        padding: 16px 12px;
+        font-size: 0.95rem;
+        border-radius: 14px;
+    }
+    .slot-date-label { margin-top: 14px; margin-bottom: 8px; font-size: 0.9rem; }
+}
 
 /* ========== SPINNER ========== */
 .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
