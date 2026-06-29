@@ -514,44 +514,89 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
 function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
-    senaDiv.style.display = "block";
-    
-    var apiErr = document.getElementById("apiError");
-    if (apiErr) apiErr.style.display = "none";
-    
-    var form = document.getElementById("bookingForm");
-    if (form) form.style.display = "none";
     
     // Ocultar la barra de error genérica
+    var apiErr = document.getElementById("apiError");
     if(apiErr){
         apiErr.style.display = "none";
         apiErr.innerHTML = "";
     }
     
-    var html = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
-    html += '<div style="font-size:3rem;margin-bottom:16px">🕐</div>';
-    html += '<h3 style="color:#FFD700;margin-bottom:12px">Turno ya reservado</h3>';
-    html += '<p style="opacity:0.9;margin-bottom:8px">' + (mensaje || "Este turno acaba de ser tomado por otra persona.") + '</p>';
-    html += '<p style="opacity:0.6;font-size:0.85rem;margin-bottom:20px">No te preocupes, hay otros horarios disponibles más abajo 👇</p>';
-    html += '<div style="background:rgba(255,215,0,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left">';
-    html += '<p style="margin:0;font-size:0.85rem;opacity:0.8">Podés elegir otro horario disponible del mismo tratamiento. Seleccioná abajo y confirmá al instante.</p>';
-    html += '</div>';
-    senaDiv.innerHTML = html;
+    var form = document.getElementById("bookingForm");
+    var slotsContainer = document.getElementById("slotsContainer");
     
-    // Auto-refrescar turnos disponibles manteniendo tratamiento seleccionado
-    setTimeout(function() {
-        var slotsContainer = document.getElementById("slotsContainer");
-        if (slotsContainer) slotsContainer.style.display = "block";
+    // Mostrar el aviso de turno tomado con estilo pro
+    var html = '<div style="background:rgba(255,107,107,0.12);border:2px solid rgba(255,107,107,0.35);border-radius:16px;padding:28px 24px;margin-bottom:20px;text-align:center">';
+    html += '<div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:rgba(255,107,107,0.2);margin-bottom:16px">';
+    html += '<span style="font-size:1.8rem">🕐</span></div>';
+    html += '<h3 style="color:#FFD700;margin:0 0 10px;font-size:1.3rem">Turno ya reservado</h3>';
+    html += '<p style="opacity:0.9;margin-bottom:6px">' + (mensaje || "Este turno acaba de ser tomado por otra persona.") + '</p>';
+    html += '<p style="opacity:0.7;font-size:0.85rem;margin-bottom:16px">No te preocupes, elegí otro horario del mismo tratamiento:</p>';
+    html += '<div style="background:rgba(255,215,0,0.1);border-radius:10px;padding:14px;text-align:left">';
+    html += '<p style="margin:0;font-size:0.85rem;opacity:0.9">👇 Los horarios disponibles aparecen recién abajo</p>';
+    html += '</div></div>';
+    
+    // Insertar el aviso ANTES del formulario (no reemplazar todo)
+    if(senaDiv.parentNode){
+        var warningEl = document.createElement("div");
+        warningEl.id = "turnoYaTomadoWarning";
+        warningEl.innerHTML = html;
+        senaDiv.parentNode.insertBefore(warningEl, senaDiv);
+    } else {
+        senaDiv.innerHTML = html + (senaDiv.innerHTML || "");
+    }
+    
+    // Mostrar contenedor de slots y recargar turnos
+    if(slotsContainer){
+        slotsContainer.style.display = "block";
         
-        loadAvailableSlots(true);
+        var treatmentSelect = document.getElementById("treatmentSelect");
+        var selectedTreatment = treatmentSelect ? treatmentSelect.value : "";
         
+        if (selectedTreatment) {
+            // Mostrar spinner en el grid de turnos
+            var slotsGrid = document.getElementById("slotsGrid");
+            if (slotsGrid) {
+                slotsGrid.innerHTML = '<div style="text-align:center;padding:40px 20px;opacity:0.8">'
+                    + '<div class="spinner" style="margin:0 auto 16px"></div>'
+                    + '<p style="font-size:0.9rem">Cargando horarios disponibles...</p></div>';
+            }
+            
+            // Ocultar formulario de datos personales mientras carga
+            if(form) form.style.display = "none";
+        }
+        
+        // Cargar turnos disponibles manteniendo tratamiento seleccionado
+        setTimeout(function() {
+            loadAvailableSlots(true);
+            
+            // Después de cargar, mostrar el formulario completo
+            setTimeout(function() {
+                if(form) form.style.display = "block";
+                
+                // Scroll suave hacia los turnos disponibles (debajo del aviso)
+                setTimeout(function() {
+                    if(slotsContainer){
+                        var rect = slotsContainer.getBoundingClientRect();
+                        if(rect.top < 100 || rect.top > window.innerHeight){
+                            window.scrollTo({ 
+                                top: slotsContainer.offsetTop - 80, 
+                                behavior: "smooth" 
+                            });
+                        }
+                    }
+                }, 200);
+            }, 400);
+        }, 300);
+    } else {
+        // Scroll suave hacia abajo para ver turnos
         setTimeout(function() {
             var reservarSection = document.getElementById("reservar");
             if(reservarSection){
                 window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
             }
-        }, 500);
-    }, 300);
+        }, 200);
+    }
 }
 
 // ========== Error de límite de reservas (máx 2 simultáneas) con countdown ==========
