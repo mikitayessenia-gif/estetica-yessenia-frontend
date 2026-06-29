@@ -294,7 +294,7 @@ function loadAvailableSlots(clearHint) {
                 var cantidadTurnos = fechasFiltradas[date].length;
                 
                 html+='<div class="date-accordion-header" data-date="'+date+'" style="padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);margin-bottom:2px;transition:all 0.3s">';
-                html+='<span style="color:#FFD700;font-size:0.78rem;font-weight:600">'+fechaCompleta+'</span>';
+                html+='<span style="color:white;font-size:0.78rem;font-weight:600">'+fechaCompleta+'</span>';
                 html+='<span style="color:rgba(255,215,0,0.7);font-size:0.72rem">'+cantidadTurnos+' turnos <span class="accordion-arrow" style="display:inline-block;transition:transform 0.3s;margin-left:4px">▼</span></span>';
                 html+='</div>';
                 html+='<div class="date-accordion-content" data-date="'+date+'" style="display:none;padding-top:4px">';
