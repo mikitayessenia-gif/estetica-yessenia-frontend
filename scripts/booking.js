@@ -524,6 +524,8 @@ function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
     
     var form = document.getElementById("bookingForm");
     var slotsContainer = document.getElementById("slotsContainer");
+    var treatmentSelect = document.getElementById("treatmentSelect");
+    var selectedTreatment = treatmentSelect ? treatmentSelect.value : "";
     
     // Mostrar el aviso de turno tomado con estilo pro (simplificado)
     var html = '<div style="background:rgba(255,107,107,0.12);border:2px solid rgba(255,107,107,0.35);border-radius:16px;padding:28px 24px;margin-bottom:20px;text-align:center">';
@@ -533,22 +535,20 @@ function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
     html += '<p style="opacity:0.9;margin-bottom:6px">' + (mensaje || "Este turno acaba de ser tomado por otra persona.") + '</p>';
     html += '</div>';
     
-    // Insertar el aviso ANTES del formulario (no reemplazar todo)
-    if(senaDiv.parentNode){
-        var warningEl = document.createElement("div");
-        warningEl.id = "turnoYaTomadoWarning";
-        warningEl.innerHTML = html;
+    // Insertar el aviso DESPUES del tratamiento seleccionado y ANTES de los turnos
+    var warningEl = document.createElement("div");
+    warningEl.id = "turnoYaTomadoWarning";
+    warningEl.innerHTML = html;
+    
+    if(slotsContainer && slotsContainer.parentNode){
+        slotsContainer.parentNode.insertBefore(warningEl, slotsContainer);
+    } else if(senaDiv && senaDiv.parentNode){
         senaDiv.parentNode.insertBefore(warningEl, senaDiv);
-    } else {
-        senaDiv.innerHTML = html + (senaDiv.innerHTML || "");
     }
     
     // Mostrar contenedor de slots y recargar turnos
     if(slotsContainer){
         slotsContainer.style.display = "block";
-        
-        var treatmentSelect = document.getElementById("treatmentSelect");
-        var selectedTreatment = treatmentSelect ? treatmentSelect.value : "";
         
         if (selectedTreatment) {
             // Mostrar spinner en el grid de turnos
@@ -571,13 +571,13 @@ function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
             setTimeout(function() {
                 if(form) form.style.display = "block";
                 
-                // Scroll suave hacia los turnos disponibles (debajo del aviso)
+                // Scroll suave hacia el aviso (primer elemento visible)
                 setTimeout(function() {
-                    if(slotsContainer){
-                        var rect = slotsContainer.getBoundingClientRect();
-                        if(rect.top < 100 || rect.top > window.innerHeight){
+                    if(warningEl){
+                        var rect = warningEl.getBoundingClientRect();
+                        if(rect.top < 80 || rect.top > window.innerHeight){
                             window.scrollTo({ 
-                                top: slotsContainer.offsetTop - 80, 
+                                top: warningEl.offsetTop - 80, 
                                 behavior: "smooth" 
                             });
                         }
@@ -586,11 +586,13 @@ function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
             }, 400);
         }, 300);
     } else {
-        // Scroll suave hacia abajo para ver turnos
+        // Scroll suave hacia el aviso
         setTimeout(function() {
-            var reservarSection = document.getElementById("reservar");
-            if(reservarSection){
-                window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
+            if(warningEl){
+                window.scrollTo({ 
+                    top: warningEl.offsetTop - 80, 
+                    behavior: "smooth" 
+                });
             }
         }, 200);
     }
