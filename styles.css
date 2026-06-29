@@ -766,6 +766,33 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .slot-date-label:first-child { margin-top: 0; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
 
+/* ========== ACCORDION VISTA "VER TODOS" ========== */
+.date-accordion-header {
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    margin-bottom: 2px;
+    transition: all 0.3s;
+    user-select: none;
+    grid-column: 1 / -1;
+}
+.date-accordion-content {
+    grid-column: 1 / -1;
+    padding-top: 4px;
+}
+.date-accordion-header:hover {
+    background: rgba(196,161,109,0.15);
+    border-color: rgba(196,161,109,0.4);
+}
+.date-accordion-content {
+    padding-top: 4px;
+}
+
 /* ========== MOBILE: Slots compactos con scroll interno ========== */
 @media (max-width: 640px) {
     .slots-grid-wrapper {
@@ -784,7 +811,13 @@ button { cursor: pointer; border: none; font-family: inherit; }
         font-size: 0.78rem;
         border-radius: 7px;
     }
-    .slot-date-label { margin-top: 7px; margin-bottom: 3px; font-size: 0.73rem; }
+    .date-accordion-header {
+        padding: 12px 14px;
+        margin-bottom: 4px;
+    }
+    .date-accordion-header span:first-child {
+        font-size: 0.8rem !important;
+    }
 }
 
 /* ========== VISTA CALENDARIO ========== */

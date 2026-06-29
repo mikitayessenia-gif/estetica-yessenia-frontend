@@ -277,18 +277,35 @@ function loadAvailableSlots(clearHint) {
             var html="";
             sortedDates.forEach(function(date){
                 if (!date) return;
-                var displayDate = date;
                 var diaName = fechasFiltradas[date] && fechasFiltradas[date][0] ? (fechasFiltradas[date][0].dia || "") : "";
-                if (diaName) {
-                    displayDate += " - " + diaName;
+                
+                // Convertir fecha "30/06" a formato completo "30/06/2026 - Martes"
+                var partesFecha = date.split('/');
+                var fechaCompleta = partesFecha[0] + '/' + partesFecha[1] + '/';
+                
+                // Buscar el año en los slots de este día
+                var anioSlot = fechasFiltradas[date][0];
+                if (anioSlot && anioSlot._normalizedFecha) {
+                    var partesNorm = anioSlot._normalizedFecha.split('/');
+                    fechaCompleta += partesNorm[2]; // año
                 }
-                html+='<div class="slot-date-label">'+displayDate+'</div>';
+                fechaCompleta += " - " + diaName;
+                
+                var cantidadTurnos = fechasFiltradas[date].length;
+                
+                html+='<div class="date-accordion-header" data-date="'+date+'" style="padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);margin-bottom:2px;transition:all 0.3s">';
+                html+='<span style="color:#FFD700;font-size:0.78rem;font-weight:600">'+fechaCompleta+'</span>';
+                html+='<span style="color:rgba(255,215,0,0.7);font-size:0.72rem">'+cantidadTurnos+' turnos <span class="accordion-arrow" style="display:inline-block;transition:transform 0.3s;margin-left:4px">▼</span></span>';
+                html+='</div>';
+                html+='<div class="date-accordion-content" data-date="'+date+'" style="display:none;padding-top:4px">';
                 
                 fechasFiltradas[date].forEach(function(slot){
                     var horaInicioDisplay = slot._horaInicioParsed || "";
                     var horaFinDisplay = slot._horaFinParsed || "";
                     html+='<button type="button" class="slot-btn" data-id="'+slot.id+'" data-fecha="'+date+'" data-hora="'+horaInicioDisplay+'">'+horaInicioDisplay+" - "+horaFinDisplay+'</button>';
                 });
+                
+                html+='</div>';
             });
            slotsGrid.innerHTML=html;
 
@@ -318,6 +335,41 @@ function loadAvailableSlots(clearHint) {
                     document.getElementById("selectedHorario").value=btn.dataset.hora;
                 });
             });
+
+            // Accordion: click en fecha para expandir/colapsar turnos
+            slotsGrid.querySelectorAll(".date-accordion-header").forEach(function(header){
+                header.addEventListener("click",function(){
+                    var dateKey = this.dataset.date;
+                    var content = slotsGrid.querySelector('.date-accordion-content[data-date="'+dateKey+'"]');
+                    var arrow = this.querySelector('.accordion-arrow');
+                    
+                    // Cerrar todos los demás
+                    slotsGrid.querySelectorAll(".date-accordion-header").forEach(function(h){
+                        if (h !== header) {
+                            var otherDate = h.dataset.date;
+                            var otherContent = slotsGrid.querySelector('.date-accordion-content[data-date="'+otherDate+'"]');
+                            var otherArrow = h.querySelector('.accordion-arrow');
+                            if (otherContent) otherContent.style.display = "none";
+                            if (otherArrow) otherArrow.style.transform = "";
+                            h.style.background = "rgba(255,255,255,0.08)";
+                        }
+                    });
+                    
+                    // Toggle actual
+                    if (content) {
+                        var isOpen = content.style.display === "block";
+                        content.style.display = isOpen ? "none" : "block";
+                        if (arrow) arrow.style.transform = isOpen ? "" : "rotate(180deg)";
+                        this.style.background = !isOpen ? "rgba(196,161,109,0.25)" : "rgba(255,255,255,0.08)";
+                    }
+                });
+            });
+
+            // Abrir el primer día por defecto
+            var firstHeader = slotsGrid.querySelector(".date-accordion-header");
+            if (firstHeader) {
+                firstHeader.click();
+            }
         })
       .catch(function(){
             if(apiLoader)apiLoader.style.display="none";
