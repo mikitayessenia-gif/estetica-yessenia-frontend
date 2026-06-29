@@ -421,7 +421,9 @@ if (bookingForm) {
                 handleRequiresSena(data.idTurno, treatmentName, nombre, fecha, horario, data.montoSena, data.initPoint, data.preferenceId || "");
             }
             else if (data.success === false) {
-                if (data.idTurnoBloqueado) {
+                if (data.maxReservas && data.reservasActivasCount >= data.maxReservas) {
+                    mostrarErrorLimiteReservas(data.error, data.tiempoRestanteMs, data.tiempoRestanteDisplay);
+                } else if (data.idTurnoBloqueado) {
                     mostrarErrorReservaBloqueada(data.error, data.idTurnoBloqueado);
                 } else {
                     showError(data.error || "Error al confirmar. Intenta de nuevo.");
@@ -452,7 +454,8 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
     html += '<div style="font-size:3rem;margin-bottom:16px">⛔</div>';
     html += '<h3 style="color:#FFD700;margin-bottom:12px">Reserva en Proceso</h3>';
     html += '<p style="opacity:0.9;margin-bottom:8px">' + mensaje + '</p>';
-    html += '<p style="opacity:0.7;font-size:0.9rem;margin-bottom:20px">Turno bloqueado: <strong>' + idTurnoBloqueado + '</strong></p>';
+    html += '<p style="opacity:0.7;font-size:0.85rem;margin-bottom:4px">Turno bloqueado: <strong>' + idTurnoBloqueado + '</strong></p>';
+    html += '<p style="opacity:0.6;font-size:0.8rem;margin-bottom:16px">⚠️ Este turno no estará disponible hasta que expire el tiempo de espera, pero los demás turnos SÍ están disponibles abajo 👇</p>';
     html += '<div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left">';
     html += '<p style="margin:0;font-size:0.85rem;opacity:0.8">Tu dinero no corre riesgo: si ya pagaste la seña de ese turno, nuestro equipo lo verificará y te contactará para confirmarlo.</p>';
     html += '</div>';
@@ -476,10 +479,9 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
                         
                         var sd = document.getElementById("senaRequired");
                         if(sd){ sd.style.display="none"; sd.innerHTML=""; }
-                        var f = document.getElementById("bookingForm");
-                        if(f) f.style.display="block";
                         
-                        showError("✅ Reserva anterior cancelada. Ahora podés elegir otro turno.");
+                        showError("✅ Reserva cancelada. El turno elegido NO estará disponible hasta que expire el tiempo de espera (aprox. 5 min), pero los demás turnos sí están disponibles para reservar ahora.");
+                        mostrarTurnosDisponiblesDespuesDeCancelar();
                     })
                     .catch(function(err) {
                         console.warn("Error liberando reserva:", err);
@@ -492,6 +494,76 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
             });
         }
     }, 100);
+}
+
+// ========== Error de límite de reservas (máx 2 simultáneas) con countdown ==========
+function mostrarErrorLimiteReservas(mensaje, tiempoRestanteMs, tiempoRestanteDisplay) {
+    var senaDiv = document.getElementById("senaRequired");
+    if (!senaDiv) return;
+    senaDiv.style.display = "block";
+    
+    var apiErr = document.getElementById("apiError");
+    if (apiErr) apiErr.style.display = "none";
+    
+    var form = document.getElementById("bookingForm");
+    if (form) form.style.display = "none";
+    
+    var html = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
+    html += '<div style="font-size:3rem;margin-bottom:16px">🕐</div>';
+    html += '<h3 style="color:#FFD700;margin-bottom:12px">Límite de Reservas Alcanzado</h3>';
+    html += '<p style="opacity:0.9;margin-bottom:8px">' + mensaje + '</p>';
+    html += '<div style="background:rgba(255,215,0,0.15);border-radius:12px;padding:16px;margin:16px 0">';
+    html += '<p style="margin:0;font-size:1.8rem;font-weight:700;color:#FFD700" id="limiteReservaCountdown">' + tiempoRestanteDisplay + '</p>';
+    html += '<p style="margin:4px 0 0;font-size:0.85rem;opacity:0.8">Tiempo restante para que se libere una reserva</p>';
+    html += '</div>';
+    html += '<p style="opacity:0.7;font-size:0.85rem;margin-top:12px">Mientras tanto, podés ver los demás turnos disponibles abajo 👇</p>';
+    senaDiv.innerHTML = html;
+    
+    // Countdown en tiempo real
+    var countdownInterval = setInterval(function() {
+        if (!tiempoRestanteMs || tiempoRestanteMs <= 0) {
+            clearInterval(countdownInterval);
+            location.reload();
+            return;
+        }
+        tiempoRestanteMs -= 1000;
+        var m = Math.floor(tiempoRestanteMs / 60000);
+        var s = Math.floor((tiempoRestanteMs % 60000) / 1000);
+        var td = m + ":" + ((s < 10 ? "0" : "") + s);
+        var el = document.getElementById("limiteReservaCountdown");
+        if (el) el.textContent = td;
+        
+        if (tiempoRestanteMs <= 0) {
+            clearInterval(countdownInterval);
+            location.reload();
+        }
+    }, 1000);
+    
+    // Mantener visible los turnos disponibles
+    setTimeout(function() {
+        var slotsContainer = document.getElementById("slotsContainer");
+        if (slotsContainer) slotsContainer.style.display = "block";
+        
+        var reservarSection = document.getElementById("reservar");
+        if(reservarSection){
+            window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
+        }
+    }, 200);
+}
+
+// ========== Mostrar turnos disponibles después de cancelar reserva bloqueada ==========
+function mostrarTurnosDisponiblesDespuesDeCancelar() {
+    var slotsContainer = document.getElementById("slotsContainer");
+    if (slotsContainer) slotsContainer.style.display = "block";
+    
+    loadAvailableSlots();
+    
+    setTimeout(function() {
+        var reservarSection = document.getElementById("reservar");
+        if(reservarSection){
+            window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
+        }
+    }, 300);
 }
 
 function resetBookingForm() {
