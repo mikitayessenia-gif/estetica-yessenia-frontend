@@ -525,16 +525,13 @@ function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
     var form = document.getElementById("bookingForm");
     var slotsContainer = document.getElementById("slotsContainer");
     
-    // Mostrar el aviso de turno tomado con estilo pro
+    // Mostrar el aviso de turno tomado con estilo pro (simplificado)
     var html = '<div style="background:rgba(255,107,107,0.12);border:2px solid rgba(255,107,107,0.35);border-radius:16px;padding:28px 24px;margin-bottom:20px;text-align:center">';
     html += '<div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:rgba(255,107,107,0.2);margin-bottom:16px">';
     html += '<span style="font-size:1.8rem">🕐</span></div>';
     html += '<h3 style="color:#FFD700;margin:0 0 10px;font-size:1.3rem">Turno ya reservado</h3>';
     html += '<p style="opacity:0.9;margin-bottom:6px">' + (mensaje || "Este turno acaba de ser tomado por otra persona.") + '</p>';
-    html += '<p style="opacity:0.7;font-size:0.85rem;margin-bottom:16px">No te preocupes, elegí otro horario del mismo tratamiento:</p>';
-    html += '<div style="background:rgba(255,215,0,0.1);border-radius:10px;padding:14px;text-align:left">';
-    html += '<p style="margin:0;font-size:0.85rem;opacity:0.9">👇 Los horarios disponibles aparecen recién abajo</p>';
-    html += '</div></div>';
+    html += '</div>';
     
     // Insertar el aviso ANTES del formulario (no reemplazar todo)
     if(senaDiv.parentNode){
