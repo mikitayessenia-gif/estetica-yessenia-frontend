@@ -725,12 +725,12 @@ button { cursor: pointer; border: none; font-family: inherit; }
 
 @keyframes goldenPulse {
     0%, 100% { 
-        box-shadow: 0 0 6px rgba(196,161,109,0.15);
-        border-color: rgba(196,161,109,0.5);
+        box-shadow: 0 0 8px rgba(196,161,109,0.2);
+        border-color: rgba(196,161,109,0.55);
     }
     50% { 
-        box-shadow: 0 0 14px rgba(196,161,109,0.25);
-        border-color: rgba(196,161,109,0.7);
+        box-shadow: 0 0 18px rgba(196,161,109,0.3);
+        border-color: rgba(196,161,109,0.75);
     }
 }
 
@@ -760,20 +760,22 @@ button { cursor: pointer; border: none; font-family: inherit; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 8px 0 4px;
-    color: rgba(196,161,109,0.7);
-    font-size: 0.75rem;
+    gap: 5px;
+    padding: 10px 0 6px;
+    color: rgba(196,161,109,0.85);
+    font-size: 0.72rem;
+    font-weight: 500;
     animation: bounceHint 2s ease-in-out infinite;
 }
 .scroll-hint::before {
     content: '⌄';
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     line-height: 1;
+    color: rgba(196,161,109,1);
 }
 @keyframes bounceHint {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(3px); }
+    50% { transform: translateY(4px); }
 }
 
 .slot-btn {
@@ -796,16 +798,16 @@ button { cursor: pointer; border: none; font-family: inherit; }
     .slots-grid { 
         grid-template-columns: 1fr; 
         gap: 6px; 
-        padding: 8px;
-        max-height: 280px !important;
+        padding: 7px;
+        max-height: 270px !important;
         overflow-y: auto !important;
     }
     .slot-btn {
-        padding: 12px 8px;
-        font-size: 0.85rem;
-        border-radius: 8px;
+        padding: 11px 7px;
+        font-size: 0.8rem;
+        border-radius: 7px;
     }
-    .slot-date-label { margin-top: 8px; margin-bottom: 4px; font-size: 0.8rem; }
+    .slot-date-label { margin-top: 7px; margin-bottom: 3px; font-size: 0.75rem; }
 }
 
 /* ========== SPINNER ========== */
