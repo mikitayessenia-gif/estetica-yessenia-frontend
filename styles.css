@@ -762,7 +762,7 @@ button { cursor: pointer; border: none; font-family: inherit; }
     justify-content: center;
     gap: 5px;
     padding: 12px 0 8px;
-    color: rgba(196,161,109,0.95);
+    color: rgba(196,161,109,1);
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.3px;
