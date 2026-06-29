@@ -321,8 +321,20 @@ function showError(msg) {
     var e = document.getElementById("apiError"); 
     if(e){ 
         e.style.display="block"; 
-        var isConnError = !msg || msg.indexOf("conectar") !== -1 || msg.indexOf("Sin conexi") !== -1 || 
-                          msg.indexOf("error") === -1 && msg.indexOf("Error") === -1;
+        
+        // Verificar si es error de conexión REAL (no error del backend)
+        var isConnError = !msg || msg.indexOf("conectar") !== -1 || msg.indexOf("Sin conexi") !== -1;
+        
+        // NO es error de conexión si el mensaje contiene palabras de negocio (backend respondió bien)
+        if (!isConnError && msg) {
+            var businessKeywords = ["disponible", "reservado", "tomado", "ocupado", "no encontrado", "inexistente", "proceso"];
+            for (var i = 0; i < businessKeywords.length; i++) {
+                if (msg.toLowerCase().indexOf(businessKeywords[i]) !== -1) {
+                    isConnError = false;
+                    break;
+                }
+            }
+        }
         
         if(isConnError){
             e.innerHTML = '<p style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin:0 0 4px;text-align:center">&#9888; Problemas al conectarse con la agenda de turnos, volvé a intentar seleccionar tratamientos</p>'
@@ -425,6 +437,8 @@ if (bookingForm) {
                     mostrarErrorLimiteReservas(data.error, data.tiempoRestanteMs, data.tiempoRestanteDisplay);
                 } else if (data.idTurnoBloqueado) {
                     mostrarErrorReservaBloqueada(data.error, data.idTurnoBloqueado);
+                } else if (data.errorTipo === "yaOcupado") {
+                    mostrarErrorTurnoYaTomado(data.mensajeAmigable || data.error, data.estadoTurno);
                 } else {
                     showError(data.error || "Error al confirmar. Intenta de nuevo.");
                 }
@@ -494,6 +508,50 @@ function mostrarErrorReservaBloqueada(mensaje, idTurnoBloqueado) {
             });
         }
     }, 100);
+}
+
+// ========== Error: turno ya tomado por otra persona ==========
+function mostrarErrorTurnoYaTomado(mensaje, estadoTurno) {
+    var senaDiv = document.getElementById("senaRequired");
+    if (!senaDiv) return;
+    senaDiv.style.display = "block";
+    
+    var apiErr = document.getElementById("apiError");
+    if (apiErr) apiErr.style.display = "none";
+    
+    var form = document.getElementById("bookingForm");
+    if (form) form.style.display = "none";
+    
+    // Ocultar la barra de error genérica
+    if(apiErr){
+        apiErr.style.display = "none";
+        apiErr.innerHTML = "";
+    }
+    
+    var html = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
+    html += '<div style="font-size:3rem;margin-bottom:16px">🕐</div>';
+    html += '<h3 style="color:#FFD700;margin-bottom:12px">Turno ya reservado</h3>';
+    html += '<p style="opacity:0.9;margin-bottom:8px">' + (mensaje || "Este turno acaba de ser tomado por otra persona.") + '</p>';
+    html += '<p style="opacity:0.6;font-size:0.85rem;margin-bottom:20px">No te preocupes, hay otros horarios disponibles más abajo 👇</p>';
+    html += '<div style="background:rgba(255,215,0,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left">';
+    html += '<p style="margin:0;font-size:0.85rem;opacity:0.8">Podés elegir otro horario disponible del mismo tratamiento. Seleccioná abajo y confirmá al instante.</p>';
+    html += '</div>';
+    senaDiv.innerHTML = html;
+    
+    // Auto-refrescar turnos disponibles manteniendo tratamiento seleccionado
+    setTimeout(function() {
+        var slotsContainer = document.getElementById("slotsContainer");
+        if (slotsContainer) slotsContainer.style.display = "block";
+        
+        loadAvailableSlots(true);
+        
+        setTimeout(function() {
+            var reservarSection = document.getElementById("reservar");
+            if(reservarSection){
+                window.scrollTo({ top: reservarSection.offsetTop - 100, behavior: "smooth" });
+            }
+        }, 500);
+    }, 300);
 }
 
 // ========== Error de límite de reservas (máx 2 simultáneas) con countdown ==========
