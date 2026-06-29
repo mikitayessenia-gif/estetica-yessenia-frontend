@@ -52,37 +52,24 @@ document.addEventListener("visibilitychange", function() {
                             tb.textContent = m + ":" + ((s < 10 ? "0" : "") + s);
                         }
                     }
-                } else if (apiData.estado === 'Reservado' || apiData.estado === 'Reservado MP') {
+                } else if (apiData.estado === 'Reservado') {
                     // Verificar si es nuestro turno comparando el ID directamente, NO el nombre
                     // Esto evita race conditions con la propagacion de datos en Sheets
-                    // Si estado es 'Reservado MP', el turno sigue en pasarela MP - verificar que coincide el ID
                     if (apiData.id && apiData.id.toString().trim() === stored.idTurno.toString().trim()) {
-                        // Si es 'Reservado MP', el turno sigue en pasarela - solo actualizar timer
-                        if (apiData.estado === 'Reservado MP') {
-                            console.log("Turno sigue en pasarela MP, actualizando timer");
-                            var tb2 = document.getElementById("senaTimerBig");
-                            if (tb2) {
-                                var m2 = Math.floor(remainingMs / 60000);
-                                var s2 = Math.floor((remainingMs % 60000) / 1000);
-                                tb2.textContent = m2 + ":" + ((s2 < 10 ? "0" : "") + s2);
-                            }
-                        } else {
-                            // 'Reservado' = webhook ya confirmó el pago
-                            stopStatusPolling();
-                            clearActiveTurnoStorage();
-                            if(window._senaTimerId) clearInterval(window._senaTimerId);
-                            window._senaTimerId = null;
-                            
-                            var popupHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
-                            popupHtml += '<div style="font-size:3rem;margin-bottom:16px">✅</div>';
-                            popupHtml += '<h3 style="color:#FFD700;margin-bottom:8px">Turno Reservado con Éxito!</h3>';
-                            popupHtml += '<p>Tu turno fue confirmado automáticamente. Estamos actualizando tu agenda.</p>';
-                            popupHtml += '<button onclick="location.reload()" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Ver mi turno confirmado</button>';
-                            popupHtml += '</div>';
-                            
-                            var senaDiv = document.getElementById("senaRequired");
-                            if (senaDiv) { senaDiv.innerHTML = popupHtml; }
-                        }
+                        stopStatusPolling();
+                        clearActiveTurnoStorage();
+                        if(window._senaTimerId) clearInterval(window._senaTimerId);
+                        window._senaTimerId = null;
+                        
+                        var popupHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">';
+                        popupHtml += '<div style="font-size:3rem;margin-bottom:16px">✅</div>';
+                        popupHtml += '<h3 style="color:#FFD700;margin-bottom:8px">Turno Reservado con Éxito!</h3>';
+                        popupHtml += '<p>Tu turno fue confirmado automáticamente. Estamos actualizando tu agenda.</p>';
+                        popupHtml += '<button onclick="location.reload()" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Ver mi turno confirmado</button>';
+                        popupHtml += '</div>';
+                        
+                        var senaDiv = document.getElementById("senaRequired");
+                        if (senaDiv) { senaDiv.innerHTML = popupHtml; }
                     } else {
                         stopStatusPolling();
                         clearActiveTurnoStorage();
@@ -156,12 +143,6 @@ window.addEventListener("load", function() {
             console.log("Timer expirado en recarga, verificando si webhook confirmó:", stored.idTurno);
             verificarEstadoTurno(stored.idTurno)
                 .then(function(apiData) {
-                    // Verificar si el turno sigue en pasarela MP (recarga durante pago)
-                    if (apiData.estado === 'Reservado MP') {
-                        console.log("Turno sigue en pasarela MP al recargar, restaurando timer");
-                        restoreSenaTimerFromStorage();
-                        return;
-                    }
                     // Verificar si webhook ya confirmó el pago
                     if (apiData.estado === 'Reservado' && apiData.id && apiData.id.toString().trim() === stored.idTurno.toString().trim()) {
                         console.log("Webhook confirmó al recargar - mostrando éxito");

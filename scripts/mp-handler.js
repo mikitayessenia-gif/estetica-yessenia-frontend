@@ -94,8 +94,8 @@ function restoreSenaTimerFromStorage() {
         return verificarEstadoTurno(data.idTurno)
             .then(function(apiData) {
                 hidePreReservationLoader();
-                if ((apiData.estado === 'Reservado' || apiData.estado === 'Reservado MP') && apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
-                    console.log("Webhook ya confirmó el turno o está en pasarela MP, mostrando éxito");
+                if (apiData.estado === 'Reservado' && apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
+                    console.log("Webhook ya confirmó el turno al expirar timer local, mostrando éxito");
                     clearActiveTurnoStorage();
                     stopStatusPolling();
                     if(window._senaTimerId) clearInterval(window._senaTimerId);
@@ -157,8 +157,7 @@ function restoreSenaTimerFromStorage() {
                 return;
             }
             
-            // Si estado es 'Reservado MP', el turno sigue activo en pasarela MP
-            // Continuar al bloque que crea nueva preferencia con nuevo lock_id
+            // Si sigue en otro estado, continuar al bloque que crea nueva preferencia
             
             console.log("Creando nueva preferencia MP para turno:", data.idTurno);
             
@@ -667,25 +666,7 @@ function handleMercadoPagoReturn() {
     verificarEstadoTurno(idTurno)
         .then(function(data) {
             stopStatusPolling();
-            // Si estado es 'Reservado MP', el webhook aún no llegó - mostrar confirmando y reintentar
-            if (data.estado === 'Reservado MP') {
-                console.log("MP retorno pero turno sigue en pasarela MP, esperando webhook...");
-                var senaDivRetry = document.getElementById('senaRequired');
-                if (senaDivRetry) {
-                    var retryHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                        + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
-                        + '<h3 style="color:#FFD700;margin-bottom:8px">Confirmando tu pago...</h3>'
-                        + '<p>Estamos validando tu comprobante con Mercado Pago. Esto puede tomar unos segundos.</p>'
-                        + '<button id="reintentarBtnMP" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Reintentar</button></div>';
-                    senaDivRetry.innerHTML = retryHtml;
-                    setTimeout(function(){
-                        var btn = document.getElementById('reintentarBtnMP');
-                        if(btn) btn.addEventListener('click', function(){ location.reload(); });
-                    }, 100);
-                }
-                return;
-            }
-            // Si estado es 'Reservado', webhook ya confirmó
+            // Si estado es 'Reservado', webhook ya confirmó el pago
             if (data.estado === 'Reservado') {
                 clearActiveTurnoStorage();
                 if(window._senaTimerId) clearInterval(window._senaTimerId);
@@ -842,9 +823,6 @@ function handleMercadoPagoReturn() {
                                     clearActiveTurnoStorage();
                                     if(window._senaTimerId) clearInterval(window._senaTimerId);
                                     location.reload();
-                                } else if (d2.estado === 'Reservado MP') {
-                                    console.log("Retry: turno sigue en pasarela MP, reintentando...");
-                                    setTimeout(retryCheck, 3000);
                                 } else {
                                     setTimeout(retryCheck, 3000);
                                 }
