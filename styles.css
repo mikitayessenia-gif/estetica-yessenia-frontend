@@ -783,10 +783,7 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 .date-accordion-content {
     grid-column: 1 / -1;
-    padding-top: 8px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    padding-top: 4px;
 }
 .date-accordion-header:hover {
     background: rgba(196,161,109,0.15);
