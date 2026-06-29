@@ -718,38 +718,63 @@ button { cursor: pointer; border: none; font-family: inherit; }
 /* ========== SLOT SELECTOR STYLES ========== */
 .slots-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); 
-    gap: 10px; 
-    padding: 4px; 
+    grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); 
+    gap: 8px; 
+    padding: 16px;
+    border: 2px solid rgba(196,161,109,0.5);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(196,161,109,0.15), inset 0 0 30px rgba(196,161,109,0.05);
+    max-height: 420px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 }
+
+/* Scrollbar dorada elegante */
+.slots-grid::-webkit-scrollbar { width: 6px; }
+.slots-grid::-webkit-scrollbar-track { background: rgba(196,161,109,0.1); border-radius: 3px; }
+.slots-grid::-webkit-scrollbar-thumb { 
+    background: rgba(196,161,109,0.5); 
+    border-radius: 3px; 
+}
+.slots-grid::-webkit-scrollbar-thumb:hover { background: rgba(196,161,109,0.8); }
+
+/* Gradiente dorado en la parte inferior para indicar "más abajo" */
+.slots-grid::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(transparent, rgba(15,86,92,0.6));
+    pointer-events: none;
+    margin-top: -4px;
+}
+
 .slot-btn {
-    background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); color: white;
-    padding: 14px 10px; border-radius: 12px; cursor: pointer; transition: var(--transition);
-    text-align: center; font-size: 0.9rem; font-weight: 500;
+    background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); color: white;
+    padding: 12px 8px; border-radius: 10px; cursor: pointer; transition: var(--transition);
+    text-align: center; font-size: 0.85rem;
 }
-.slot-btn:hover { background: rgba(255,255,255,0.25); border-color: white; }
-.slot-btn.selected { background: white; color: var(--aqua-dark); border-color: white; font-weight: 700; }
-.slot-date-label { grid-column: 1 / -1; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); margin-top: 10px; margin-bottom: 6px; }
+.slot-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,215,0,0.6); box-shadow: 0 0 12px rgba(255,215,0,0.2); }
+.slot-btn.selected { background: white; color: var(--aqua-dark); border-color: #C4A16D; font-weight: 700; box-shadow: 0 0 16px rgba(196,161,109,0.4); }
+.slot-date-label { grid-column: 1 / -1; font-size: 0.8rem; font-weight: 600; color: rgba(255,215,0,0.9); margin-top: 12px; margin-bottom: 4px; letter-spacing: 0.3px; }
+.slot-date-label:first-child { margin-top: 0; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
 
-/* Ocultar scrollbar de forma elegante (manteniendo funcionalidad) */
-.slots-grid::-webkit-scrollbar { width: 0; height: 0; }
-.slots-grid { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* ========== MOBILE: Slots en columna sin scroll ========== */
+/* ========== MOBILE: Slots en columna con scrollbar dorada ========== */
 @media (max-width: 640px) {
     .slots-grid { 
         grid-template-columns: 1fr; 
         gap: 8px; 
-        max-height: none; 
-        overflow: visible !important;
+        padding: 12px;
+        max-height: 350px;
     }
     .slot-btn {
-        padding: 16px 12px;
-        font-size: 0.95rem;
-        border-radius: 14px;
+        padding: 14px 10px;
+        font-size: 0.9rem;
     }
-    .slot-date-label { margin-top: 14px; margin-bottom: 8px; font-size: 0.9rem; }
+    .slot-date-label { margin-top: 10px; margin-bottom: 6px; font-size: 0.85rem; }
 }
 
 /* ========== SPINNER ========== */
