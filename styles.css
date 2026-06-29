@@ -755,38 +755,41 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 .slots-grid::-webkit-scrollbar-thumb:hover { background: rgba(196,161,109,0.5); }
 
-/* Flecha indicadora "hay más abajo" */
+/* Indicador "hace scroll para ver más" */
 .scroll-hint {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    padding: 12px 0 8px;
-    color: rgba(196,161,109,1);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-    animation: bounceHint 2s ease-in-out infinite;
+    gap: 6px;
+    padding: 10px 0 6px;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.2px;
 }
 .scroll-hint::before {
-    content: '⌄';
-    font-size: 1.5rem;
-    line-height: 1;
-    color: rgba(196,161,109,1);
+    content: '';
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-right: 1.5px solid rgba(255,255,255,0.35);
+    border-bottom: 1.5px solid rgba(255,255,255,0.35);
+    transform: rotate(-45deg);
+    animation: scrollArrow 1.8s ease-in-out infinite;
 }
-@keyframes bounceHint {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(4px); }
+@keyframes scrollArrow {
+    0%, 100% { opacity: 0.3; transform: rotate(-45deg) translateY(0); }
+    50% { opacity: 0.7; transform: rotate(-45deg) translateY(3px); }
 }
 
 .slot-btn {
     background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.2); color: white;
-    padding: 10px 6px; border-radius: 8px; cursor: pointer; transition: var(--transition);
-    text-align: center; font-size: 0.79rem;
+    padding: 9px 6px; border-radius: 8px; cursor: pointer; transition: var(--transition);
+    text-align: center; font-size: 0.78rem;
 }
 .slot-btn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,215,0,0.5); }
 .slot-btn.selected { background: white; color: var(--aqua-dark); border-color: #C4A16D; font-weight: 700; }
-.slot-date-label { grid-column: 1 / -1; font-size: 0.74rem; font-weight: 600; color: rgba(255,215,0,0.85); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.2px; }
+.slot-date-label { grid-column: 1 / -1; font-size: 0.73rem; font-weight: 600; color: rgba(255,215,0,0.85); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.2px; }
 .slot-date-label:first-child { margin-top: 0; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
 
@@ -804,11 +807,11 @@ button { cursor: pointer; border: none; font-family: inherit; }
         overflow-y: auto !important;
     }
     .slot-btn {
-        padding: 10px 7px;
-        font-size: 0.79rem;
+        padding: 9px 7px;
+        font-size: 0.78rem;
         border-radius: 7px;
     }
-    .slot-date-label { margin-top: 7px; margin-bottom: 3px; font-size: 0.74rem; }
+    .slot-date-label { margin-top: 7px; margin-bottom: 3px; font-size: 0.73rem; }
 }
 
 /* ========== SPINNER ========== */
