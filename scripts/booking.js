@@ -292,6 +292,18 @@ function loadAvailableSlots(clearHint) {
             });
            slotsGrid.innerHTML=html;
 
+            // Mostrar/ocultar flecha indicadora segun si hay scroll
+            var scrollHint = document.querySelector('.scroll-hint');
+            if(scrollHint){
+                setTimeout(function(){
+                    if(slotsGrid.scrollHeight > slotsGrid.clientHeight){
+                        scrollHint.style.display = 'flex';
+                    } else {
+                        scrollHint.style.display = 'none';
+                    }
+                }, 100);
+            }
+
             // Clear error area on success
             var apiErrArea = document.getElementById("apiError");
             if(apiErrArea){
