@@ -726,12 +726,12 @@ button { cursor: pointer; border: none; font-family: inherit; }
 
 @keyframes goldenPulse {
     0%, 100% { 
-        box-shadow: 0 0 20px rgba(196,161,109,0.5), inset 0 0 25px rgba(196,161,109,0.1);
-        border-color: rgba(196,161,109,0.8);
+        box-shadow: 0 0 12px rgba(196,161,109,0.25), inset 0 0 18px rgba(196,161,109,0.06);
+        border-color: rgba(196,161,109,0.6);
     }
     50% { 
-        box-shadow: 0 0 40px rgba(255,215,0,0.8), inset 0 0 35px rgba(255,215,0,0.25);
-        border-color: rgba(255,215,0,1);
+        box-shadow: 0 0 22px rgba(196,161,109,0.4), inset 0 0 28px rgba(196,161,109,0.1);
+        border-color: rgba(196,161,109,0.85);
     }
 }
 
@@ -748,13 +748,26 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 
 /* Scrollbar dorada elegante */
-.slots-grid::-webkit-scrollbar { width: 6px; }
-.slots-grid::-webkit-scrollbar-track { background: rgba(196,161,109,0.1); border-radius: 3px; }
+.slots-grid::-webkit-scrollbar { width: 5px; }
+.slots-grid::-webkit-scrollbar-track { background: rgba(196,161,109,0.08); border-radius: 3px; }
 .slots-grid::-webkit-scrollbar-thumb { 
-    background: rgba(196,161,109,0.5); 
+    background: rgba(196,161,109,0.4); 
     border-radius: 3px; 
 }
-.slots-grid::-webkit-scrollbar-thumb:hover { background: rgba(196,161,109,0.8); }
+.slots-grid::-webkit-scrollbar-thumb:hover { background: rgba(196,161,109,0.7); }
+
+/* Indicador sutil de "hay más abajo" */
+.slots-grid::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background: linear-gradient(transparent, rgba(15,86,92,0.5));
+    pointer-events: none;
+    margin-top: -4px;
+}
 
 .slot-btn {
     background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); color: white;
@@ -767,20 +780,18 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .slot-date-label:first-child { margin-top: 0; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
 
-/* ========== MOBILE: Slots en columna con scroll natural de pagina ========== */
+/* ========== MOBILE: Slots en columna compacta con scroll interno ========== */
 @media (max-width: 640px) {
     .slots-grid-wrapper {
         border-width: 1.5px;
         padding: 3px;
-        /* Permitir que el dedo deslice naturalmente sin bloquear scroll */
-        touch-action: pan-y;
     }
     .slots-grid { 
         grid-template-columns: 1fr; 
         gap: 8px; 
         padding: 12px;
-        max-height: none !important;
-        overflow: visible !important;
+        max-height: 320px !important;
+        overflow-y: auto !important;
     }
     .slot-btn {
         padding: 14px 10px;
