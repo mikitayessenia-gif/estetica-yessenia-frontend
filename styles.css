@@ -716,17 +716,35 @@ button { cursor: pointer; border: none; font-family: inherit; }
 .wa-step span { font-size: 0.85rem; opacity: 0.85; }
 
 /* ========== SLOT SELECTOR STYLES ========== */
+.slots-grid-wrapper {
+    border: 2px solid rgba(196,161,109,0.7);
+    border-radius: 16px;
+    padding: 4px;
+    box-shadow: 0 0 15px rgba(196,161,109,0.2), inset 0 0 20px rgba(196,161,109,0.05);
+    animation: goldenPulse 2s ease-in-out infinite;
+}
+
+@keyframes goldenPulse {
+    0%, 100% { 
+        box-shadow: 0 0 10px rgba(196,161,109,0.2), inset 0 0 20px rgba(196,161,109,0.05);
+        border-color: rgba(196,161,109,0.7);
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(196,161,109,0.4), inset 0 0 30px rgba(196,161,109,0.1);
+        border-color: rgba(255,215,0,0.9);
+    }
+}
+
 .slots-grid { 
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(125px, 1fr)); 
     gap: 8px; 
-    padding: 16px;
-    border: 2px solid rgba(196,161,109,0.5);
-    border-radius: 16px;
-    box-shadow: 0 0 20px rgba(196,161,109,0.15), inset 0 0 30px rgba(196,161,109,0.05);
+    padding: 14px;
     max-height: 420px;
     overflow-y: auto;
     scroll-behavior: smooth;
+    background: rgba(0,0,0,0.1);
+    border-radius: 13px;
 }
 
 /* Scrollbar dorada elegante */
@@ -738,19 +756,6 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 .slots-grid::-webkit-scrollbar-thumb:hover { background: rgba(196,161,109,0.8); }
 
-/* Gradiente dorado en la parte inferior para indicar "más abajo" */
-.slots-grid::after {
-    content: '';
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 30px;
-    background: linear-gradient(transparent, rgba(15,86,92,0.6));
-    pointer-events: none;
-    margin-top: -4px;
-}
-
 .slot-btn {
     background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); color: white;
     padding: 12px 8px; border-radius: 10px; cursor: pointer; transition: var(--transition);
@@ -758,12 +763,16 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 .slot-btn:hover { background: rgba(255,255,255,0.22); border-color: rgba(255,215,0,0.6); box-shadow: 0 0 12px rgba(255,215,0,0.2); }
 .slot-btn.selected { background: white; color: var(--aqua-dark); border-color: #C4A16D; font-weight: 700; box-shadow: 0 0 16px rgba(196,161,109,0.4); }
-.slot-date-label { grid-column: 1 / -1; font-size: 0.8rem; font-weight: 600; color: rgba(255,215,0,0.9); margin-top: 12px; margin-bottom: 4px; letter-spacing: 0.3px; }
+.slot-date-label { grid-column: 1 / -1; font-size: 0.8rem; font-weight: 600; color: rgba(255,215,0,0.9); margin-top: 10px; margin-bottom: 4px; letter-spacing: 0.3px; }
 .slot-date-label:first-child { margin-top: 0; }
 .no-slots { grid-column: 1 / -1; text-align: center; padding: 20px; opacity: 0.7; font-style: italic; }
 
-/* ========== MOBILE: Slots en columna con scrollbar dorada ========== */
+/* ========== MOBILE: Slots en columna con borde dorado pulsante ========== */
 @media (max-width: 640px) {
+    .slots-grid-wrapper {
+        border-width: 1.5px;
+        padding: 3px;
+    }
     .slots-grid { 
         grid-template-columns: 1fr; 
         gap: 8px; 
