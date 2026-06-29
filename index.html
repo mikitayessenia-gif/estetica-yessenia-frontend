@@ -181,6 +181,24 @@
                     <!-- Step 2: Available Slots (from API) -->
                     <div id="slotsContainer" style="margin-bottom:16px;display:none">
                         <label style="color:rgba(255,255,255,0.8);font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Paso 2: Día y hora disponible</label>
+                        
+                        <!-- Vista selector -->
+                        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
+                            <button type="button" id="viewAllBtn" onclick="setViewMode('all')" style="background:rgba(196,161,109,0.3);border:1.5px solid rgba(196,161,109,0.5);color:white;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:0.78rem;font-weight:500;transition:all 0.3s">📅 Ver todos</button>
+                            <button type="button" id="viewCalendarBtn" onclick="setViewMode('calendar')" style="background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:8px 18px;border-radius:20px;cursor:pointer;font-size:0.78rem;font-weight:500;transition:all 0.3s">🗓 Calendario</button>
+                        </div>
+                        
+                        <!-- Mini calendario (oculto por defecto) -->
+                        <div id="miniCalendar" style="display:none;margin-bottom:12px;padding:12px;background:rgba(0,0,0,0.1);border-radius:12px;border:1px solid rgba(196,161,109,0.3)">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                                <button type="button" onclick="changeCalendarMonth(-1)" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;padding:4px 8px">‹</button>
+                                <span id="calendarMonthYear" style="color:rgba(255,215,0,0.9);font-size:0.85rem;font-weight:600"></span>
+                                <button type="button" onclick="changeCalendarMonth(1)" style="background:none;border:none;color:white;font-size:1.2rem;cursor:pointer;padding:4px 8px">›</button>
+                            </div>
+                            <div id="calendarDays" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;margin-bottom:8px"></div>
+                            <div id="calendarDates" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px"></div>
+                        </div>
+                        
                         <div class="slots-grid-wrapper">
                             <div class="slots-grid" id="slotsGrid"></div>
                         </div>

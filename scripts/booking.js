@@ -292,6 +292,14 @@ function loadAvailableSlots(clearHint) {
             });
            slotsGrid.innerHTML=html;
 
+            // Guardar datos globalmente para filtrado por calendario
+            window._allSlotsData = [];
+            Object.keys(fechasFiltradas).forEach(function(date) {
+                fechasFiltradas[date].forEach(function(slot) {
+                    window._allSlotsData.push(slot);
+                });
+            });
+
             // Mostrar/ocultar flecha indicadora segun si hay scroll
             var scrollHint = document.querySelector('.scroll-hint');
             if(scrollHint){
@@ -1172,6 +1180,208 @@ function selectTreatmentAndScroll(treatmentName) {
     if (reservarSection) {
         reservarSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+}
+
+// ========== MINI CALENDARIO - Vista por día específico ==========
+var currentCalendarDate = new Date();
+var calendarSelectedDate = null;
+
+function setViewMode(mode) {
+    var allBtn = document.getElementById("viewAllBtn");
+    var calBtn = document.getElementById("viewCalendarBtn");
+    var miniCal = document.getElementById("miniCalendar");
+    var slotsGrid = document.getElementById("slotsGrid");
+    var scrollHint = document.querySelector('.scroll-hint');
+    
+    if (mode === 'all') {
+        allBtn.style.background = "rgba(196,161,109,0.3)";
+        allBtn.style.borderColor = "rgba(196,161,109,0.5)";
+        allBtn.style.color = "white";
+        calBtn.style.background = "rgba(255,255,255,0.08)";
+        calBtn.style.borderColor = "rgba(255,255,255,0.2)";
+        calBtn.style.color = "rgba(255,255,255,0.6)";
+        miniCal.style.display = "none";
+        if(slotsGrid) slotsGrid.style.display = "grid";
+        if(scrollHint) scrollHint.style.display = 'flex';
+        loadAvailableSlots(true);
+    } else {
+        allBtn.style.background = "rgba(255,255,255,0.08)";
+        allBtn.style.borderColor = "rgba(255,255,255,0.2)";
+        allBtn.style.color = "rgba(255,255,255,0.6)";
+        calBtn.style.background = "rgba(196,161,109,0.3)";
+        calBtn.style.borderColor = "rgba(196,161,109,0.5)";
+        calBtn.style.color = "white";
+        miniCal.style.display = "block";
+        currentCalendarDate = new Date();
+        calendarSelectedDate = null;
+        renderMiniCalendar();
+    }
+}
+
+function changeCalendarMonth(dir) {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + dir);
+    calendarSelectedDate = null;
+    renderMiniCalendar();
+}
+
+function renderMiniCalendar() {
+    var year = currentCalendarDate.getFullYear();
+    var month = currentCalendarDate.getMonth();
+    
+    var mesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    var diaNombres = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+    
+    document.getElementById("calendarMonthYear").textContent = mesNombres[month] + " " + year;
+    
+    // Días de la semana (header)
+    var daysHtml = diaNombres.map(function(d) {
+        return '<div style="color:rgba(255,255,255,0.4);font-size:0.7rem;padding:4px 0">' + d + '</div>';
+    }).join('');
+    
+    // Días del mes
+    var primerDia = new Date(year, month, 1).getDay();
+    var diasEnMes = new Date(year, month + 1, 0).getDate();
+    var hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    for (var i = 0; i < primerDia; i++) {
+        daysHtml += '<div></div>';
+    }
+    
+    for (var d = 1; d <= diasEnMes; d++) {
+        var fecha = new Date(year, month, d);
+        var esHoy = fecha.getTime() === hoy.getTime();
+        var esPasada = fecha < hoy;
+        var isSelected = calendarSelectedDate && calendarSelectedDate.getDate() === d && calendarSelectedDate.getMonth() === month && calendarSelectedDate.getFullYear() === year;
+        
+        var classes = 'style="padding:6px 4px;border-radius:8px;font-size:0.75rem;cursor:' + (esPasada ? 'not-allowed' : 'pointer') + ';';
+        if (isSelected) {
+            classes += 'background:rgba(196,161,109,0.4);border:1px solid rgba(196,161,109,0.6);color:white;';
+        } else if (esHoy) {
+            classes += 'border:1px solid rgba(255,215,0,0.6);color:#FFD700;font-weight:600;';
+        } else if (esPasada) {
+            classes += 'opacity:0.3;cursor:not-allowed;';
+        } else {
+            classes += 'border:1px solid transparent;color:white;';
+        }
+        classes += '"';
+        
+        if (!esPasada) {
+            classes += ' onclick="selectCalendarDate(' + year + ',' + month + ',' + d + ')"';
+        }
+        
+        daysHtml += '<div ' + classes + '>' + d + '</div>';
+    }
+    
+    document.getElementById("calendarDays").innerHTML = daysHtml;
+    
+    // Listado de fechas disponibles del mes (para hacer click rápido)
+    renderCalendarDatesList();
+}
+
+function selectCalendarDate(year, month, day) {
+    calendarSelectedDate = new Date(year, month, day);
+    renderMiniCalendar();
+    filterSlotsByDate(calendarSelectedDate);
+}
+
+function renderCalendarDatesList() {
+    var year = currentCalendarDate.getFullYear();
+    var month = currentCalendarDate.getMonth();
+    var diasEnMes = new Date(year, month + 1, 0).getDate();
+    var hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    // Obtener turnos disponibles del mes actual para saber qué días tienen slots
+    var api_url = API_URL + '?action=obtenerTurnos&duracionFilas=1&token=' + encodeURIComponent(API_TOKEN);
+    fetch(api_url)
+        .then(function(r){return r.json()})
+        .then(function(data) {
+            var turnos = data.turnos || [];
+            var diasConTurnos = {};
+            
+            turnos.forEach(function(t) {
+                if (t.fecha) {
+                    var partes = t.fecha.split('/');
+                    if (partes.length === 3) {
+                        var fechaSlot = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+                        if (fechaSlot.getFullYear() === year && fechaSlot.getMonth() === month) {
+                            var dia = fechaSlot.getDate();
+                            if (!diasConTurnos[dia]) diasConTurnos[dia] = [];
+                            diasConTurnos[dia].push(t);
+                        }
+                    }
+                }
+            });
+            
+            // Generar lista de días con turnos
+            var listHtml = '';
+            for (var d = 1; d <= diasEnMes; d++) {
+                if (!diasConTurnos[d]) continue;
+                
+                var fecha = new Date(year, month, d);
+                var esPasada = fecha < hoy;
+                var isSelected = calendarSelectedDate && calendarSelectedDate.getDate() === d && calendarSelectedDate.getMonth() === month && calendarSelectedDate.getFullYear() === year;
+                
+                var displayFecha = d + '/' + (month + 1);
+                var cantidadTurnos = diasConTurnos[d].length;
+                
+                if (!esPasada) {
+                    listHtml += '<div onclick="selectCalendarDate(' + year + ',' + month + ',' + d + ')" style="padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;' 
+                        + (isSelected ? 'background:rgba(196,161,109,0.25);border:1px solid rgba(196,161,109,0.4);' : 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);') 
+                        + '"><span style="color:white;font-size:0.8rem">' + displayFecha + '</span>'
+                        + '<span style="color:rgba(255,215,0,0.7);font-size:0.7rem">' + cantidadTurnos + ' turnos</span></div>';
+                }
+            }
+            
+            if (!listHtml) {
+                listHtml = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);font-size:0.8rem">No hay turnos disponibles este mes</div>';
+            }
+            
+            document.getElementById("calendarDates").innerHTML = listHtml;
+        })
+        .catch(function() {
+            document.getElementById("calendarDates").innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);font-size:0.8rem">Cargando...</div>';
+        });
+}
+
+function filterSlotsByDate(fechaSeleccionada) {
+    var slotsGrid = document.getElementById("slotsGrid");
+    if (!slotsGrid || !window._allSlotsData) return;
+    
+    var fechaStr = String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + (fechaSeleccionada.getMonth() + 1);
+    var diaSemana = fechaSeleccionada.toLocaleDateString('es-AR', { weekday: 'long' });
+    diaSemana = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+    
+    var slotsDelDia = window._allSlotsData.filter(function(s) {
+        return s.fecha && s.fecha.indexOf(fechaStr) !== -1;
+    });
+    
+    if (slotsDelDia.length === 0) {
+        slotsGrid.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);font-size:0.85rem">No hay turnos disponibles para esta fecha</div>';
+        return;
+    }
+    
+    var html = '<div class="slot-date-label">' + fechaSeleccionada.getDate() + '/' + (fechaSeleccionada.getMonth() + 1) + ' - ' + diaSemana + '</div>';
+    
+    slotsDelDia.forEach(function(slot) {
+        var horaInicioDisplay = slot._horaInicioParsed || "";
+        var horaFinDisplay = slot._horaFinParsed || "";
+        html += '<button type="button" class="slot-btn" data-id="' + slot.id + '" data-fecha="' + slot.fecha + '" data-hora="' + horaInicioDisplay + '">' + horaInicioDisplay + " - " + horaFinDisplay + '</button>';
+    });
+    
+    slotsGrid.innerHTML = html;
+    
+    // Agregar event listeners
+    slotsGrid.querySelectorAll(".slot-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+            slotsGrid.querySelectorAll(".slot-btn").forEach(function(b) { b.classList.remove("selected"); });
+            btn.classList.add("selected");
+            document.getElementById("selectedSlotId").value = btn.dataset.id;
+            document.getElementById("selectedFecha").value = btn.dataset.fecha;
+            document.getElementById("selectedHorario").value = btn.dataset.hora;
+        });
+    });
 }
 
 // Expose globally
