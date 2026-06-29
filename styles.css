@@ -762,14 +762,15 @@ button { cursor: pointer; border: none; font-family: inherit; }
     justify-content: center;
     gap: 5px;
     padding: 10px 0 6px;
-    color: rgba(196,161,109,0.85);
-    font-size: 0.72rem;
-    font-weight: 500;
+    color: rgba(196,161,109,0.9);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     animation: bounceHint 2s ease-in-out infinite;
 }
 .scroll-hint::before {
     content: '⌄';
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     line-height: 1;
     color: rgba(196,161,109,1);
 }
