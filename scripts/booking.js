@@ -300,17 +300,7 @@ function loadAvailableSlots(clearHint) {
                 });
             });
 
-            // Mostrar/ocultar flecha indicadora segun si hay scroll
-            var scrollHint = document.querySelector('.scroll-hint');
-            if(scrollHint){
-                setTimeout(function(){
-                    if(slotsGrid.scrollHeight > slotsGrid.clientHeight){
-                        scrollHint.style.display = 'flex';
-                    } else {
-                        scrollHint.style.display = 'none';
-                    }
-                }, 100);
-            }
+  
 
             // Clear error area on success
             var apiErrArea = document.getElementById("apiError");
@@ -1191,7 +1181,6 @@ function setViewMode(mode) {
     var calBtn = document.getElementById("viewCalendarBtn");
     var miniCal = document.getElementById("miniCalendar");
     var slotsGrid = document.getElementById("slotsGrid");
-    var scrollHint = document.querySelector('.scroll-hint');
     
     if (mode === 'all') {
         allBtn.style.background = "rgba(196,161,109,0.3)";
@@ -1202,7 +1191,6 @@ function setViewMode(mode) {
         calBtn.style.color = "rgba(255,255,255,0.6)";
         miniCal.style.display = "none";
         if(slotsGrid) slotsGrid.style.display = "grid";
-        if(scrollHint) scrollHint.style.display = 'flex';
         loadAvailableSlots(true);
     } else {
         allBtn.style.background = "rgba(255,255,255,0.08)";
@@ -1212,6 +1200,7 @@ function setViewMode(mode) {
         calBtn.style.borderColor = "rgba(196,161,109,0.5)";
         calBtn.style.color = "white";
         miniCal.style.display = "block";
+        if(slotsGrid) slotsGrid.style.display = "none";
         currentCalendarDate = new Date();
         calendarSelectedDate = null;
         renderMiniCalendar();
@@ -1233,6 +1222,46 @@ function renderMiniCalendar() {
     
     document.getElementById("calendarMonthYear").textContent = mesNombres[month] + " " + year;
     
+    // Construir mapa de días con turnos disponibles (misma lógica que filterSlotsByDate)
+    var allSlots = window._allSlotsData || [];
+    var diasConTurnos = {};
+    var hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    var ahoraActual = new Date();
+    var horaActualStr = String(ahoraActual.getHours()).padStart(2, "0") + ":" + String(ahoraActual.getMinutes()).padStart(2, "0");
+    
+    allSlots.forEach(function(t) {
+        if (t._normalizedFecha) {
+            var partes = t._normalizedFecha.split('/');
+            if (partes.length === 3) {
+                var fechaSlot = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+                if (fechaSlot.getFullYear() === year && fechaSlot.getMonth() === month) {
+                    var dia = fechaSlot.getDate();
+                    // Verificar que no sea pasado y que hoy no tenga horarios ya pasados
+                    var esPasada = fechaSlot < hoy;
+                    var tieneTurnosDisponibles = false;
+                    
+                    if (!esPasada) {
+                        if (fechaSlot.getTime() === hoy.getTime()) {
+                            // Hoy: solo contar slots con hora >= ahora
+                            var slotHora = t._horaInicioParsed || "";
+                            if (slotHora >= horaActualStr) {
+                                tieneTurnosDisponibles = true;
+                            }
+                        } else {
+                            tieneTurnosDisponibles = true;
+                        }
+                    }
+                    
+                    if (tieneTurnosDisponibles) {
+                        if (!diasConTurnos[dia]) diasConTurnos[dia] = [];
+                        diasConTurnos[dia].push(t);
+                    }
+                }
+            }
+        }
+    });
+    
     // Días de la semana (header)
     var daysHtml = diaNombres.map(function(d) {
         return '<div style="color:rgba(255,255,255,0.4);font-size:0.7rem;padding:4px 0">' + d + '</div>';
@@ -1241,8 +1270,6 @@ function renderMiniCalendar() {
     // Días del mes
     var primerDia = new Date(year, month, 1).getDay();
     var diasEnMes = new Date(year, month + 1, 0).getDate();
-    var hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
     
     for (var i = 0; i < primerDia; i++) {
         daysHtml += '<div></div>';
@@ -1252,28 +1279,47 @@ function renderMiniCalendar() {
         var fecha = new Date(year, month, d);
         var esHoy = fecha.getTime() === hoy.getTime();
         var esPasada = fecha < hoy;
+        var tieneTurnos = !!diasConTurnos[d];
         var isSelected = calendarSelectedDate && calendarSelectedDate.getDate() === d && calendarSelectedDate.getMonth() === month && calendarSelectedDate.getFullYear() === year;
         
-        var classes = 'style="padding:6px 4px;border-radius:8px;font-size:0.75rem;cursor:' + (esPasada ? 'not-allowed' : 'pointer') + ';';
+        var cursorStyle = 'not-allowed';
+        var opacityStyle = '';
+        
+        if (esPasada || !tieneTurnos) {
+            cursorStyle = 'not-allowed';
+            opacityStyle = 'opacity:0.4;';
+        } else {
+            cursorStyle = 'pointer';
+        }
+        
+        var classes = 'style="padding:6px 4px;border-radius:8px;font-size:0.75rem;cursor:' + cursorStyle + ';' + opacityStyle;
         if (isSelected) {
             classes += 'background:rgba(196,161,109,0.4);border:1px solid rgba(196,161,109,0.6);color:white;';
-        } else if (esHoy) {
+        } else if (esHoy && tieneTurnos) {
             classes += 'border:1px solid rgba(255,215,0,0.6);color:#FFD700;font-weight:600;';
-        } else if (esPasada) {
-            classes += 'opacity:0.3;cursor:not-allowed;';
-        } else {
+        } else if (tieneTurnos) {
             classes += 'border:1px solid transparent;color:white;';
         }
         classes += '"';
         
-        if (!esPasada) {
-            classes += ' onclick="selectCalendarDate(' + year + ',' + month + ',' + d + ')"';
-        }
+        classes += ' data-cal-day="' + d + '" data-cal-month="' + month + '" data-cal-year="' + year + '"';
         
         daysHtml += '<div ' + classes + '>' + d + '</div>';
     }
     
-    document.getElementById("calendarDays").innerHTML = daysHtml;
+    var calDaysEl = document.getElementById("calendarDays");
+    calDaysEl.innerHTML = daysHtml;
+    
+    calDaysEl.onclick = function(e) {
+        var target = e.target.closest('[data-cal-day]');
+        if (!target || target.style.cursor === 'not-allowed') return;
+        var day = parseInt(target.dataset.calDay);
+        var m = parseInt(target.dataset.calMonth);
+        var y = parseInt(target.dataset.calYear);
+        if (day && !isNaN(y)) {
+            selectCalendarDate(y, m, day);
+        }
+    };
     
     // Listado de fechas disponibles del mes (para hacer click rápido)
     renderCalendarDatesList();
@@ -1292,77 +1338,130 @@ function renderCalendarDatesList() {
     var hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     
-    // Obtener turnos disponibles del mes actual para saber qué días tienen slots
-    var api_url = API_URL + '?action=obtenerTurnos&duracionFilas=1&token=' + encodeURIComponent(API_TOKEN);
-    fetch(api_url)
-        .then(function(r){return r.json()})
-        .then(function(data) {
-            var turnos = data.turnos || [];
-            var diasConTurnos = {};
-            
-            turnos.forEach(function(t) {
-                if (t.fecha) {
-                    var partes = t.fecha.split('/');
-                    if (partes.length === 3) {
-                        var fechaSlot = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
-                        if (fechaSlot.getFullYear() === year && fechaSlot.getMonth() === month) {
-                            var dia = fechaSlot.getDate();
-                            if (!diasConTurnos[dia]) diasConTurnos[dia] = [];
-                            diasConTurnos[dia].push(t);
+    // Usar los datos locales de _allSlotsData en vez de hacer otra llamada a la API
+    var allSlots = window._allSlotsData || [];
+    var diasConTurnos = {};
+    
+    var ahoraActual = new Date();
+    var horaActualStr = String(ahoraActual.getHours()).padStart(2, "0") + ":" + String(ahoraActual.getMinutes()).padStart(2, "0");
+    
+    allSlots.forEach(function(t) {
+        if (t._normalizedFecha) {
+            var partes = t._normalizedFecha.split('/');
+            if (partes.length === 3) {
+                var fechaSlot = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+                if (fechaSlot.getFullYear() === year && fechaSlot.getMonth() === month) {
+                    var dia = fechaSlot.getDate();
+                    var esPasada = fechaSlot < hoy;
+                    var tieneTurnosDisponibles = false;
+                    
+                    if (!esPasada) {
+                        if (fechaSlot.getTime() === hoy.getTime()) {
+                            var slotHora = t._horaInicioParsed || "";
+                            if (slotHora >= horaActualStr) {
+                                tieneTurnosDisponibles = true;
+                            }
+                        } else {
+                            tieneTurnosDisponibles = true;
                         }
                     }
-                }
-            });
-            
-            // Generar lista de días con turnos
-            var listHtml = '';
-            for (var d = 1; d <= diasEnMes; d++) {
-                if (!diasConTurnos[d]) continue;
-                
-                var fecha = new Date(year, month, d);
-                var esPasada = fecha < hoy;
-                var isSelected = calendarSelectedDate && calendarSelectedDate.getDate() === d && calendarSelectedDate.getMonth() === month && calendarSelectedDate.getFullYear() === year;
-                
-                var displayFecha = d + '/' + (month + 1);
-                var cantidadTurnos = diasConTurnos[d].length;
-                
-                if (!esPasada) {
-                    listHtml += '<div onclick="selectCalendarDate(' + year + ',' + month + ',' + d + ')" style="padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;' 
-                        + (isSelected ? 'background:rgba(196,161,109,0.25);border:1px solid rgba(196,161,109,0.4);' : 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);') 
-                        + '"><span style="color:white;font-size:0.8rem">' + displayFecha + '</span>'
-                        + '<span style="color:rgba(255,215,0,0.7);font-size:0.7rem">' + cantidadTurnos + ' turnos</span></div>';
+                    
+                    if (tieneTurnosDisponibles) {
+                        if (!diasConTurnos[dia]) diasConTurnos[dia] = [];
+                        diasConTurnos[dia].push(t);
+                    }
                 }
             }
-            
-            if (!listHtml) {
-                listHtml = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);font-size:0.8rem">No hay turnos disponibles este mes</div>';
-            }
-            
-            document.getElementById("calendarDates").innerHTML = listHtml;
-        })
-        .catch(function() {
-            document.getElementById("calendarDates").innerHTML = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.3);font-size:0.8rem">Cargando...</div>';
-        });
+        }
+    });
+    
+    // Generar lista de días con turnos
+    var listHtml = '';
+    for (var d = 1; d <= diasEnMes; d++) {
+        if (!diasConTurnos[d]) continue;
+        
+        var fecha = new Date(year, month, d);
+        var esPasada = fecha < hoy;
+        var isSelected = calendarSelectedDate && calendarSelectedDate.getDate() === d && calendarSelectedDate.getMonth() === month && calendarSelectedDate.getFullYear() === year;
+        
+        var displayFecha = d + '/' + (month + 1);
+        var cantidadTurnos = diasConTurnos[d].length;
+        
+        if (!esPasada) {
+            listHtml += '<div data-list-day="' + d + '" data-list-month="' + month + '" data-list-year="' + year + '" style="padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;' 
+                + (isSelected ? 'background:rgba(196,161,109,0.25);border:1px solid rgba(196,161,109,0.4);' : 'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);') 
+                + '"><span style="color:white;font-size:0.8rem">' + displayFecha + '</span>'
+                + '<span style="color:rgba(255,215,0,0.7);font-size:0.7rem">' + cantidadTurnos + ' turnos</span></div>';
+        }
+    }
+    
+    if (!listHtml) {
+        listHtml = '<div style="text-align:center;padding:16px;color:rgba(255,255,255,0.4);font-size:0.8rem">No hay turnos disponibles este mes</div>';
+    }
+    
+    var calDatesEl = document.getElementById("calendarDates");
+    calDatesEl.innerHTML = listHtml;
+    
+    calDatesEl.onclick = function(e) {
+        var target = e.target.closest('[data-list-day]');
+        if (!target) return;
+        var day = parseInt(target.dataset.listDay);
+        var m = parseInt(target.dataset.listMonth);
+        var y = parseInt(target.dataset.listYear);
+        if (day && !isNaN(y)) {
+            selectCalendarDate(y, m, day);
+        }
+    };
 }
 
 function filterSlotsByDate(fechaSeleccionada) {
     var slotsGrid = document.getElementById("slotsGrid");
-    if (!slotsGrid || !window._allSlotsData) return;
+    if (!slotsGrid) return;
     
-    var fechaStr = String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + (fechaSeleccionada.getMonth() + 1);
-    var diaSemana = fechaSeleccionada.toLocaleDateString('es-AR', { weekday: 'long' });
-    diaSemana = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
-    
-    var slotsDelDia = window._allSlotsData.filter(function(s) {
-        return s.fecha && s.fecha.indexOf(fechaStr) !== -1;
-    });
-    
-    if (slotsDelDia.length === 0) {
-        slotsGrid.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);font-size:0.85rem">No hay turnos disponibles para esta fecha</div>';
+    if (!window._allSlotsData || window._allSlotsData.length === 0) {
+        slotsGrid.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);font-size:0.85rem">Seleccioná un tratamiento primero para ver los turnos</div>';
         return;
     }
     
-    var html = '<div class="slot-date-label">' + fechaSeleccionada.getDate() + '/' + (fechaSeleccionada.getMonth() + 1) + ' - ' + diaSemana + '</div>';
+    var fechaStr = String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + String(fechaSeleccionada.getMonth() + 1).padStart(2, '0');
+    var diaSemana = fechaSeleccionada.toLocaleDateString('es-AR', { weekday: 'long' });
+    diaSemana = diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1);
+    
+    // Filtrar por fecha seleccionada
+    var slotsDelDia = window._allSlotsData.filter(function(s) {
+        var normalizedFecha = s._normalizedFecha || '';
+        return normalizedFecha && normalizedFecha.indexOf(fechaStr + '/') === 0;
+    });
+    
+    // Si es hoy, filtrar horarios pasados (misma lógica que "Ver todos")
+    if (slotsDelDia.length > 0) {
+        var hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        var fechaSelDate = new Date(fechaSeleccionada.getFullYear(), fechaSeleccionada.getMonth(), fechaSeleccionada.getDate());
+        
+        if (fechaSelDate.getTime() === hoy.getTime()) {
+            var horaActualStr = String(hoy.getHours()).padStart(2, "0") + ":" + String(hoy.getMinutes()).padStart(2, "0");
+            slotsDelDia = slotsDelDia.filter(function(s) {
+                return s._horaInicioParsed >= horaActualStr;
+            });
+        }
+    }
+    
+    if (slotsDelDia.length === 0) {
+        slotsGrid.innerHTML = '<div style="text-align:center;padding:30px;color:rgba(255,255,255,0.5);font-size:0.85rem">No hay turnos disponibles para esta fecha</div>';
+        slotsGrid.style.display = "grid";
+        return;
+    }
+    
+    slotsGrid.style.display = "grid";
+    
+    slotsDelDia.sort(function(a, b) {
+        var timeA = a._horaInicioParsed || "";
+        var timeB = b._horaInicioParsed || "";
+        return timeA < timeB ? -1 : (timeA > timeB ? 1 : 0);
+    });
+    
+    var html = '<div class="slot-date-label">' + String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + String(fechaSeleccionada.getMonth() + 1).padStart(2, '0') + ' - ' + diaSemana + '</div>';
     
     slotsDelDia.forEach(function(slot) {
         var horaInicioDisplay = slot._horaInicioParsed || "";
@@ -1371,6 +1470,11 @@ function filterSlotsByDate(fechaSeleccionada) {
     });
     
     slotsGrid.innerHTML = html;
+    
+    // Scroll suave hacia los turnos
+    setTimeout(function() {
+        slotsGrid.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 200);
     
     // Agregar event listeners
     slotsGrid.querySelectorAll(".slot-btn").forEach(function(btn) {
