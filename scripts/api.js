@@ -91,6 +91,12 @@ function startStatusPolling(idTurno) {
         verificarEstadoTurno(idTurno).then(function(data) {
             if (data.error) return;
             
+            // Si el turno sigue en pasarela MP, seguir pollkeando
+            if (data.estado === "Reservado MP") {
+                console.log("Status polling: turno sigue en pasarela MP");
+                return;
+            }
+            
             // Si el turno ya fue confirmado (por webhook de otra persona o webhook propio)
             if (data.estado === "Reservado") {
                 // Verificar si es nuestro turno comparando el ID directamente
