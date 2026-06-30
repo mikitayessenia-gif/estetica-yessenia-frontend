@@ -760,6 +760,9 @@ button { cursor: pointer; border: none; font-family: inherit; }
     padding: 9px 6px; border-radius: 8px; cursor: pointer; transition: var(--transition);
     text-align: center; font-size: 0.78rem;
 }
+.date-accordion-content .slot-btn {
+    margin: 0 3px;
+}
 .slot-btn:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,215,0,0.5); }
 .slot-btn.selected { background: white; color: var(--aqua-dark); border-color: #C4A16D; font-weight: 700; }
 .slot-date-label { grid-column: 1 / -1; font-size: 0.73rem; font-weight: 600; color: rgba(255,215,0,0.85); margin-top: 8px; margin-bottom: 3px; letter-spacing: 0.2px; }
