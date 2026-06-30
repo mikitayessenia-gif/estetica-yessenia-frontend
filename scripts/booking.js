@@ -1373,8 +1373,6 @@ function renderMiniCalendar() {
         }
     };
     
-    // Listado de fechas disponibles del mes (para hacer click rápido)
-    renderCalendarDatesList();
 }
 
 function selectCalendarDate(year, month, day) {
@@ -1513,7 +1511,7 @@ function filterSlotsByDate(fechaSeleccionada) {
         return timeA < timeB ? -1 : (timeA > timeB ? 1 : 0);
     });
     
-    var html = '<div class="slot-date-label">' + String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + String(fechaSeleccionada.getMonth() + 1).padStart(2, '0') + ' - ' + diaSemana + '</div>';
+    var html = '<div class="slot-date-label" style="display:flex;align-items:center;justify-content:space-between">' + String(fechaSeleccionada.getDate()).padStart(2, '0') + '/' + String(fechaSeleccionada.getMonth() + 1).padStart(2, '0') + ' - ' + diaSemana + ' <span style="color:rgba(255,215,0,0.7);font-size:0.7rem;font-weight:400">' + slotsDelDia.length + ' turnos</span></div>';
     
     slotsDelDia.forEach(function(slot) {
         var horaInicioDisplay = slot._horaInicioParsed || "";
