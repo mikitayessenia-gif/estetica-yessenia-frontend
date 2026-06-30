@@ -446,6 +446,11 @@ if (bookingForm) {
     bookingForm.addEventListener("submit", function(e) {
         e.preventDefault();
         
+        if (window._reservaFlowActive) {
+            alert("Ya tenés un pago en curso. Completá el pago abierto o esperá a que expire tu turno temporal.");
+            return;
+        }
+        
         var nombre = document.getElementById("clienteNombre").value.trim();
         var email = document.getElementById("clienteEmail").value.trim();
         var telefono = document.getElementById("clienteTelefono").value.trim();

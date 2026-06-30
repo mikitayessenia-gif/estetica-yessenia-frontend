@@ -900,6 +900,9 @@ function handleMercadoPagoReturn() {
                 senaDiv5.innerHTML = catchHtml;
             }
         });
+    
+    // Limpiar flag de flujo activo al salir del retorno MP (exito o error)
+    clearReservaFlowFlag();
 }
 
 function showPagoHuerranoModal(mensaje) {

@@ -275,6 +275,22 @@ function verificarPreReservaPorContacto(email, telefono) {
 function markReservaFlowActive() {
     window._reservaFlowActive = true;
     window._reservaCheckCompleted = true;
+    
+    // Deshabilitar todos los botones de slot visualmente
+    document.querySelectorAll('.slot-btn').forEach(function(btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+        btn.style.pointerEvents = 'none';
+        btn.style.cursor = 'not-allowed';
+    });
+    
+    // Deshabilitar el formulario de booking para evitar re-submits
+    var form = document.getElementById('bookingForm');
+    if (form) {
+        form.querySelectorAll('input, select, textarea').forEach(function(el) {
+            el.disabled = true;
+        });
+    }
 }
 
 /**
@@ -282,4 +298,20 @@ function markReservaFlowActive() {
  */
 function clearReservaFlowFlag() {
     window._reservaFlowActive = false;
+    
+    // Re-habilitar botones de slot
+    document.querySelectorAll('.slot-btn').forEach(function(btn) {
+        btn.disabled = false;
+        btn.style.opacity = '';
+        btn.style.pointerEvents = '';
+        btn.style.cursor = '';
+    });
+    
+    // Re-habilitar formulario
+    var form = document.getElementById('bookingForm');
+    if (form) {
+        form.querySelectorAll('input, select, textarea').forEach(function(el) {
+            el.disabled = false;
+        });
+    }
 }
