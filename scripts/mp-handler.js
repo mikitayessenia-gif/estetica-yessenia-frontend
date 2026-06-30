@@ -94,7 +94,15 @@ function restoreSenaTimerFromStorage() {
         return verificarEstadoTurno(data.idTurno)
             .then(function(apiData) {
                 hidePreReservationLoader();
+                var mpNotApproved = false;
+                try { mpNotApproved = sessionStorage.getItem('_mp_returned_not_approved') === 'true'; if(mpNotApproved) sessionStorage.removeItem('_mp_returned_not_approved'); } catch(e) {}
                 if (apiData.estado === 'Reservado' && apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
+                    if (mpNotApproved) {
+                        console.log("MP retorno con status != approved aunque webhook confirmó — no mostrando éxito (usuario canceló en pasarelle)");
+                        clearActiveTurnoStorage();
+                        releaseStoredTurno(data.idTurno);
+                        return false;
+                    }
                     console.log("Webhook ya confirmó el turno al expirar timer local, mostrando éxito");
                     clearActiveTurnoStorage();
                     stopStatusPolling();
@@ -129,7 +137,15 @@ function restoreSenaTimerFromStorage() {
             hidePreReservationLoader();
             
             if (apiData.estado === 'Reservado') {
+                var mpNotApproved2 = false;
+                try { mpNotApproved2 = sessionStorage.getItem('_mp_returned_not_approved') === 'true'; if(mpNotApproved2) sessionStorage.removeItem('_mp_returned_not_approved'); } catch(e) {}
                 if (apiData.id && apiData.id.toString().trim() === data.idTurno.toString().trim()) {
+                    if (mpNotApproved2) {
+                        console.log("MP retorno con status != approved aunque turno confirmado — liberando (usuario canceló)");
+                        clearActiveTurnoStorage();
+                        releaseStoredTurno(data.idTurno);
+                        return;
+                    }
                     console.log("Turno ya confirmado al restaurar desde storage, liberando...");
                     clearActiveTurnoStorage();
                     stopStatusPolling();
@@ -597,6 +613,7 @@ function handleMercadoPagoReturn() {
     // SIEMPRE verificar status primero — incluso sin collection_id (ej: usuario clickea "Volver a la tienda")
     if (status && status !== 'approved') {
         console.log('MP retorno con status != approved (' + status + '). Limpiando estado y volviendo al formulario.');
+        try { sessionStorage.setItem('_mp_returned_not_approved', 'true'); } catch(e) {}
         clearActiveTurnoStorage();
         stopStatusPolling();
         if(window._senaTimerId) clearInterval(window._senaTimerId);
