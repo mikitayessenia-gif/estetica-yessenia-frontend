@@ -256,16 +256,11 @@ function loadTreatmentsFromAPI() {
             populateTreatmentSelect();
             renderFooterTratamientos([]);
             // Show error in the treatment select dropdown
-            var sel = document.getElementById("treatmentSelect");
+   var sel = document.getElementById("treatmentSelect");
             if (sel) {
-                sel.innerHTML = '<option value="">Error al cargar tratamientos.</option>';
+                sel.innerHTML = '<option value="">Seleccioná un tratamiento</option>';
             }
-            var apiErr = document.getElementById("apiError");
-            if (apiErr) {
-                apiErr.style.display = "block";
-                var whatsappMsg = encodeURIComponent('Hola! Quiero reservar un turno. No pude cargar los tratamientos en la web');
-                apiErr.innerHTML = '<div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:24px 20px;text-align:center;max-width:380px;margin:0 auto"><p style="color:#FFD700;font-size:0.95rem;font-weight:600;margin-bottom:6px">Error al cargar tratamientos</p><p style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:14px;line-height:1.4">Puede ser un problema temporal de conexi&#243;n.</p><div style="display:flex;flex-direction:column;gap:8px;align-items:center"><button onclick="loadTreatmentsFromAPI()" style="background:transparent;border:1.5px solid rgba(255,215,0,0.6);color:#FFD700;padding:10px 24px;border-radius:50px;font-weight:600;font-size:0.85rem;width:90%;cursor:pointer">&#128260; Reintentar</button><a href="https://wa.me/541123178918?text=' + whatsappMsg + '" target="_blank" style="display:inline-block;background:rgba(37,211,102,0.15);border:1px solid rgba(37,211,102,0.4);color:#25D366;padding:10px 24px;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.85rem;width:90%">&#128172; Contactar por WhatsApp</a></div></div>';
-            }
+            // No mostrar tarjeta grande — el mensaje sutil de booking.js (showError) ya se encarga
         }
     }, 8000);
 }
