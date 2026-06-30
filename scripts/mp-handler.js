@@ -594,13 +594,12 @@ function handleMercadoPagoReturn() {
     var externalRef = params.get('external_reference');
     var preferenceId = params.get('preference_id');
 
-    if (!collectionId || !status) return false;
-
-    // Si el usuario hizo clic en "Volver a la tienda" de Mercado Pago,
-    // MP redirige con status=pending (no aprobado). En ese caso, limpiar y volver al formulario.
-    if (status !== 'approved') {
+    // SIEMPRE verificar status primero — incluso sin collection_id (ej: usuario clickea "Volver a la tienda")
+    if (status && status !== 'approved') {
         console.log('MP retorno con status != approved (' + status + '). Limpiando estado y volviendo al formulario.');
         clearActiveTurnoStorage();
+        stopStatusPolling();
+        if(window._senaTimerId) clearInterval(window._senaTimerId);
         var currentHash2 = window.location.hash || '';
         var cleanUrl2 = window.location.origin + window.location.pathname + currentHash2;
         window.history.replaceState({}, document.title, cleanUrl2);
@@ -608,6 +607,8 @@ function handleMercadoPagoReturn() {
         location.reload();
         return true;
     }
+
+    if (!collectionId || !status) return false;
 
     if (!externalRef) {
         var storedTurno = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
