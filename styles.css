@@ -801,7 +801,7 @@ button { cursor: pointer; border: none; font-family: inherit; }
     }
     .slots-grid { 
         grid-template-columns: 1fr; 
-        gap: 6px; 
+   gap: 8px; 
         padding: 7px;
         max-height: 260px !important;
         overflow-y: auto !important;
