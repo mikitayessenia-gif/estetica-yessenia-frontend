@@ -599,12 +599,17 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
             var senaDivFail = document.getElementById("senaRequired");
             if (senaDivFail) {
                 senaDivFail.style.display = "block";
-              var nombreFail = window._pendingSenaData ? (window._pendingSenaData.nombre || '') : '';
-                var tratFail = window._pendingSenaData ? (window._pendingSenaData.tratamiento || '') : '';
-                var fechaFail = window._pendingSenaData ? (window._pendingSenaData.fecha || '') : '';
-                var horaFail = window._pendingSenaData ? (window._pendingSenaData.hora || '') : '';
                 
-                var waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Queria reservar: ' + tratFail + ' el ' + fechaFail + ' a las ' + horaFail + '. Adjunto captura de mi pago.');
+                var hasDataFail = window._pendingSenaData && window._pendingSenaData.tratamiento;
+                var waMsgF;
+                if (hasDataFail) {
+                    var tratF = window._pendingSenaData.tratamiento || '';
+                    var fechaF = window._pendingSenaData.fecha || '';
+                    var horaF = window._pendingSenaData.hora || '';
+                    waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Queria reservar: ' + tratF + ' el ' + fechaF + ' a las ' + horaF + '. Adjunto captura de mi pago.');
+                } else {
+                    waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Adjunto captura para que me ayuden.');
+                }
                 var waLinkF = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsgF;
                 senaDivFail.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                     + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
@@ -717,6 +722,19 @@ function handleMercadoPagoReturn() {
     verificarEstadoTurno(idTurno)
         .then(function(data) {
             stopStatusPolling();
+            
+            // Asegurar que _pendingSenaData tenga los datos del turno para mensajes de error
+            if (!window._pendingSenaData || !window._pendingSenaData.tratamiento) {
+                window._pendingSenaData = {
+                    idTurno: idTurno,
+                    tratamiento: data.tratamiento || '',
+                    nombre: data.clienteNombre || 'Cliente',
+                    fecha: data.fecha ? formatFechaDisplay(data.fecha) : '',
+                    hora: data.horaInicio || '',
+                    montoSena: 0
+                };
+            }
+            
             // Si estado es 'Reservado', webhook ya confirmó el pago
             if (data.estado === 'Reservado') {
                 clearActiveTurnoStorage();
@@ -853,14 +871,19 @@ function handleMercadoPagoReturn() {
                             var btn = document.getElementById('recargarBtn');
                             if(btn) btn.addEventListener('click', function(){ location.reload(); });
                         }, 100);
-                   } else {
-                        var nombreRetry = window._pendingSenaData ? (window._pendingSenaData.nombre || '') : '';
-                        var tratRetry = window._pendingSenaData ? (window._pendingSenaData.tratamiento || '') : '';
-                        var fechaRetry = window._pendingSenaData ? (window._pendingSenaData.fecha || '') : '';
-                        var horaRetry = window._pendingSenaData ? (window._pendingSenaData.hora || '') : '';
-                        
-                         var retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Queria reservar: ' + tratRetry + ' el ' + fechaRetry + ' a las ' + horaRetry + '. Adjunto captura de mi pago.');
-                         var retryWaLinkFull = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsgFull;
+                 } else {
+                         var hasDataRetry = window._pendingSenaData && window._pendingSenaData.tratamiento;
+                         
+                          var retryWaMsgFull;
+                          if (hasDataRetry) {
+                              var tratR = window._pendingSenaData.tratamiento || '';
+                              var fechaR = window._pendingSenaData.fecha || '';
+                              var horaR = window._pendingSenaData.hora || '';
+                              retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Queria reservar: ' + tratR + ' el ' + fechaR + ' a las ' + horaR + '. Adjunto captura de mi pago.');
+                          } else {
+                              retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Adjunto captura para que me ayuden.');
+                          }
+                          var retryWaLinkFull = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsgFull;
                          var retryHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                              + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
                              + '<h3 style="color:#FFD700;margin-bottom:8px">Validando tu pago...</h3>'
@@ -896,12 +919,16 @@ function handleMercadoPagoReturn() {
                     }
                 }
             } else {
-                var nombreTurno = window._pendingSenaData ? (window._pendingSenaData.nombre || '') : '';
-                var tratTurno = window._pendingSenaData ? (window._pendingSenaData.tratamiento || '') : '';
-                var fechaTurno = window._pendingSenaData ? (window._pendingSenaData.fecha || '') : '';
-                var horaTurno = window._pendingSenaData ? (window._pendingSenaData.hora || '') : '';
-                
-                var whatsappMsgTurno = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratTurno + ' el ' + fechaTurno + ' a las ' + horaTurno + '. Adjunto captura de mi pago.');
+                var hasDataTurno = window._pendingSenaData && window._pendingSenaData.tratamiento;
+                var whatsappMsgTurno;
+                if (hasDataTurno) {
+                    var tratT = window._pendingSenaData.tratamiento || '';
+                    var fechaT = window._pendingSenaData.fecha || '';
+                    var horaT = window._pendingSenaData.hora || '';
+                    whatsappMsgTurno = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratT + ' el ' + fechaT + ' a las ' + horaT + '. Adjunto captura de mi pago.');
+                } else {
+                    whatsappMsgTurno = encodeURIComponent('Hola! Hubo un problema al confirmar mi turno. Adjunto captura de mi pago para que me ayuden.');
+                }
                 var whatsappLinkTurno = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsgTurno;
 
                 var senaDiv4 = document.getElementById('senaRequired');
@@ -923,15 +950,20 @@ function handleMercadoPagoReturn() {
         .catch(function(err) {
             console.error('Error verificando turno despues de MP:', err);
 
-            var nombreCatch = window._pendingSenaData ? (window._pendingSenaData.nombre || '') : '';
-            var tratCatch = window._pendingSenaData ? (window._pendingSenaData.tratamiento || '') : '';
-            var fechaCatch = window._pendingSenaData ? (window._pendingSenaData.fecha || '') : '';
-            var horaCatch = window._pendingSenaData ? (window._pendingSenaData.hora || '') : '';
+            var hasDataCatch = window._pendingSenaData && window._pendingSenaData.tratamiento;
             
             var senaDiv5 = document.getElementById('senaRequired');
             if (senaDiv5) {
                 senaDiv5.style.display = 'block';
-                var catchMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratCatch + ' el ' + fechaCatch + ' a las ' + horaCatch + '. Adjunto captura de mi pago.');
+                var catchMsg;
+                if (hasDataCatch) {
+                    var tratC = window._pendingSenaData.tratamiento || '';
+                    var fechaC = window._pendingSenaData.fecha || '';
+                    var horaC = window._pendingSenaData.hora || '';
+                    catchMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratC + ' el ' + fechaC + ' a las ' + horaC + '. Adjunto captura de mi pago.');
+                } else {
+                    catchMsg = encodeURIComponent('Hola! Hubo un problema al confirmar mi turno. Adjunto captura de mi pago para que me ayuden.');
+                }
                 var catchLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + catchMsg;
                 var catchHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                     + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
@@ -954,12 +986,17 @@ function showPagoHuerranoModal(mensaje) {
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
     senaDiv.style.display = "block";
-    var nombreHue = window._pendingSenaData ? (window._pendingSenaData.nombre || '') : '';
-    var tratHue = window._pendingSenaData ? (window._pendingSenaData.tratamiento || '') : '';
-    var fechaHue = window._pendingSenaData ? (window._pendingSenaData.fecha || '') : '';
-    var horaHue = window._pendingSenaData ? (window._pendingSenaData.hora || '') : '';
     
-    var huellaMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratHue + ' el ' + fechaHue + ' a las ' + horaHue + '. Adjunto captura de mi pago.');
+    var hasDataHue = window._pendingSenaData && window._pendingSenaData.tratamiento;
+    var huellaMsg;
+    if (hasDataHue) {
+        var tratH = window._pendingSenaData.tratamiento || '';
+        var fechaH = window._pendingSenaData.fecha || '';
+        var horaH = window._pendingSenaData.hora || '';
+        huellaMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratH + ' el ' + fechaH + ' a las ' + horaH + '. Adjunto captura de mi pago.');
+    } else {
+        huellaMsg = encodeURIComponent('Hola! Hubo un problema al confirmar mi pago. Adjunto captura para que me ayuden.');
+    }
     var huellaLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + huellaMsg;
     senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">' + mensaje + '</p><div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6"><p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p><p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div><a href="' + huellaLink + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
 }
