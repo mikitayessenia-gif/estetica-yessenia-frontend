@@ -403,6 +403,8 @@ if (bookingForm) {
         var submitBtn = document.getElementById("submitBtn");
         if(submitBtn){ submitBtn.disabled = true; submitBtn.textContent = "Procesando reserva..."; }
 
+        console.log('POST reservar - datos:', { tratamiento, treatmentName, fecha, horario, nombre, email });
+        
         fetch(API_URL, {
             method: "POST", 
             body: JSON.stringify({
@@ -425,6 +427,11 @@ if (bookingForm) {
                 showBookingSuccess(nombre, treatmentName, fecha, horario);
             }
             else if (data.success && data.idTurno) {
+                if (!treatmentName || !fecha || !horario) {
+                    console.error('Faltan datos para handleRequiresSena:', { treatmentName, fecha, horario });
+                    showError("Error de datos en la reserva. Por favor seleccioná tratamiento, fecha y hora nuevamente.");
+                    return;
+                }
                 handleRequiresSena(data.idTurno, treatmentName, nombre, fecha, horario, data.montoSena, data.initPoint, data.preferenceId || "");
             }
             else if (data.success === false) {
@@ -435,7 +442,16 @@ if (bookingForm) {
                 }
             }
             else {
-               var msgError = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + treatmentName + ' el ' + fecha + ' a las ' + horario + '. Por favor ayudenme.');
+               var msgTrat = treatmentName || (selectedTreatmentObj ? selectedTreatmentObj.nombre : '');
+                var msgFecha = fecha || '';
+                var msgHora = horario || '';
+                
+                var msgError;
+                if (msgTrat) {
+                    msgError = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + msgTrat + (msgFecha ? ' el ' + msgFecha : '') + (msgHora ? ' a las ' + msgHora : '') + '. Por favor ayudenme.');
+                } else {
+                    msgError = encodeURIComponent('Hola! Hubo un problema al intentar reservar. Por favor ayudenme.');
+                }
                 var waLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + msgError;
                 var senaDivErr = document.getElementById("senaRequired");
                 if (senaDivErr) {

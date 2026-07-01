@@ -385,7 +385,15 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     var senaDiv=document.getElementById("senaRequired");
     if(!senaDiv) return;
     
-    window._pendingSenaData = {idTurno:idTurno, tratamiento:tratamiento, nombre:nombre, fecha:fecha, hora:hora, montoSena:montoSena||0};
+    // Si los datos vienen vacíos, intentar obtenerlos de ALL_TREATMENTS o usar fallback
+    if (!tratamiento) {
+        console.error('handleRequiresSena: tratamiento vacío, buscando en select');
+        var sel = document.getElementById("treatmentSelect");
+        tratamiento = sel ? sel.value : "";
+        if (tratamiento) tratamiento = tratamiento.split(" - ")[0];
+    }
+    
+    window._pendingSenaData = {idTurno:idTurno, tratamiento:tratamiento || '', nombre:nombre || 'Cliente', fecha:fecha || '', hora:hora || '', montoSena:montoSena||0};
     var selectedTreatment = ALL_TREATMENTS.find(function(t){return t.nombre===tratamiento||(t.nombre||"").split(" - ")[0]===tratamiento;});
     window._pendingDuracionFilas = selectedTreatment ? (selectedTreatment.duracionFilas||1) : 1;
     
