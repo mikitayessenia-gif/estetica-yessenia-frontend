@@ -180,18 +180,20 @@ function restoreSenaTimerFromStorage() {
             crearNuevaPreferenciaMP(data.idTurno)
                 .then(function(prefData) {
                     if (!prefData.success || !prefData.initPoint) {
-                        console.error("Error creando nueva preferencia:", prefData);
-                        var senaDiv2 = document.getElementById("senaRequired");
-                        if (senaDiv2) {
-                            senaDiv2.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                                + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
-                                + '<h3 style="color:#FFD700;margin-bottom:8px">Error al cargar el pago</h3>'
-                                + '<p>No pudimos generar el link de pago. Intenta nuevamente o contactanos por telefono.</p>'
-                                + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;margin-top:16px;background:#003366;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600">📞 Contactar por Telefono</a></div>';
-                            senaDiv2.style.display = "block";
-                        }
-                        return;
-                    }
+                         console.error("Error creando nueva preferencia:", prefData);
+                         var senaDiv2 = document.getElementById("senaRequired");
+                         if (senaDiv2) {
+                             var waMsg2 = encodeURIComponent('Hola! No pudimos generar el link de pago. Por favor contactanos para que te ayudemos manualmente.');
+                             var waLink2 = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsg2;
+                             senaDiv2.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                                 + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
+                                 + '<h3 style="color:#FFD700;margin-bottom:8px">Error al cargar el pago</h3>'
+                                 + '<p>No pudimos generar el link de pago. Contactanos por WhatsApp y te ayudamos manualmente.</p>'
+                                 + '<a href="' + waLink2 + '" target="_blank" style="display:inline-block;margin-top:16px;background:#25D366;color:white;padding:14px 28px;border-radius:50px;text-decoration:none;font-weight:600">📱 Contactar por WhatsApp</a></div>';
+                             senaDiv2.style.display = "block";
+                         }
+                         return;
+                     }
                     
                     console.log("Nueva preferencia creada:", prefData.preferenceId);
                     
@@ -594,7 +596,20 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
             if(window._senaTimerId) clearInterval(window._senaTimerId);
             showBookingSuccess(window._pendingSenaData.nombre, window._pendingSenaData.tratamiento, window._pendingSenaData.fecha, window._pendingSenaData.hora);
         } else {
-            showError(CONFIG.mensajes.pagoAceptado + " Contactanos por telefono.");
+            var senaDivFail = document.getElementById("senaRequired");
+            if (senaDivFail) {
+                senaDivFail.style.display = "block";
+                var waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Comprobante: ' + comprobanteId);
+                var waLinkF = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsgF;
+                senaDivFail.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                    + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
+                    + '<h3 style="color:#FFD700;margin-bottom:12px">Error al confirmar pago</h3>'
+                    + '<p>Tu pago no se pudo registrar. No te preocupes, escribinos por WhatsApp y lo resolvemos.</p>'
+                    + '<a href="' + waLinkF + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Escribir por WhatsApp</a>'
+                    + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+            } else {
+                showError(CONFIG.mensajes.pagoAceptado + " Escribinos por WhatsApp para gestionarlo.");
+            }
         }
     })
     .catch(function() { 
@@ -833,13 +848,17 @@ function handleMercadoPagoReturn() {
                             var btn = document.getElementById('recargarBtn');
                             if(btn) btn.addEventListener('click', function(){ location.reload(); });
                         }, 100);
-                    } else {
-                        var retryHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                            + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
-                            + '<h3 style="color:#FFD700;margin-bottom:8px">Validando tu pago...</h3>'
-                            + '<p>El webhook de Mercado Pago puede tardar unos segundos. Reintentando automaticamente...</p>'
-                            + '<button id="reintentarBtn" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Reintentar</button><br><a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;cursor:pointer">📞 Contactar por Telefono</a></div>';
-                        senaDiv3.innerHTML = retryHtml;
+                   } else {
+                         var retryWaMsg = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Comprobante: ' + collectionId);
+                         var retryWaLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsg;
+                         var retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Comprobante: ' + collectionId + '. Si tenes captura del comprobante te lo reenvio.');
+                         var retryWaLinkFull = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsgFull;
+                         var retryHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
+                             + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
+                             + '<h3 style="color:#FFD700;margin-bottom:8px">Validando tu pago...</h3>'
+                             + '<p>El webhook de Mercado Pago puede tardar unos segundos. Reintentando automaticamente...</p>'
+                             + '<button id="reintentarBtn" style="display:inline-block;margin:20px auto 0;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Reintentar</button><br><a href="' + retryWaLinkFull + '" target="_blank" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;cursor:pointer">📱 Contactar por WhatsApp</a></div>';
+                         senaDiv3.innerHTML = retryHtml;
 
                         var retries = 0;
                         var maxRetries = 3;
@@ -869,17 +888,20 @@ function handleMercadoPagoReturn() {
                     }
                 }
             } else {
-                var whatsappMsg = encodeURIComponent('Hola! Realice un pago pero mi turno no se confirmo. Comprobante: ' + collectionId);
-                var whatsappLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsg;
+                var whatsappMsgTurno = encodeURIComponent('Hola! Tu turno no se pudo gestionar correctamente. Comprobante MP: ' + collectionId + '. Por favor envianos el comprobante y te lo gestionamos manualmente.');
+                var whatsappLinkTurno = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + whatsappMsgTurno;
 
                 var senaDiv4 = document.getElementById('senaRequired');
                 if (senaDiv4) {
                     senaDiv4.style.display = 'block';
                     var errorHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                        + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
-                        + '<h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Exito</h3>'
-                        + '<p>Tu dinero esta seguro en la cuenta de Mercado Pago. Nuestro equipo verificara el comprobante y te contactara para asignarte el turno mas pronto posible.</p>'
-                        + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
+                        + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
+                        + '<h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3>'
+                        + '<p>Tu turno no se ha podido gestionar correctamente. No te preocupes, contactanos por WhatsApp y te lo solucionamos.</p>'
+                        + '<div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6">'
+                        + '<p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p>'
+                        + '<p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div>'
+                        + '<a href="' + whatsappLinkTurno + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a>'
                         + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
                     senaDiv4.innerHTML = errorHtml;
                 }
@@ -891,11 +913,16 @@ function handleMercadoPagoReturn() {
             var senaDiv5 = document.getElementById('senaRequired');
             if (senaDiv5) {
                 senaDiv5.style.display = 'block';
+                var catchMsg = encodeURIComponent('Hola! Tu turno no se pudo gestionar correctamente. Por favor envianos tu comprobante de pago y te gestionamos el turno manualmente.');
+                var catchLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + catchMsg;
                 var catchHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
-                    + '<div style="font-size:3rem;margin-bottom:16px">🛒</div>'
-                    + '<h3 style="color:#FFD700;margin-bottom:12px">Error de conexion</h3>'
-                    + '<p>No pudimos verificar tu pago en este momento. Tu dinero esta seguro en Mercado Pago.</p>'
-                    + '<a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a>'
+                    + '<div style="font-size:3rem;margin-bottom:16px">⚠️</div>'
+                    + '<h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3>'
+                    + '<p>Tu turno no se ha podido gestionar correctamente. No te preocupes, contactanos por WhatsApp y te lo solucionamos.</p>'
+                    + '<div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6">'
+                    + '<p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p>'
+                    + '<p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div>'
+                    + '<a href="' + catchLink + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a>'
                     + '<br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
                 senaDiv5.innerHTML = catchHtml;
             }
@@ -909,7 +936,9 @@ function showPagoHuerranoModal(mensaje) {
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
     senaDiv.style.display = "block";
-    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">🛒</div><h3 style="color:#FFD700;margin-bottom:12px">Pago Registrado con Éxito</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">' + mensaje + '</p><div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:16px;margin:16px 0;text-align:left"><p style="margin:0;opacity:0.8;font-size:0.9rem">Tu dinero está seguro en la cuenta de Mercado Pago. Nuestro equipo verificará el comprobante y te contactará para asignarte el turno más pronto posible.</p></div><a href="tel:' + CONFIG.negocio.telefonoRaw + '" target="_blank" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📞 Contactar por Telefono</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+    var huellaMsg = encodeURIComponent('Hola! Tu turno no se pudo gestionar correctamente. ' + mensaje + '. Por favor envianos tu comprobante de pago y te gestionamos el turno manualmente.');
+    var huellaLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + huellaMsg;
+    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">' + mensaje + '</p><div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6"><p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p><p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div><a href="' + huellaLink + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
 }
 
 function startSenaTimer() {
