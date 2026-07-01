@@ -1,4 +1,4 @@
-// ========== Date/Time Formatters ==========
+﻿// ========== Date/Time Formatters ==========
 function formatFechaDisplay(val) {
     if (!val) return "";
     try {
@@ -6,6 +6,10 @@ function formatFechaDisplay(val) {
         if (isNaN(d.getTime())) {
             if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(val))) return val;
             return val;
+        }
+        // Si el año es 1899 o muy antiguo, es un timestamp corrupto de Excel/Sheets
+        if (d.getFullYear() < 1970) {
+            return "";
         }
         return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
     } catch(e) { return val; }
@@ -22,6 +26,48 @@ function formatHoraDisplay(val) {
         if (m) return String(parseInt(m[1])).padStart(2,'0') + ':' + m[2];
         return val;
     } catch(e) { return val; }
+}
+
+// ========== Get clean display data from _pendingSenaData ==========
+function getDisplayDataFromPending() {
+    if (!window._pendingSenaData || !window._pendingSenaData.tratamiento) {
+        return { tratamiento: '', fecha: '', hora: '', email: '' };
+    }
+    
+    var trat = window._pendingSenaData.tratamiento || '';
+    var nombre = window._pendingSenaData.nombre || '';
+    var email = window._pendingSenaData.email || '';
+    
+    // Clean date - handle ISO, corrupt Excel dates, or display format
+    var fechaRaw = window._pendingSenaData.fecha || '';
+    var fechaClean = '';
+    if (fechaRaw) {
+        var d = new Date(fechaRaw);
+        if (!isNaN(d.getTime()) && d.getFullYear() >= 1970) {
+            fechaClean = String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+        } else if (/^\d{2}\/\d{2}\/\d{4}$/.test(fechaRaw)) {
+            fechaClean = fechaRaw; // Already in DD/MM/YYYY format
+        } else {
+            fechaClean = ''; // Corrupt date, skip it
+        }
+    }
+    
+    // Clean time - handle ISO or display format "HH:MM"
+    var horaRaw = window._pendingSenaData.hora || '';
+    var horaClean = '';
+    if (horaRaw) {
+        var m = String(horaRaw).match(/(\d{1,2}):(\d{2})/);
+        if (m) {
+            horaClean = String(parseInt(m[1])).padStart(2,'0') + ':' + m[2];
+        } else {
+            var d2 = new Date(horaRaw);
+            if (!isNaN(d2.getTime())) {
+                horaClean = String(d2.getHours()).padStart(2,'0') + ':' + String(d2.getMinutes()).padStart(2,'0');
+            }
+        }
+    }
+    
+    return { tratamiento: trat, nombre: nombre, email: email, fecha: fechaClean, hora: horaClean };
 }
 
 // ========== STORAGE HELPERS: Persist active turno across page reloads ==========
@@ -393,7 +439,12 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
         if (tratamiento) tratamiento = tratamiento.split(" - ")[0];
     }
     
-    window._pendingSenaData = {idTurno:idTurno, tratamiento:tratamiento || '', nombre:nombre || 'Cliente', fecha:fecha || '', hora:hora || '', montoSena:montoSena||0};
+    // Get email from form if not passed
+    var emailFromForm = '';
+    var emailInput = document.getElementById("clienteEmail");
+    if (emailInput) emailFromForm = emailInput.value.trim();
+    
+    window._pendingSenaData = {idTurno:idTurno, tratamiento:tratamiento || '', nombre:nombre || 'Cliente', fecha:fecha || '', hora:hora || '', email:emailFromForm, montoSena:montoSena||0};
     var selectedTreatment = ALL_TREATMENTS.find(function(t){return t.nombre===tratamiento||(t.nombre||"").split(" - ")[0]===tratamiento;});
     window._pendingDuracionFilas = selectedTreatment ? (selectedTreatment.duracionFilas||1) : 1;
     
@@ -608,13 +659,10 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
             if (senaDivFail) {
                 senaDivFail.style.display = "block";
                 
-                var hasDataFail = window._pendingSenaData && window._pendingSenaData.tratamiento;
+               var ddFail = getDisplayDataFromPending(); var hasDataFail = ddFail.tratamiento && ddFail.fecha;
                 var waMsgF;
                 if (hasDataFail) {
-                    var tratF = window._pendingSenaData.tratamiento || '';
-                    var fechaF = window._pendingSenaData.fecha || '';
-                    var horaF = window._pendingSenaData.hora || '';
-                    waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Queria reservar: ' + tratF + ' el ' + fechaF + ' a las ' + horaF + '. Adjunto captura de mi pago.');
+                    waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Queria reservar: ' + ddFail.tratamiento + ' el ' + ddFail.fecha + ' a las ' + ddFail.hora + '. Email: ' + (ddFail.email || 'no especificado') + '. Adjunto captura de mi pago.');
                 } else {
                     waMsgF = encodeURIComponent('Hola! Realicé el pago pero no se confirmó mi turno. Adjunto captura para que me ayuden.');
                 }
@@ -879,19 +927,16 @@ function handleMercadoPagoReturn() {
                             var btn = document.getElementById('recargarBtn');
                             if(btn) btn.addEventListener('click', function(){ location.reload(); });
                         }, 100);
-                 } else {
-                         var hasDataRetry = window._pendingSenaData && window._pendingSenaData.tratamiento;
-                         
-                          var retryWaMsgFull;
-                          if (hasDataRetry) {
-                              var tratR = window._pendingSenaData.tratamiento || '';
-                              var fechaR = window._pendingSenaData.fecha || '';
-                              var horaR = window._pendingSenaData.hora || '';
-                              retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Queria reservar: ' + tratR + ' el ' + fechaR + ' a las ' + horaR + '. Adjunto captura de mi pago.');
-                          } else {
-                              retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Adjunto captura para que me ayuden.');
-                          }
-                          var retryWaLinkFull = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsgFull;
+                } else {
+                          var ddRetry = getDisplayDataFromPending();
+                          
+                           var retryWaMsgFull;
+                           if (ddRetry.tratamiento && ddRetry.fecha) {
+                               retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Queria reservar: ' + ddRetry.tratamiento + ' el ' + ddRetry.fecha + ' a las ' + ddRetry.hora + '. Email: ' + (ddRetry.email || 'no especificado') + '. Adjunto captura de mi pago.');
+                           } else {
+                               retryWaMsgFull = encodeURIComponent('Hola! Mi pago fue aprobado pero el turno no se confirmó. Adjunto captura para que me ayuden.');
+                           }
+                           var retryWaLinkFull = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + retryWaMsgFull;
                          var retryHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center">'
                              + '<div style="font-size:3rem;margin-bottom:16px">⏳</div>'
                              + '<h3 style="color:#FFD700;margin-bottom:8px">Validando tu pago...</h3>'
@@ -927,13 +972,11 @@ function handleMercadoPagoReturn() {
                     }
                 }
             } else {
-                var hasDataTurno = window._pendingSenaData && window._pendingSenaData.tratamiento;
+                var ddTurno = getDisplayDataFromPending();
+                var hasDataTurno = ddTurno.tratamiento && ddTurno.fecha;
                 var whatsappMsgTurno;
                 if (hasDataTurno) {
-                    var tratT = window._pendingSenaData.tratamiento || '';
-                    var fechaT = window._pendingSenaData.fecha || '';
-                    var horaT = window._pendingSenaData.hora || '';
-                    whatsappMsgTurno = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratT + ' el ' + fechaT + ' a las ' + horaT + '. Adjunto captura de mi pago.');
+                    whatsappMsgTurno = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + ddTurno.tratamiento + ' el ' + ddTurno.fecha + ' a las ' + ddTurno.hora + '. Email: ' + (ddTurno.email || 'no especificado') + '. Adjunto captura de mi pago.');
                 } else {
                     whatsappMsgTurno = encodeURIComponent('Hola! Hubo un problema al confirmar mi turno. Adjunto captura de mi pago para que me ayuden.');
                 }
@@ -958,17 +1001,14 @@ function handleMercadoPagoReturn() {
         .catch(function(err) {
             console.error('Error verificando turno despues de MP:', err);
 
-            var hasDataCatch = window._pendingSenaData && window._pendingSenaData.tratamiento;
+            var ddCatch = getDisplayDataFromPending();
             
             var senaDiv5 = document.getElementById('senaRequired');
             if (senaDiv5) {
                 senaDiv5.style.display = 'block';
                 var catchMsg;
-                if (hasDataCatch) {
-                    var tratC = window._pendingSenaData.tratamiento || '';
-                    var fechaC = window._pendingSenaData.fecha || '';
-                    var horaC = window._pendingSenaData.hora || '';
-                    catchMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratC + ' el ' + fechaC + ' a las ' + horaC + '. Adjunto captura de mi pago.');
+                if (ddCatch.tratamiento && ddCatch.fecha) {
+                    catchMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + ddCatch.tratamiento + ' el ' + ddCatch.fecha + ' a las ' + ddCatch.hora + '. Email: ' + (ddCatch.email || 'no especificado') + '. Adjunto captura de mi pago.');
                 } else {
                     catchMsg = encodeURIComponent('Hola! Hubo un problema al confirmar mi turno. Adjunto captura de mi pago para que me ayuden.');
                 }
@@ -990,18 +1030,15 @@ function handleMercadoPagoReturn() {
     clearReservaFlowFlag();
 }
 
-function showPagoHuerranoModal(mensaje) {
+  function showPagoHuerranoModal(mensaje) {
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
     senaDiv.style.display = "block";
     
-    var hasDataHue = window._pendingSenaData && window._pendingSenaData.tratamiento;
+    var ddHue = getDisplayDataFromPending();
     var huellaMsg;
-    if (hasDataHue) {
-        var tratH = window._pendingSenaData.tratamiento || '';
-        var fechaH = window._pendingSenaData.fecha || '';
-        var horaH = window._pendingSenaData.hora || '';
-        huellaMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + tratH + ' el ' + fechaH + ' a las ' + horaH + '. Adjunto captura de mi pago.');
+    if (ddHue.tratamiento && ddHue.fecha) {
+        huellaMsg = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + ddHue.tratamiento + ' el ' + ddHue.fecha + ' a las ' + ddHue.hora + '. Email: ' + (ddHue.email || 'no especificado') + '. Adjunto captura de mi pago.');
     } else {
         huellaMsg = encodeURIComponent('Hola! Hubo un problema al confirmar mi pago. Adjunto captura para que me ayuden.');
     }
