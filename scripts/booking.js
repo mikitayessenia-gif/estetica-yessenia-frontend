@@ -435,7 +435,7 @@ if (bookingForm) {
                 }
             }
             else {
-                var msgError = encodeURIComponent('Hola! Ocurrió un error al intentar reservar mi turno. Tratamiento: ' + treatmentName + '. Por favor ayudenme.');
+               var msgError = encodeURIComponent('Hola! No me salió el turno. Queria reservar: ' + treatmentName + ' el ' + fecha + ' a las ' + horario + '. Por favor ayudenme.');
                 var waLink = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + msgError;
                 var senaDivErr = document.getElementById("senaRequired");
                 if (senaDivErr) {
