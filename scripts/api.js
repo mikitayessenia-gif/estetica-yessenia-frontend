@@ -84,6 +84,8 @@ var _aaPhaseInterval = null; // interval de polls dentro de fase 2
 var POLLING_INTERVAL_MS = 5000;
 var _consecutiveFailures = 0; // contador de fallos consecutivos por conexión (v8)
 var _maxConsecutiveFailures = 3; // mostrar modal sin conexión tras 3 fallos (~15s)
+var _pollingStartTime = null; // timestamp de inicio del polling (timeout global)
+var _maxPollingDuration = 90000; // timeout global: 90s máximo para polling
 
 function startStatusPolling(idTurno, onNoExito) {
     console.log("🔄 [POLLING] === INICIANDO POLLING FASE 1 (cada 5s buscando Reservado) ===");
@@ -96,12 +98,47 @@ function startStatusPolling(idTurno, onNoExito) {
     _confirmadoLocalmente = false;
     _aaDetectedAt = null;
     _consecutiveFailures = 0; // Reset contador de fallos (v8)
+    _pollingStartTime = Date.now(); // Iniciar contador de timeout global
     
     // Primera consulta inmediata con DOBLE VERIFICACION
     doDobleVerificacionCheck(idTurno, onNoExito, true);
     
     // Consultas cada 5 segundos buscando "Reservado" en fase 1
     _statusPollInterval = setInterval(function() {
+        // Timeout global: si el polling dura más de 90s, detener y mostrar error
+        if (_pollingStartTime && (Date.now() - _pollingStartTime) > _maxPollingDuration) {
+            console.log("⏰ [POLLING] Timeout global 90s — deteniendo polling");
+            clearInterval(_statusPollInterval);
+            _statusPollInterval = null;
+            if (_aaPollTimer) clearTimeout(_aaPollTimer);
+            _aaPollTimer = null;
+            if (_aaPhaseInterval) clearInterval(_aaPhaseInterval);
+            _aaPhaseInterval = null;
+            _confirmadoLocalmente = false;
+            
+            // Mostrar modal de tiempo agotado (usuario no pagó)
+            var sd = document.getElementById("senaRequired");
+            if (sd && !_successShown) {
+                var ddPoll = getDisplayDataFromPending();
+                var nombrePoll = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
+                var waPoll;
+                if (ddPoll.tratamiento && ddPoll.fecha) {
+                    waPoll = encodeURIComponent('Hola! Tuve un problema al reservar online.\nMi nombre: ' + nombrePoll + '.\nQueria reservar: ' + ddPoll.tratamiento + ' el ' + ddPoll.fecha + ' de ' + ddPoll.horaInicio + ' a ' + ddPoll.horaFin + '. Email: ' + (ddPoll.email || 'no especificado') + '.\nEl turno expiró antes de que pudiera completar el pago.');
+                } else {
+                    waPoll = encodeURIComponent('Hola! Tuve un problema al reservar online.\nMi nombre: ' + nombrePoll + '.\nEl turno expiró antes de que pudiera completar el pago.');
+                }
+                sd.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:12px">Tiempo Agotado</h3><p style="opacity:0.9;margin-bottom:8px">Tu tiempo para pagar expiró y el turno ya no está disponible.</p><p style="opacity:0.7;font-size:0.9rem;margin-bottom:16px">Alguien más lo tomó o nadie lo confirmó a tiempo.</p><button id="otroTurnoBtnPoll" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+                setTimeout(function(){
+                    var btn = document.getElementById("otroTurnoBtnPoll");
+                    if(btn) btn.addEventListener("click", function(){
+                        resetBookingForm();
+                        loadAvailableSlots();
+                    });
+                }, 100);
+            }
+            return;
+        }
+        
         if (_confirmadoLocalmente) {
             console.log("✅ [POLLING] _confirmadoLocalmente=true — deteniendo polling");
             clearInterval(_statusPollInterval);
@@ -495,6 +532,8 @@ function stopStatusPolling() {
     }
     // Reset contador de fallos al detener polling (v8)
     _consecutiveFailures = 0;
+    // Reset timeout global
+    _pollingStartTime = null;
 }
 
 var treatmentsLoaded = false;

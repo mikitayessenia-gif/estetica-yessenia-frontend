@@ -2064,12 +2064,9 @@ function startSenaTimer() {
 function releaseTempReservation() {
     console.log("⏰ [RELEASE] === TIMER EXPIRADO — mostrando loading y verificando ===");
     
-    // BUGFIX #2: Si MP return ya está activo, NO interferir con el polling existente
-    // Cuando la pasarela actualiza Sheets a "Reservado", el poll de 5s del main tab
-    // detectará el cambio y mostrará éxito automáticamente. No necesitamos hacer nada extra.
+    // BUGFIX #2: Si MP return ya está activo, verificar si el usuario pagó o no
     if (_mpFlowActive) {
         console.log("⏳ [RELEASE] _mpFlowActive=true — timer expiró pero MP sigue procesando");
-        console.log("   → El polling existente (cada 5s) detectará Sheets=Reservado automáticamente");
         
         // Limpiar timer pero NO detener el polling existente
         if (window._senaTimerId) {
@@ -2078,8 +2075,61 @@ function releaseTempReservation() {
         }
         clearReservaFlowFlag();
         
-        // NO llamar stopStatusPolling() — dejamos que el poll de 5s siga corriendo
-        // Cuando la pasarela actualice Sheets a "Reservado", el poll lo detectará y mostrará éxito
+        // IMPORTANTE: No detener el polling de 5s. Pero SI mostrar un aviso al usuario
+        // que el timer expiró mientras se verifica. El polling seguirá corriendo
+        // y si Sheets=Reservado, mostrará éxito. Si expira el timeout global del polling (90s),
+        // el polling mostrará "Tiempo Agotado" automáticamente.
+        
+        // Verificar si el usuario PAGÓ (AA=pagoConfirmado). Si sí, mostrar spinner.
+        // Si no, mostrar "Tiempo Agotado" inmediatamente.
+        var idTurnoRelease2 = window._pendingSenaData ? window._pendingSenaData.idTurno : '';
+        if (idTurnoRelease2) {
+            fetchWithTimeout(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    token: API_TOKEN,
+                    action: "dobleVerificacionMP",
+                    idTurno: idTurnoRelease2
+                })
+            }, 8000)
+            .then(function(r){return r.json()})
+            .then(function(releaseCheckData) {
+                if (releaseCheckData.pagoConfirmadoAA) {
+                    console.log("💳 [RELEASE] Usuario SÍ pagó (AA confirmado) — mostrando spinner de espera");
+                    var sdRelease = document.getElementById('senaRequired');
+                    if (sdRelease) {
+                        sdRelease.style.display = 'block';
+                        sdRelease.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:8px">Verificando tu pago...</h3><p style="opacity:0.9;margin-bottom:16px">Detectamos tu pago. La agenda se está actualizando...</p><div class="spinner" style="margin:20px auto"></div></div>';
+                    }
+                } else {
+                    console.log("🚫 [RELEASE] Usuario NO pagó (AA sin confirmación) — mostrando Tiempo Agotado");
+                    var sdRelease2 = document.getElementById('senaRequired');
+                    if (sdRelease2 && !_successShown) {
+                        sdRelease2.style.display = 'block';
+                        var ddRelease = getDisplayDataFromPending();
+                        var nombreRelease = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
+                        var waRelease;
+                        if (ddRelease.tratamiento && ddRelease.fecha) {
+                            waRelease = encodeURIComponent('Hola! Tuve un problema al reservar online.\nMi nombre: ' + nombreRelease + '.\nQueria reservar: ' + ddRelease.tratamiento + ' el ' + ddRelease.fecha + ' de ' + ddRelease.horaInicio + ' a ' + ddRelease.horaFin + '. Email: ' + (ddRelease.email || 'no especificado') + '.\nEl turno expiró antes de que pudiera completar el pago.');
+                        } else {
+                            waRelease = encodeURIComponent('Hola! Tuve un problema al reservar online.\nMi nombre: ' + nombreRelease + '.\nEl turno expiró antes de completar el pago.');
+                        }
+                        sdRelease2.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:12px">Tiempo Agotado</h3><p style="opacity:0.9;margin-bottom:8px">Tu tiempo para pagar expiró y el turno ya no está disponible.</p><p style="opacity:0.7;font-size:0.9rem;margin-bottom:16px">Alguien más lo tomó o nadie lo confirmó a tiempo.</p><button id="otroTurnoBtnRelease" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+                        setTimeout(function(){
+                            var btn = document.getElementById('otroTurnoBtnRelease');
+                            if(btn) btn.addEventListener('click', function(){
+                                resetBookingForm();
+                                loadAvailableSlots();
+                            });
+                        }, 100);
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.error("❌ [RELEASE] Error verificando AA tras timer expirado: " + err.message);
+                // Si la API falla, confiar en que el timeout global del polling (90s) manejará el caso
+            });
+        }
         
         return;
     }
