@@ -1,0 +1,38 @@
+# === NO SUBIR ESTO A GITHUB ===
+
+# ClASP - Credenciales de deployment a Google Apps Script
+CLASP/
+
+# OpenCode IDE config y skills locales
+.opencode/
+
+# Archivos locales (backend, admin, configs sensibles)
+# Estos archivos viven en _local/ y no se trackean por git
+_local/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs y archivos temporales
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Archivos de configuracion LOCAL (si los hubiera)
+.env
+.env.local
+.env.production
+
+# Dependencias (por si se usa algun build tool en el futuro)
+node_modules/
+dist/
+build/
