@@ -2841,14 +2841,18 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
         }
         
         // CASO 3: AA vacía + Reservado Temporal
-        // → Verificar si el timer sigue activo. Si sí, el usuario probablemente
-        //   aún está en Mercado Pago → NO mostrar Tiempo Agotado, dejar que el polling siga.
-        // → Si el timer ya expiró (window._senaTimerId=null), sí mostrar Tiempo Agotado.
+        // → Verificar si el timer sigue activo usando el timestamp real de sessionStorage.
+        //   La variable window._senaTimerId puede haber sido limpiada por el flujo de
+        //   "3 fallos consecutivos" → "Sin Conexión", pero el timer de 60s sigue corriendo.
+        // → Si el timer sigue activo, el usuario probablemente aún está en Mercado Pago.
         if (!data.pagoConfirmadoAA && (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.")) {
-            if (window._senaTimerId) {
-                // Timer sigue activo — usuario probablemente aún está en Mercado Pago
-                console.log("⏳ [CONN] Timer sigue activo — usuario probablemente aún en Mercado Pago, no mostrar Tiempo Agotado");
-                console.log("   → Dejar que el polling continúe verificando...");
+            var expiryTs = sessionStorage.getItem(STORAGE_KEY_EXPIRY_TS);
+            var timerActivo = expiryTs ? (Date.now() < parseInt(expiryTs, 10)) : false;
+            
+            if (timerActivo) {
+                var segRestantes = Math.max(0, Math.round((parseInt(expiryTs, 10) - Date.now()) / 1000));
+                console.log("⏳ [CONN] Timer sigue activo (" + segRestantes + "s restantes) — usuario probablemente aún en Mercado Pago");
+                console.log("   → NO mostrar Tiempo Agotado. Dejar que el polling continúe verificando...");
                 if (onDone) onDone();
                 return;
             }
