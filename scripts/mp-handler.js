@@ -2133,10 +2133,29 @@ function releaseTempReservation() {
             })
             .catch(function(err) {
                 console.error("❌ [RELEASE] Error verificando AA tras timer expirado: " + err.message);
-                // Si la API falla, confiar en que el timeout global del polling (90s) manejará el caso
+                    // Si la API falla, confiar en que el timeout global del polling (90s) manejará el caso
             });
         }
         
+        return;
+    }
+    
+    // Si NO hay _mpFlowActive (timer expiró sin MP activo), mostrar Tiempo Agotado directo
+    if (!_mpFlowActive) {
+        console.log("⏰ [RELEASE] _mpFlowActive=false — mostrando Tiempo Agotado");
+        var sdRelease3 = document.getElementById('senaRequired');
+        if (sdRelease3 && !_successShown) {
+            sdRelease3.style.display = 'block';
+            sdRelease3.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:8px">Tiempo Agotado</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">El tiempo de espera para completar el pago expiró. Se liberó el turno seleccionado.</p><button id="otroTurnoBtnRelease2" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button></div>';
+            setTimeout(function(){
+                var btn = document.getElementById('otroTurnoBtnRelease2');
+                if(btn) btn.addEventListener('click', function(){
+                    resetBookingForm();
+                    loadAvailableSlots();
+                });
+            }, 100);
+        }
+        clearActiveTurnoStorage();
         return;
     }
     
@@ -2966,36 +2985,10 @@ function showTiempoAgotadoModal(idTurno) {
     stopStatusPolling();
     if(window._senaTimerId) { clearInterval(window._senaTimerId); window._senaTimerId = null; }
     
-    // Recopilar datos
-    var ddPending = getDisplayDataFromPending();
-    var snap = getBookingSnapshotFromStorage();
-    var nombreCliente = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
-    
-    var tratamiento = ddPending.tratamiento || (snap ? snap.tratamiento : "");
-    var fechaRaw = ddPending.fecha || (snap ? snap.fecha : "");
-    var horaInicio = ddPending.horaInicio || (snap ? snap.hora : "");
-    var horaFin = ddPending.horaFin || "";
-    var email = ddPending.email || (snap ? snap.email : "");
-    var fecha = fechaRaw ? formatFechaDisplay(fechaRaw) : "";
-    
     var sinConnHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)">';
     sinConnHtml += '<div style="font-size:3rem;margin-bottom:16px">⏳</div>';
     sinConnHtml += '<h3 style="color:#FFD700;margin-bottom:8px">Tiempo Agotado</h3>';
-    sinConnHtml += '<p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu tiempo para pagar expiró y el turno ya no está disponible.</p>';
-    sinConnHtml += '<p style="opacity:0.85;font-size:0.9rem;margin-bottom:16px">Alguien más lo tomó o nadie lo confirmó a tiempo.</p>';
-    
-    if (tratamiento && fecha) {
-        sinConnHtml += '<div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6">';
-        sinConnHtml += '<p style="margin:0 0 4px;opacity:0.7;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px">Tu reserva</p>';
-        if (tratamiento) sinConnHtml += '<p style="margin:0 0 4px"><strong>Tratamiento:</strong> ' + tratamiento + '</p>';
-        if (fecha) sinConnHtml += '<p style="margin:0 0 4px"><strong>Fecha:</strong> ' + fecha;
-        if (horaInicio) sinConnHtml += ' de ' + horaInicio;
-        if (horaFin) sinConnHtml += ' a ' + horaFin;
-        sinConnHtml += '</p>';
-        if (nombreCliente && nombreCliente !== "Cliente") sinConnHtml += '<p style="margin:0"><strong>Nombre:</strong> ' + nombreCliente + '</p>';
-        sinConnHtml += '</div>';
-    }
-    
+    sinConnHtml += '<p style="opacity:0.9;max-width:450px;margin:0 auto 16px">El tiempo de espera para completar el pago expiró. Se liberó el turno seleccionado.</p>';
     sinConnHtml += '<button id="otroTurnoBtnFinal" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button>';
     sinConnHtml += '</div>';
     
