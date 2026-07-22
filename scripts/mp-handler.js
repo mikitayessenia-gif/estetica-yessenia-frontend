@@ -5,8 +5,12 @@ var _successShown = false; // BUGFIX #5: evita que polling muestre no-exito desp
 var _connectionLost = false; // Estado actual de conexión (true = offline)
 var _autoRetryTimer = null; // Timer para reintento automático al reconectarse
 var _sinConexionModalShown = false; // Evita mostrar el modal de sin conexión duplicado
+var _sinConnRetryCount = 0; // Contador de reintentos del modal sin conexión
+var _maxSinConnRetries = 3; // Máximo de reintentos antes de mostrar modal final
 var _verifyingConnection = false; // Flag anti-duplicado para verificación tras reconexión
+var _tiempoAgotadoShown = false; // Flag para evitar que polling sobrescriba "Tiempo Agotado"
 var _connectionDetectionActive = true; // Desactivar cuando se muestra un modal de resultado final
+var _sinConnModalHasReintentar = true; // Si true, el modal tiene botón "Reintentar". Si false, es modal FINAL (sin reintentar)
 
 // ========== Helper fetch con timeout (BUGFIX #3) ==========
 function fetchWithTimeout(url, options, timeoutMs) {
@@ -744,6 +748,8 @@ function handleRequiresSena(idTurno, tratamiento, nombre, fecha, hora, montoSena
     
     senaDiv.style.display="block";
     _mpFlowActive = true; // BUGFIX #2: marca que el flujo de pago MP está activo
+    _tiempoAgotadoShown = false; // Reset flag de tiempo agotado
+    resetSinConnRetryCount(); // Reset retry counter para nuevo flujo
     console.log("🔒 [MP-FLOW] _mpFlowActive = true (flujo iniciado)");
     
     if (senaDiv.firstChild && senaDiv.firstChild.nodeType === 1) {
@@ -2791,9 +2797,35 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
             return;
         }
         
-        // CASO 3: Ni Sheets ni AA tienen confirmación → mostrar modal de sin conexión
-        console.log("⚠️ [CONN] Sin confirmación en Sheets ni AA — mostrando modal sin conexión");
-        showSinConexionModal(idTurno, false);
+        // CASO 3: Ni Sheets ni AA tienen confirmación
+        // Si el estado es "Reservado Temporal" → el usuario NO pagó → TIEMPO AGOTADO
+        if (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.") {
+            console.log("⏰ [CONN] Estado=Reservado Temporal tras reconexión — usuario NO pagó → Tiempo Agotado");
+            _connectionDetectionActive = false;
+            _sinConexionModalShown = true;
+            showTiempoAgotadoModal(idTurno);
+            if (onDone) onDone();
+            return;
+        }
+        
+        // Si el estado es Disponible/Vencido → también Tiempo Agotado
+        if (data.estado === "Disponible" || data.estado === "Vencido Sin Confirmar") {
+            console.log("⏰ [CONN] Estado=" + data.estado + " — Tiempo Agotado");
+            _connectionDetectionActive = false;
+            _sinConexionModalShown = true;
+            showTiempoAgotadoModal(idTurno);
+            if (onDone) onDone();
+            return;
+        }
+        
+        // CASO 3b: Sin confirmación pero no sabemos el estado → modal sin conexión (solo si tiene botón reintentar)
+        if (_sinConnModalHasReintentar) {
+            console.log("⚠️ [CONN] Sin confirmación — mostrando modal sin conexión (con reintentar)");
+            showSinConexionModal(idTurno, false);
+        } else {
+            console.log("⚠️ [CONN] Sin confirmación — mostrando Tiempo Agotado (sin reintentar)");
+            showTiempoAgotadoModal(idTurno);
+        }
         if (onDone) onDone();
     })
     .catch(function(err) {
@@ -2892,6 +2924,74 @@ function showVerifyingSpinner(idTurno, onDone) {
     
     // Primer poll inmediato
     poll();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MODAL: TIEMPO AGOTADO (usuario no pagó a tiempo)
+// Se muestra cuando el timer expiró y el usuario no completó el pago
+// ═══════════════════════════════════════════════════════════════════════
+function showTiempoAgotadoModal(idTurno) {
+    console.log("⏰ [TIEMPO-AGOTADO] === MOSTRANDO MODAL TIEMPO AGOTADO ===");
+    _sinConexionModalShown = true;
+    _tiempoAgotadoShown = true;
+    _connectionDetectionActive = false;
+    
+    var senaDiv = document.getElementById("senaRequired");
+    if (!senaDiv) return;
+    senaDiv.style.display = "block";
+    
+    // Detener polling activo
+    stopStatusPolling();
+    if(window._senaTimerId) { clearInterval(window._senaTimerId); window._senaTimerId = null; }
+    
+    // Recopilar datos
+    var ddPending = getDisplayDataFromPending();
+    var snap = getBookingSnapshotFromStorage();
+    var nombreCliente = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
+    
+    var tratamiento = ddPending.tratamiento || (snap ? snap.tratamiento : "");
+    var fechaRaw = ddPending.fecha || (snap ? snap.fecha : "");
+    var horaInicio = ddPending.horaInicio || (snap ? snap.hora : "");
+    var horaFin = ddPending.horaFin || "";
+    var email = ddPending.email || (snap ? snap.email : "");
+    var fecha = fechaRaw ? formatFechaDisplay(fechaRaw) : "";
+    
+    var sinConnHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)">';
+    sinConnHtml += '<div style="font-size:3rem;margin-bottom:16px">⏳</div>';
+    sinConnHtml += '<h3 style="color:#FFD700;margin-bottom:8px">Tiempo Agotado</h3>';
+    sinConnHtml += '<p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu tiempo para pagar expiró y el turno ya no está disponible.</p>';
+    sinConnHtml += '<p style="opacity:0.85;font-size:0.9rem;margin-bottom:16px">Alguien más lo tomó o nadie lo confirmó a tiempo.</p>';
+    
+    if (tratamiento && fecha) {
+        sinConnHtml += '<div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6">';
+        sinConnHtml += '<p style="margin:0 0 4px;opacity:0.7;font-size:0.75rem;text-transform:uppercase;letter-spacing:1px">Tu reserva</p>';
+        if (tratamiento) sinConnHtml += '<p style="margin:0 0 4px"><strong>Tratamiento:</strong> ' + tratamiento + '</p>';
+        if (fecha) sinConnHtml += '<p style="margin:0 0 4px"><strong>Fecha:</strong> ' + fecha;
+        if (horaInicio) sinConnHtml += ' de ' + horaInicio;
+        if (horaFin) sinConnHtml += ' a ' + horaFin;
+        sinConnHtml += '</p>';
+        if (nombreCliente && nombreCliente !== "Cliente") sinConnHtml += '<p style="margin:0"><strong>Nombre:</strong> ' + nombreCliente + '</p>';
+        sinConnHtml += '</div>';
+    }
+    
+    sinConnHtml += '<button id="otroTurnoBtnFinal" style="display:block;margin:0 auto;background:#C4A16D;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;border:none;cursor:pointer">🔄 Elegir otro turno</button>';
+    sinConnHtml += '</div>';
+    
+    senaDiv.innerHTML = sinConnHtml;
+    
+    setTimeout(function() {
+        var btn = document.getElementById('otroTurnoBtnFinal');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                console.log("🔄 [TIEMPO-AGOTADO] Usuario eligió otro turno");
+                resetBookingForm();
+                loadAvailableSlots();
+            });
+        }
+    }, 100);
+    
+    // Liberar storage
+    clearActiveTurnoStorage();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -3037,16 +3137,29 @@ function showSinConexionModal(idTurno, hasPaymentInAA) {
     
     senaDiv.innerHTML = sinConnHtml;
     
-    // Botón de reintentar manualmente
+    // Botón de reintentar manualmente (solo si no excedimos los reintentos)
     setTimeout(function() {
         var btn = document.getElementById('reintentarBtnSinConn');
         if (btn) {
             btn.addEventListener('click', function() {
-                console.log("🔄 [SIN-CONN] Reintento manual activado");
+                _sinConnRetryCount++;
+                console.log("🔄 [SIN-CONN] Reintento manual activado (intento " + _sinConnRetryCount + "/" + _maxSinConnRetries + ")");
+                
                 // Limpiar cualquier spinner de verificación activo
                 var verifyingOverlay = document.querySelector('.verifying-spinner-overlay');
                 if (verifyingOverlay) verifyingOverlay.remove();
-                // Resetear TODOS los flags de bloqueo para permitir nueva verificación
+                
+                // Si excedimos los reintentos, mostrar Tiempo Agotado en lugar de reintentar
+                if (_sinConnRetryCount >= _maxSinConnRetries) {
+                    console.log("🚫 [SIN-CONN] Reintentos agotados (" + _maxSinConnRetries + ") — mostrando Tiempo Agotado");
+                    _sinConexionModalShown = true;
+                    _tiempoAgotadoShown = true;
+                    _connectionDetectionActive = false;
+                    showTiempoAgotadoModal(idTurno);
+                    return;
+                }
+                
+                // Resetear flags para permitir nueva verificación
                 _sinConexionModalShown = false;
                 _verifyingConnection = false;
                 verificarYMostrarResultadoPorConexion(idTurno);
@@ -3055,5 +3168,10 @@ function showSinConexionModal(idTurno, hasPaymentInAA) {
     }, 100);
     
     // NO liberar storage aquí — el evento 'online' necesita el turno activo
-   // Se libera cuando hay éxito confirmado o el usuario recarga la página.
+    // Se libera cuando hay éxito confirmado o el usuario recarga la página.
+}
+
+// Resetear contador de reintentos cuando el usuario empieza un nuevo flujo
+function resetSinConnRetryCount() {
+    _sinConnRetryCount = 0;
 }

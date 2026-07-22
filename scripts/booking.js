@@ -800,6 +800,11 @@ function mostrarTurnosDisponiblesDespuesDeCancelar() {
 }
 
 function resetBookingForm() {
+    // Detener polling activopara evitar polling infinito
+    if (typeof stopStatusPolling === 'function') stopStatusPolling();
+    // Resetear contador de reintentos de sin conexión
+    if (typeof resetSinConnRetryCount === 'function') resetSinConnRetryCount();
+    
     var senaDiv = document.getElementById("senaRequired");
     if (senaDiv) { senaDiv.style.display = "none"; senaDiv.innerHTML = ""; }
     var timerEl = document.getElementById("senaTimer");
