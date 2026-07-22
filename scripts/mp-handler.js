@@ -939,6 +939,23 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
     var status = mpStatus || "approved";
     var prefId = window._pendingPreferenceId || "";
     
+    // Timeout de seguridad: si no hay respuesta en 30s, mostrar error
+    var _paymentConfirmTimeout = setTimeout(function() {
+        var sdTimeout = document.getElementById("senaRequired");
+        if (sdTimeout && sdTimeout.querySelector('.spinner')) {
+            console.log("⏰ [CONFIRM] Timeout 30s — confirmando pago se demoró demasiado");
+            var ddTimeout = getDisplayDataFromPending();
+            var nombreTimeout = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
+            var waTimeout;
+            if (ddTimeout.tratamiento && ddTimeout.fecha) {
+                waTimeout = encodeURIComponent('Hola! Tuve un problema al reservar online pero ya aboné.\nMi nombre: ' + nombreTimeout + '.\nQueria reservar: ' + ddTimeout.tratamiento + ' el ' + ddTimeout.fecha + ' de ' + ddTimeout.horaInicio + ' a ' + ddTimeout.horaFin + '. Email: ' + (ddTimeout.email || 'no especificado') + '.\nAdjunto comprobante para completar mi reserva.');
+            } else {
+                waTimeout = encodeURIComponent('Hola! Tuve un problema al reservar online pero ya aboné.\nMi nombre: ' + nombreTimeout + '. Adjunto comprobante para completar mi reserva.');
+            }
+            sdTimeout.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏰</div><h3 style="color:#FFD700;margin-bottom:12px">Tiempo de espera agotado</h3><p>Tuvimos problemas para confirmar tu pago. Tu dinero está seguro en Mercado Pago.</p><a href="https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waTimeout + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+        }
+    }, 30000);
+    
     // BUGFIX #3: fetch con timeout para handlePaymentConfirmation
     fetchWithTimeout(API_URL, {
         method: "POST", 
@@ -954,6 +971,7 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
     }, 20000)
     .then(function(r){return r.json()})
     .then(function(data) {
+        clearTimeout(_paymentConfirmTimeout);
         stopStatusPolling();
         if (data.status === "PAGO_HUERFANO") {
             showPagoHuerranoModal(data.mensaje || "Tu pago fue registrado de forma segura. Nos comunicaremos contigo.");
@@ -987,6 +1005,7 @@ function handlePaymentConfirmation(idTurno, tratamiento, comprobanteId, mpStatus
         }
     })
     .catch(function() { 
+        clearTimeout(_paymentConfirmTimeout);
         // Si la función de sin conexión está disponible, usarla (v8)
         if (typeof showSinConexionModal === 'function') {
             console.log("📴 [CONFIRM] Error en confirmación de pago — mostrando modal sin conexión");
@@ -1338,12 +1357,38 @@ function handleMercadoPagoReturn() {
       var cleanUrl = window.location.origin + window.location.pathname + currentHash;
       window.history.replaceState({}, document.title, cleanUrl);
 
-      // BUGFIX #2: Bloquear flujo de timer mientras MP return procesa
-      _mpFlowActive = true;
-      console.log("🔒 [MP-RETURN] _mpFlowActive = true — bloqueando releaseTempReservation");
+    // BUGFIX #2: Bloquear flujo de timer mientras MP return procesa
+       _mpFlowActive = true;
+       console.log("🔒 [MP-RETURN] _mpFlowActive = true — bloqueando releaseTempReservation");
 
-      hideAllSections();
-     console.log("👁️ [MP-RETURN] Secciones ocultas (hideAllSections)");
+       hideAllSections();
+      console.log("👁️ [MP-RETURN] Secciones ocultas (hideAllSections)");
+
+       // Timeout de seguridad global: 45s para todo el flujo de retorno MP
+       var _mpReturnTimeout = null;
+       var _mpReturnTimedOut = false;
+       _mpReturnTimeout = setTimeout(function() {
+           if (_mpReturnTimedOut) return;
+           _mpReturnTimedOut = true;
+           console.log("⏰ [MP-RETURN] Timeout 45s — flujo tardó demasiado");
+           var sd = document.getElementById('senaRequired');
+           if (sd && sd.querySelector('.spinner')) {
+               clearActiveTurnoStorage();
+               stopStatusPolling();
+               if(window._senaTimerId) clearInterval(window._senaTimerId);
+               window._senaTimerId = null;
+               var ddMp = getDisplayDataFromPending();
+               var nombreMp = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
+               var waMp;
+               if (ddMp.tratamiento && ddMp.fecha) {
+                   waMp = encodeURIComponent('Hola! Tuve un problema al reservar online pero ya aboné.\nMi nombre: ' + nombreMp + '.\nQueria reservar: ' + ddMp.tratamiento + ' el ' + ddMp.fecha + ' de ' + ddMp.horaInicio + ' a ' + ddMp.horaFin + '. Email: ' + (ddMp.email || 'no especificado') + '.\nAdjunto comprobante para completar mi reserva.');
+               } else {
+                   waMp = encodeURIComponent('Hola! Tuve un problema al reservar online pero ya aboné.\nMi nombre: ' + nombreMp + '. Adjunto comprobante para completar mi reserva.');
+               }
+               sd.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⏰</div><h3 style="color:#FFD700;margin-bottom:12px">Tiempo de espera agotado</h3><p>Tuvimos problemas para confirmar tu pago. Tu dinero está seguro en Mercado Pago.</p><a href="https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMp + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+           }
+           _mpFlowActive = false;
+       }, 45000);
 
      // Activar conteo de fallos SOLO cuando sabemos que el usuario pagó en la pasarela de MP.
      // Se activa si hay: collectionId (pago real) + turno activo en sessionStorage O localStorage.
@@ -1860,6 +1905,8 @@ function handleMercadoPagoReturn() {
           })
         // BUGFIX #3: finally — limpiar _mpFlowActive siempre que termine el retorno
         .finally(function() {
+            clearTimeout(_mpReturnTimeout);
+            _mpReturnTimedOut = false;
             console.log("🧹 [MP-RETURN] Finally — liberando _mpFlowActive");
             _mpFlowActive = false;
             window._successShown = false;
@@ -2116,10 +2163,34 @@ function releaseTempReservation() {
             );
             if (isTimeout) console.log("⏰ [RELEASE] TIMEOUT — asumiendo turno expirado");
             
-            // Si el fallo es por conexión, mostrar modal sin conexión en lugar de liberar (v8)
-            if (isConnError && typeof showSinConexionModal === 'function') {
-                console.log("📴 [RELEASE] Error de conexión al expirar timer — mostrando modal sin conexión");
-                showSinConexionModal(idTurnoRelease, false);
+            // Timer expiró LOCALMENTE — el usuario no pagó a tiempo.
+            // SO mostrar "Sin Conexión" si YA SABEMOS que pagó (AA=pagoConfirmado).
+            // Si la API falló por conexión, verificar AA ANTES de decidir.
+            if (isConnError) {
+                console.log("📴 [RELEASE] Error de conexión — verificando AA para decidir modal");
+                fetchWithTimeout(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        token: API_TOKEN,
+                        action: "dobleVerificacionMP",
+                        idTurno: idTurnoRelease
+                    })
+                }, 10000)
+                .then(function(r){ return r.json(); })
+                .then(function(aaData) {
+                    console.log("📡 [RELEASE] AA fallback → pagoConfirmadoAA=" + aaData.pagoConfirmadoAA);
+                    if (aaData.pagoConfirmadoAA) {
+                        showSinConexionModal(idTurnoRelease, true);
+                    } else {
+                        clearActiveTurnoStorage();
+                        proceedWithRelease();
+                    }
+                })
+                .catch(function(err2) {
+                    console.error("❌ [RELEASE] Error en verificación AA fallback: " + err2.message);
+                    clearActiveTurnoStorage();
+                    proceedWithRelease();
+                });
                 return;
             }
             
@@ -2502,6 +2573,16 @@ function showNoExitoModal(idTurno, hasPayment) {
             return;
         }
         
+        // Si el modal de sin conexión está visible, ocultarlo inmediatamente
+        // (es TEMPORAL — se reemplaza por el resultado correcto)
+        var sinConnModal = document.getElementById('senaRequired');
+        if (sinConnModal) {
+            var modalContent = sinConnModal.innerHTML;
+            if (modalContent && modalContent.indexOf('📴') !== -1) {
+                console.log("📴 [CONN] Modal sin conexión visible — ocultando para mostrar resultado correcto");
+            }
+        }
+        
         // Si había un turno activo, reintento automático (UN SOLO intento controlado)
         var turnoActivo = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
         if (turnoActivo) {
@@ -2509,9 +2590,21 @@ function showNoExitoModal(idTurno, hasPayment) {
             _verifyingConnection = true;
             
             verificarYMostrarResultadoPorConexion(turnoActivo, function() {
-                // Callback cuando termina el flujo de verificación
+                // Cuando termina la verificación, limpiar flags
                 _verifyingConnection = false;
+                console.log("✅ [CONN] Verificación tras reconexión completada");
             });
+        } else {
+            // No hay turno activo — si el modal sin conexión está visible, limpiarlo
+            if (sinConnModal) {
+                var modalContent2 = sinConnModal.innerHTML;
+                if (modalContent2 && modalContent2.indexOf('📴') !== -1) {
+                    console.log("📴 [CONN] Sin turno activo — limpiando modal sin conexión residual");
+                    sinConnModal.style.display = 'none';
+                    sinConnModal.innerHTML = '';
+                    _sinConexionModalShown = false;
+                }
+            }
         }
     });
 })();
@@ -2696,6 +2789,13 @@ function showVerifyingSpinner(idTurno, onDone) {
     var maxPolls = 4;
     var _pollTimer = null;
     
+    // Timeout global de seguridad: 25s máximo para todo el spinner
+    var _verifyTimeout = setTimeout(function() {
+        console.log("⏰ [VERIFY] Timeout 25s — spinner tardó demasiado");
+        overlay.remove();
+        if (onDone) onDone(null);
+    }, 25000);
+    
     function poll() {
         pollCount++;
         console.log("🔄 [VERIFY] Poll #" + pollCount + "/" + maxPolls);
@@ -2714,6 +2814,7 @@ function showVerifyingSpinner(idTurno, onDone) {
             
             if (dPoll.estado === "Reservado") {
                 // Sheets cambió! Remover spinner y llamar callback con éxito
+                clearTimeout(_verifyTimeout);
                 overlay.remove();
                 console.log("✅ [VERIFY] Sheets=Reservado en poll #" + pollCount + " — ÉXITO");
                 onDone('RESERVADO');
@@ -2721,6 +2822,7 @@ function showVerifyingSpinner(idTurno, onDone) {
                 _pollTimer = setTimeout(poll, 3000);
             } else {
                 // Agotó polls — remover spinner y llamar callback sin resultado
+                clearTimeout(_verifyTimeout);
                 overlay.remove();
                 console.log("🚨 [VERIFY] Polls agotados (" + maxPolls + " polls en ~12s) — Sheets sigue sin cambiar");
                 onDone(null);
@@ -2731,6 +2833,7 @@ function showVerifyingSpinner(idTurno, onDone) {
             if (pollCount < maxPolls) {
                 _pollTimer = setTimeout(poll, 3000);
             } else {
+                clearTimeout(_verifyTimeout);
                 overlay.remove();
                 onDone(null);
             }
