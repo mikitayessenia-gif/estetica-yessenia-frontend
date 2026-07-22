@@ -2690,7 +2690,11 @@ function hideConnectionBanner() {
     }
 }
 
- // Verificar estado del turno tras recuperar conexión y mostrar resultado apropiado
+  // Verificar estado del turno tras recuperar conexión y mostrar resultado apropiado
+// Lógica de negocio:
+// 1. Estado=Reservado → ÉXITO (webhook confirmó)
+// 2. AA vacía + Reservado Temporal → Tiempo Agotado (no pagó)
+// 3. AA con valor + Reservado Temporal → No Exito (pagó pero Sheets no actualizó)
 // onDone: callback opcional cuando termina el flujo (para limpiar _verifyingConnection)
 function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
     // Si la detección de conexión ya se desactivó (modal de resultado final mostrado), no hacer nada
@@ -2714,9 +2718,10 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
     .then(function(data) {
         console.log("📡 [CONN] Resultado tras reconexión → estado=" + data.estado + ", pagoConfirmadoAA=" + data.pagoConfirmadoAA);
         
-        // CASO 1: Webhook ya confirmó el turno → mostrar éxito automáticamente
+        // CASO 1: Estado=Reservado → ÉXITO inmediato (webhook ya confirmó)
         if (data.estado === "Reservado") {
-            console.log("✅ [CONN] Turno confirmado por webhook! Mostrando éxito");
+            console.log("✅ [CONN] ÉXITO: Sheets=Reservado — mostrando éxito");
+            _connectionDetectionActive = false;
             _sinConexionModalShown = true;
             
             clearActiveTurnoStorage();
@@ -2734,25 +2739,27 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
             return;
         }
         
-        // CASO 2: AA tiene pago confirmado pero Sheets no actualizó → spinner + polling
-        // Si el webhook llegó a AA pero Sheets no cambió, puede ser que el webhook
-        // aún esté procesando. Mostramos un spinner animado y hacemos polling cada 3s
-        // hasta que Sheets cambie o expire (~15s). Si al final sigue igual, mostramos
-        // el modal FINAL apropiado según lo que diga la API ahora.
-        if (data.pagoConfirmadoAA) {
-            console.log("💳 [CONN] Pago en AA detectado pero Sheets≠Reservado — iniciando verificación");
+        // CASO 2: AA con valor (pagó) + Reservado Temporal (Sheets no actualizó)
+        // → No Exito con polling de 10s para ver si Sheets cambia a Reservado
+        if (data.pagoConfirmadoAA && (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.")) {
+            console.log("💳 [CONN] NO EXITO POTENCIAL: AA=pagoConfirmado + Sheets=Reservado Temporal");
+            console.log("   → Usuario pagó pero Sheets no actualizó. Esperando 10s a que webhook actualice Sheets...");
             
-            // Limpiar spinner anterior si existe
+            // Mostrar spinner "Verificando..."
             var senaDiv = document.getElementById("senaRequired");
             if (senaDiv) {
-                var oldSpinner = senaDiv.querySelector('.payment-detected-spinner');
-                if (oldSpinner) oldSpinner.remove();
+                senaDiv.style.display = "block";
+                senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:8px">Detectamos tu pago — confirmando...</h3><p style="opacity:0.9;margin-bottom:16px">Tu pago fue registrado. Actualizando tu agenda...</p><div class="spinner" style="margin:20px auto"></div></div>';
             }
             
-            showVerifyingSpinner(idTurno, function(finalState) {
-                // Cuando el polling termina o expira, hacer una ÚLTIMA consulta a la API
-                // y mostrar el modal FINAL apropiado.
-                console.log("📡 [CONN] Spinner terminó — haciendo última verificación para decidir modal final");
+            // Polling cada 2s durante 10s (5 polls) para ver si Sheets cambia a Reservado
+            var pollCount = 0;
+            var maxPolls = 5;
+            var pollInterval = 2000;
+            
+            function pollSheetsUpdate() {
+                pollCount++;
+                console.log("🔄 [CONN] Poll #" + pollCount + "/" + maxPolls + " — esperando que Sheets cambie a Reservado");
                 
                 fetchWithTimeout(API_URL, {
                     method: "POST",
@@ -2763,44 +2770,60 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                     })
                 }, 10000)
                 .then(function(r){ return r.json(); })
-                .then(function(finalData) {
-                    console.log("📡 [CONN] Última verificación → estado=" + finalData.estado + ", pagoConfirmadoAA=" + finalData.pagoConfirmadoAA);
+                .then(function(pollData) {
+                    console.log("📡 [CONN] Poll #" + pollCount + " → estado=" + pollData.estado + ", pagoConfirmadoAA=" + pollData.pagoConfirmadoAA);
                     
-                    if (finalData.estado === "Reservado") {
-                        // ÉXITO — Sheets cambió durante el polling
-                        console.log("✅ [CONN] ÉXITO FINAL: Sheets=Reservado");
+                    if (pollData.estado === "Reservado") {
+                        // ÉXITO — Sheets se actualizó durante el polling
+                        console.log("✅ [CONN] ÉXITO: Sheets=Reservado en poll #" + pollCount);
+                        _connectionDetectionActive = false;
+                        _sinConexionModalShown = true;
+                        clearActiveTurnoStorage();
+                        stopStatusPolling();
+                        if(window._senaTimerId) { clearInterval(window._senaTimerId); window._senaTimerId = null; }
+                        
                         showBookingSuccess(
-                            finalData.clienteNombre || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente"),
-                            finalData.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : ""),
-                            finalData.fecha ? formatFechaDisplay(finalData.fecha) : (window._pendingSenaData ? window._pendingSenaData.fecha : ""),
-                            finalData.horaInicio ? formatHoraDesdeSheets(finalData.horaInicio) : (window._pendingSenaData ? window._pendingSenaData.hora : ""),
-                            finalData.horaFin || "", idTurno
+                            pollData.clienteName || (window._pendingSenaData ? window._pendingSenaData.nombre : "Cliente"),
+                            pollData.tratamiento || (window._pendingSenaData ? window._pendingSenaData.tratamiento : ""),
+                            pollData.fecha ? formatFechaDisplay(pollData.fecha) : (window._pendingSenaData ? window._pendingSenaData.fecha : ""),
+                            pollData.horaInicio ? formatHoraDesdeSheets(pollData.horaInicio) : (window._pendingSenaData ? window._pendingSenaData.hora : ""),
+                            pollData.horaFin || "", idTurno
                         );
-                    } else if (finalData.pagoConfirmadoAA) {
-                        // NO EXITO con aviso — AA tiene pago pero Sheets no cambió
-                        console.log("💳 [CONN] NO EXITO FINAL: AA=pago confirmado + Sheets≠Reservado");
-                        showNoExitoModal(idTurno, true);
+                        return;
+                    }
+                    
+                    // Si sigue sin cambiar y quedan polls → seguir intentando
+                    if (pollCount < maxPolls) {
+                        setTimeout(pollSheetsUpdate, pollInterval);
                     } else {
-                        // NO EXITO sin aviso de pago
-                        console.log("❌ [CONN] NO EXITO FINAL: ni reservado ni AA confirmado");
-                        showNoExitoModal(idTurno, false);
+                        // Agotó polls — Sheets no cambió en 10s → NO EXITO
+                        console.log("🚨 [CONN] 10s agotados — Sheets no cambió → NO EXITO con aviso de pago");
+                        _connectionDetectionActive = false;
+                        _sinConexionModalShown = true;
+                        showNoExitoModal(idTurno, true);
                     }
                 })
                 .catch(function(err) {
-                    console.error("❌ [CONN] Error en última verificación: " + err.message);
-                    // Si la API falla, mostrar modal sin conexión como último recurso
-                    showSinConexionModal(idTurno, false);
+                    console.error("❌ [CONN] Error poll #" + pollCount + ": " + err.message);
+                    if (pollCount < maxPolls) {
+                        setTimeout(pollSheetsUpdate, pollInterval);
+                    } else {
+                        console.log("🚨 [CONN] Polls agotados por error → NO EXITO");
+                        _connectionDetectionActive = false;
+                        _sinConexionModalShown = true;
+                        showNoExitoModal(idTurno, true);
+                    }
                 });
-                
-                if (onDone) onDone();
-            });
+            }
+            
+            // Primer poll inmediato
+            setTimeout(pollSheetsUpdate, 500);
             return;
         }
         
-        // CASO 3: Ni Sheets ni AA tienen confirmación
-        // Si el estado es "Reservado Temporal" → el usuario NO pagó → TIEMPO AGOTADO
-        if (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.") {
-            console.log("⏰ [CONN] Estado=Reservado Temporal tras reconexión — usuario NO pagó → Tiempo Agotado");
+        // CASO 3: AA vacía + Reservado Temporal → Tiempo Agotado (usuario no pagó)
+        if (!data.pagoConfirmadoAA && (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.")) {
+            console.log("⏰ [CONN] Tiempo Agotado: AA vacía + Reservado Temporal — usuario no pagó");
             _connectionDetectionActive = false;
             _sinConexionModalShown = true;
             showTiempoAgotadoModal(idTurno);
@@ -2808,9 +2831,9 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
             return;
         }
         
-        // Si el estado es Disponible/Vencido → también Tiempo Agotado
+        // CASO 4: Disponible/Vencido → Tiempo Agotado
         if (data.estado === "Disponible" || data.estado === "Vencido Sin Confirmar") {
-            console.log("⏰ [CONN] Estado=" + data.estado + " — Tiempo Agotado");
+            console.log("⏰ [CONN] Tiempo Agotado: estado=" + data.estado);
             _connectionDetectionActive = false;
             _sinConexionModalShown = true;
             showTiempoAgotadoModal(idTurno);
@@ -2818,19 +2841,18 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
             return;
         }
         
-        // CASO 3b: Sin confirmación pero no sabemos el estado → modal sin conexión (solo si tiene botón reintentar)
+        // CASO 5: Sin datos claros → mostrar modal sin conexión (con reintentar)
         if (_sinConnModalHasReintentar) {
-            console.log("⚠️ [CONN] Sin confirmación — mostrando modal sin conexión (con reintentar)");
+            console.log("⚠️ [CONN] Sin datos claros — mostrando modal sin conexión");
             showSinConexionModal(idTurno, false);
         } else {
-            console.log("⚠️ [CONN] Sin confirmación — mostrando Tiempo Agotado (sin reintentar)");
+            console.log("⚠️ [CONN] Sin datos claros — mostrando Tiempo Agotado");
             showTiempoAgotadoModal(idTurno);
         }
         if (onDone) onDone();
     })
     .catch(function(err) {
         console.error("❌ [CONN] Error verificando tras reconexión: " + err.message);
-        // Si el fetch falla, mostrar modal de sin conexión
         showSinConexionModal(idTurno, false);
         if (onDone) onDone();
     });
