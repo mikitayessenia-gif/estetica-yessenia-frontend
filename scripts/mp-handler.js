@@ -2840,9 +2840,20 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
             return;
         }
         
-        // CASO 3: AA vacía + Reservado Temporal → Tiempo Agotado (usuario no pagó)
+        // CASO 3: AA vacía + Reservado Temporal
+        // → Verificar si el timer sigue activo. Si sí, el usuario probablemente
+        //   aún está en Mercado Pago → NO mostrar Tiempo Agotado, dejar que el polling siga.
+        // → Si el timer ya expiró (window._senaTimerId=null), sí mostrar Tiempo Agotado.
         if (!data.pagoConfirmadoAA && (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.")) {
-            console.log("⏰ [CONN] Tiempo Agotado: AA vacía + Reservado Temporal — usuario no pagó");
+            if (window._senaTimerId) {
+                // Timer sigue activo — usuario probablemente aún está en Mercado Pago
+                console.log("⏳ [CONN] Timer sigue activo — usuario probablemente aún en Mercado Pago, no mostrar Tiempo Agotado");
+                console.log("   → Dejar que el polling continúe verificando...");
+                if (onDone) onDone();
+                return;
+            }
+            // Timer ya expiró — sí mostrar Tiempo Agotado
+            console.log("⏰ [CONN] Tiempo Agotado: AA vacía + Reservado Temporal + timer expirado — usuario no pagó");
             _connectionDetectionActive = false;
             _sinConexionModalShown = true;
             showTiempoAgotadoModal(idTurno);
