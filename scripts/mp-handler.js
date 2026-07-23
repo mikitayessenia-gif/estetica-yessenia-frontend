@@ -123,14 +123,11 @@ function removePaymentOverlay() {
         console.log("🔄 [PAGO] Ventana recupero foco - limpiando overlay");
         setTimeout(removePaymentOverlay, 500);
         
-        // Si hay un turno activo y la deteccion de conexion sigue activa,
-        // verificar si recuperamos la conexion durante la ausencia
-        if (_connectionDetectionActive) {
-            var turnoActivo = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
-            if (turnoActivo && navigator.onLine) {
-                console.log("📶 [PAGO] Recuperamos foco + online — verificando conexion");
-                verificarYMostrarResultadoPorConexion(turnoActivo, function() {});
-            }
+        // Si hay un turno activo, verificar si recuperamos la conexion durante la ausencia
+        var turnoActivo = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
+        if (turnoActivo && navigator.onLine) {
+            console.log("📶 [PAGO] Recuperamos foco + online — verificando conexion");
+            verificarYMostrarResultadoPorConexion(turnoActivo, function() {}, true); // force
         }
     });
 })();
