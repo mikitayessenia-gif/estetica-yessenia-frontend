@@ -3224,6 +3224,17 @@ function showTiempoAgotadoModal(idTurno) {
         if (btn) {
             btn.addEventListener('click', function() {
                 console.log("🔄 [TIEMPO-AGOTADO] Usuario eligió otro turno");
+                
+                // Limpiar TODOS los elementos de timer que puedan estar visibles
+                var timerEl1 = document.getElementById("senaTimer");
+                if (timerEl1) { timerEl1.style.display = "none"; timerEl1.textContent = ""; }
+                var timerEl2 = document.getElementById("senaTimerBig");
+                if (timerEl2) { timerEl2.style.display = "none"; timerEl2.textContent = ""; }
+                
+                // Limpiar el div del modal explicitamente
+                var senaDiv = document.getElementById("senaRequired");
+                if (senaDiv) { senaDiv.style.display = "none"; senaDiv.innerHTML = ""; }
+                
                 resetBookingForm();
                 loadAvailableSlots();
             });
