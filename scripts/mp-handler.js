@@ -2627,6 +2627,16 @@ function showNoExitoModal(idTurno, hasPayment) {
                 senaDiv.style.display = "none";
                 senaDiv.innerHTML = "";
                 
+                // Ocultar TODOS los elementos de timer que puedan estar visibles
+                var timerEl1 = document.getElementById("senaTimer");
+                if (timerEl1) { timerEl1.style.display = "none"; timerEl1.textContent = ""; }
+                var timerEl2 = document.getElementById("senaTimerBig");
+                if (timerEl2) { timerEl2.style.display = "none"; timerEl2.textContent = ""; }
+                
+                // Ocultar cualquier banner de conexión residual
+                var connBanner = document.getElementById('connectionStatusBanner');
+                if (connBanner) connBanner.remove();
+                
                 // Mostrar formulario limpio
                 var form = document.getElementById("bookingForm");
                 if (form) form.style.display = "block";
