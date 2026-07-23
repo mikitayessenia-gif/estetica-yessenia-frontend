@@ -2651,7 +2651,6 @@ function showNoExitoModal(idTurno, hasPayment) {
     
     // Escuchar recuperación de conexión — UN SOLO flujo controlado
     window.addEventListener('online', function() {
-        if (!_connectionDetectionActive) return;
         _connectionLost = false;
         console.log("📶 [CONN] Conexión recuperada — verificando estado del turno");
         
@@ -2686,7 +2685,7 @@ function showNoExitoModal(idTurno, hasPayment) {
                 // Cuando termina la verificación, limpiar flags
                 _verifyingConnection = false;
                 console.log("✅ [CONN] Verificación tras reconexión completada");
-            });
+            }, true); // force: siempre verificar al reconectar
         } else {
             // No hay turno activo — si el modal sin conexión está visible, limpiarlo
             if (sinConnModal) {
@@ -2733,15 +2732,15 @@ function hideConnectionBanner() {
 // 2. AA vacía + Reservado Temporal → Tiempo Agotado (no pagó)
 // 3. AA con valor + Reservado Temporal → No Exito (pagó pero Sheets no actualizó)
 // onDone: callback opcional cuando termina el flujo (para limpiar _verifyingConnection)
-function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
-    // Check cooldown: si hay cooldown activo, saltar verificación
-    if (Date.now() < _connectionCooldownUntil) {
+function verificarYMostrarResultadoPorConexion(idTurno, onDone, _force) {
+    // Check cooldown: si hay cooldown activo y no es force, saltar verificación
+    if (!_force && Date.now() < _connectionCooldownUntil) {
         console.log("⏳ [CONN] Cooldown activo — saltando verificación");
         if (onDone) onDone();
         return;
     }
-    // Si la detección de conexión ya se desactivó (modal de resultado final mostrado), no hacer nada
-    if (!_connectionDetectionActive) {
+    // Si la detección de conexión ya se desactivó (modal de resultado final mostrado) y no es force, no hacer nada
+    if (!_force && !_connectionDetectionActive) {
         console.log("⏳ [CONN] Detección de conexión desactivada — saltando verificación");
         if (onDone) onDone();
         return;
@@ -3293,6 +3292,9 @@ function showSinConexionModal(idTurno, hasPaymentInAA) {
                 // Resetear flags para permitir nueva verificación
                 _sinConexionModalShown = false;
                 _verifyingConnection = false;
+                _connectionDetectionActive = true;
+                _connectionCooldownUntil = 0;
+                console.log("🔓 [SIN-CONN] Detección de conexión RE-ACTIVADA para reintentar");
                 
                 // Si no hay conexion, mostrar spinner de intentando
                 if (!navigator.onLine) {
@@ -3302,7 +3304,7 @@ function showSinConexionModal(idTurno, hasPaymentInAA) {
                     }
                 }
                 
-                verificarYMostrarResultadoPorConexion(idTurno);
+                verificarYMostrarResultadoPorConexion(idTurno, null, true);
             });
         }
     }, 100);
