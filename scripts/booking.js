@@ -850,6 +850,9 @@ function showBookingSuccess(nombre, tratamiento, fecha, hora, horaFin, idTurno) 
     if (typeof _connectionDetectionActive !== 'undefined') {
         _connectionDetectionActive = false;
     }
+    if (typeof _connectionCooldownUntil !== 'undefined') {
+        _connectionCooldownUntil = Date.now() + 15000;
+    }
     
     console.log("✅ [SUCCESS] === MOSTRANDO ÉXITO ===");
     console.log("   - nombre: " + nombre + ", tratamiento: " + tratamiento);

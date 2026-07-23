@@ -10,6 +10,7 @@ var _maxSinConnRetries = 3; // Máximo de reintentos antes de mostrar modal fina
 var _verifyingConnection = false; // Flag anti-duplicado para verificación tras reconexión
 var _tiempoAgotadoShown = false; // Flag para evitar que polling sobrescriba "Tiempo Agotado"
 var _connectionDetectionActive = true; // Desactivar cuando se muestra un modal de resultado final
+var _connectionCooldownUntil = 0; // Timestamp hasta el cual la detección de conexión está en cooldown (15s post-modal final)
 var _sinConnModalHasReintentar = true; // Si true, el modal tiene botón "Reintentar". Si false, es modal FINAL (sin reintentar)
 
 // ========== Helper fetch con timeout (BUGFIX #3) ==========
@@ -2129,6 +2130,9 @@ function releaseTempReservation() {
                             });
                         }, 100);
                     }
+                    // Cooldown: desactivar detección de conexión por 15s tras mostrar Tiempo Agotado
+                    _connectionDetectionActive = false;
+                    _connectionCooldownUntil = Date.now() + 15000;
                 }
             })
             .catch(function(err) {
@@ -2156,6 +2160,9 @@ function releaseTempReservation() {
             }, 100);
         }
         clearActiveTurnoStorage();
+        // Cooldown: desactivar detección de conexión por 15s tras mostrar Tiempo Agotado
+        _connectionDetectionActive = false;
+        _connectionCooldownUntil = Date.now() + 15000;
         return;
     }
     
@@ -2504,6 +2511,7 @@ function showNoExitoModal(idTurno, hasPayment) {
     
     // DESACTIVAR detección de conexión una vez que se muestra este modal
     _connectionDetectionActive = false;
+    _connectionCooldownUntil = Date.now() + 15000;
     console.log("🔕 [NO-EXITO] Detección de conexión DESACTIVADA — este es el resultado final");
     
     var senaDiv = document.getElementById("senaRequired");
@@ -2716,6 +2724,12 @@ function hideConnectionBanner() {
 // 3. AA con valor + Reservado Temporal → No Exito (pagó pero Sheets no actualizó)
 // onDone: callback opcional cuando termina el flujo (para limpiar _verifyingConnection)
 function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
+    // Check cooldown: si hay cooldown activo, saltar verificación
+    if (Date.now() < _connectionCooldownUntil) {
+        console.log("⏳ [CONN] Cooldown activo — saltando verificación");
+        if (onDone) onDone();
+        return;
+    }
     // Si la detección de conexión ya se desactivó (modal de resultado final mostrado), no hacer nada
     if (!_connectionDetectionActive) {
         console.log("⏳ [CONN] Detección de conexión desactivada — saltando verificación");
@@ -2741,6 +2755,7 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
         if (data.estado === "Reservado") {
             console.log("✅ [CONN] ÉXITO: Sheets=Reservado — mostrando éxito");
             _connectionDetectionActive = false;
+            _connectionCooldownUntil = Date.now() + 15000;
             _sinConexionModalShown = true;
             
             clearActiveTurnoStorage();
@@ -2796,6 +2811,7 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                         // ÉXITO — Sheets se actualizó durante el polling
                         console.log("✅ [CONN] ÉXITO: Sheets=Reservado en poll #" + pollCount);
                         _connectionDetectionActive = false;
+                        _connectionCooldownUntil = Date.now() + 15000;
                         _sinConexionModalShown = true;
                         clearActiveTurnoStorage();
                         stopStatusPolling();
@@ -2818,6 +2834,7 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                         // Agotó polls — Sheets no cambió en 10s → NO EXITO
                         console.log("🚨 [CONN] 10s agotados — Sheets no cambió → NO EXITO con aviso de pago");
                         _connectionDetectionActive = false;
+                        _connectionCooldownUntil = Date.now() + 15000;
                         _sinConexionModalShown = true;
                         showNoExitoModal(idTurno, true);
                     }
@@ -2829,6 +2846,7 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                     } else {
                         console.log("🚨 [CONN] Polls agotados por error → NO EXITO");
                         _connectionDetectionActive = false;
+                        _connectionCooldownUntil = Date.now() + 15000;
                         _sinConexionModalShown = true;
                         showNoExitoModal(idTurno, true);
                     }
@@ -2842,23 +2860,43 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
         
         // CASO 3: AA vacía + Reservado Temporal
         // → Verificar si el timer sigue activo usando el timestamp real de sessionStorage.
-        //   La variable window._senaTimerId puede haber sido limpiada por el flujo de
-        //   "3 fallos consecutivos" → "Sin Conexión", pero el timer de 60s sigue corriendo.
-        // → Si el timer sigue activo, el usuario probablemente aún está en Mercado Pago.
         if (!data.pagoConfirmadoAA && (data.estado === "Reservado Temporal" || data.estado === "Reservado Temp.")) {
             var expiryTs = sessionStorage.getItem(STORAGE_KEY_EXPIRY_TS);
             var timerActivo = expiryTs ? (Date.now() < parseInt(expiryTs, 10)) : false;
             
             if (timerActivo) {
                 var segRestantes = Math.max(0, Math.round((parseInt(expiryTs, 10) - Date.now()) / 1000));
-                console.log("⏳ [CONN] Timer sigue activo (" + segRestantes + "s restantes) — usuario probablemente aún en Mercado Pago");
-                console.log("   → NO mostrar Tiempo Agotado. Dejar que el polling continúe verificando...");
+                var minRest = Math.floor(segRestantes / 60);
+                var segDisp = segRestantes % 60;
+                console.log("⏳ [CONN] Timer activo (" + segRestantes + "s restantes) — mostrando countdown, no mostrar Tiempo Agotado");
+                
+                // Mostrar UI de countdown al usuario
+                var senaDiv = document.getElementById("senaRequired");
+                if (senaDiv) {
+                    senaDiv.style.display = "block";
+                    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:8px">Esperando confirmación de Mercado Pago...</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu tiempo para pagar sigue vigente. Mantén esta pestaña abierta.</p><div style="font-size:2rem;color:#FFD700;font-weight:bold" id="reconnectCountdown">' + minRest + ":" + (segDisp < 10 ? "0" + segDisp : segDisp) + '</div><p style="opacity:0.7;font-size:0.85rem;margin-top:8px">Tiempo restante</p></div>';
+                }
+                
+                // Actualizar countdown cada segundo
+                var countdownEl = document.getElementById("reconnectCountdown");
+                var countdownInterval = setInterval(function() {
+                    var remaining = parseInt(expiryTs, 10) - Date.now();
+                    if (remaining <= 0) {
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+                    var rm = Math.floor(remaining / 1000);
+                    var rs = rm % 60;
+                    if (countdownEl) countdownEl.textContent = Math.floor(rm / 60) + ":" + (rs < 10 ? "0" + rs : rs);
+                }, 1000);
+                
                 if (onDone) onDone();
                 return;
             }
             // Timer ya expiró — sí mostrar Tiempo Agotado
             console.log("⏰ [CONN] Tiempo Agotado: AA vacía + Reservado Temporal + timer expirado — usuario no pagó");
             _connectionDetectionActive = false;
+            _connectionCooldownUntil = Date.now() + 15000;
             _sinConexionModalShown = true;
             showTiempoAgotadoModal(idTurno);
             if (onDone) onDone();
@@ -2869,18 +2907,21 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
         if (data.estado === "Disponible" || data.estado === "Vencido Sin Confirmar") {
             console.log("⏰ [CONN] Tiempo Agotado: estado=" + data.estado);
             _connectionDetectionActive = false;
+            _connectionCooldownUntil = Date.now() + 15000;
             _sinConexionModalShown = true;
             showTiempoAgotadoModal(idTurno);
             if (onDone) onDone();
             return;
         }
         
-        // CASO 5: Sin datos claros → mostrar modal sin conexión (con reintentar)
+        // CASO 5: Sin datos claros → mostrar modal sin conexión (con reintentar) o Tiempo Agotado (FINAL)
         if (_sinConnModalHasReintentar) {
             console.log("⚠️ [CONN] Sin datos claros — mostrando modal sin conexión");
             showSinConexionModal(idTurno, false);
         } else {
             console.log("⚠️ [CONN] Sin datos claros — mostrando Tiempo Agotado");
+            _connectionDetectionActive = false;
+            _connectionCooldownUntil = Date.now() + 15000;
             showTiempoAgotadoModal(idTurno);
         }
         if (onDone) onDone();
@@ -2991,6 +3032,7 @@ function showTiempoAgotadoModal(idTurno) {
     _sinConexionModalShown = true;
     _tiempoAgotadoShown = true;
     _connectionDetectionActive = false;
+    _connectionCooldownUntil = Date.now() + 15000;
     
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) return;
