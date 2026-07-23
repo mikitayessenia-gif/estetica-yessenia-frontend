@@ -2868,45 +2868,76 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                 var segRestantes = Math.max(0, Math.round((parseInt(expiryTs, 10) - Date.now()) / 1000));
                 var minRest = Math.floor(segRestantes / 60);
                 var segDisp = segRestantes % 60;
-                console.log("⏳ [CONN] Timer activo (" + segRestantes + "s restantes) — mostrando countdown, no mostrar Tiempo Agotado");
+                console.log("⏳ [CONN] Timer activo (" + segRestantes + "s restantes) — restaurando modal de pago normal");
                 
-                // Mostrar banner sutil de countdown ENCIMA del modal existente (sin reemplazar contenido)
+                // Restaurar el modal normal de "Turno Pre-Reservado" con el botón de Mercado Pago
                 var senaDiv = document.getElementById("senaRequired");
                 if (senaDiv) {
                     senaDiv.style.display = "block";
                     
-                    // Limpiar banner anterior si existe
-                    var oldBanner = document.getElementById("reconnectCountdownBanner");
-                    if (oldBanner) oldBanner.remove();
+                    var mpLink = sessionStorage.getItem("yessenia_init_point") || "";
+                    var idTurnoStored = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN) || idTurno;
+                    var ddPending = getDisplayDataFromPending();
+                    var snap = getBookingSnapshotFromStorage();
+                    var tratamiento = ddPending.tratamiento || (snap ? snap.tratamiento : "");
+                    var fecha = ddPending.fecha || (snap ? snap.fecha : "");
+                    var hora = ddPending.hora || (snap ? snap.hora : "");
+                    var montoSena = (ddPending.montoSena || snap ? snap.montoSena : 0) || 0;
+                    var nombreCliente = window._pendingSenaData ? (window._pendingSenaData.nombre || "Cliente") : "Cliente";
                     
-                    // Crear banner flotante sutil (NO reemplaza el contenido del modal)
-                    var banner = document.createElement('div');
-                    banner.id = "reconnectCountdownBanner";
-                    banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,50,100,0.9);color:#FFD700;padding:12px 24px;border-radius:50px;border:2px solid #C4A16D;z-index:999999;font-size:1.1rem;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,0.4);white-space:nowrap;';
-                    banner.innerHTML = '⏳ <span id="reconnectCountdownText">' + minRest + ":" + (segDisp < 10 ? "0" + segDisp : segDisp) + '</span> restantes — Esperando Mercado Pago...';
-                    document.body.appendChild(banner);
+                    var montoDisplay = " $" + Number(montoSena).toLocaleString("es-AR") + " ARS";
+                    
+                    var html = '';
+                    html += '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:16px 16px !important;max-width:550px;margin:0 auto">';
+                    html += '<div style="font-size:2rem;margin-bottom:4px">⏳</div>';
+                    html += '<h3 style="font-size:1.1rem;margin-bottom:2px;color:#FFD700">¡Tu Turno está Pre-Reservado!</h3>';
+                    html += '<p style="opacity:0.8;margin-bottom:0;font-size:0.8rem">Guardamos tu lugar por <strong>' + Math.ceil(segRestantes / 60000) + ' minutos</strong></p>';
+                    html += '<p style="opacity:0.6;font-size:0.7rem;margin-bottom:6px">Turno <strong>' + idTurnoStored + '</strong></p>';
+                    html += '<div style="background:rgba(255,255,255,0.1);border-radius:10px;padding:8px 10px;margin-bottom:6px">';
+                    html += '<div style="font-size:0.6rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">Tratamiento</div>';
+                    html += '<div style="font-size:0.9rem;font-weight:600;margin-bottom:1px">' + tratamiento + '</div>';
+                    html += '<div style="display:flex;justify-content:space-between;font-size:0.75rem"><span style="opacity:0.7">Fecha</span><span>' + fecha + ' - ' + hora + '</span></div>';
+                    html += '</div>';
+                    html += '<div style="text-align:center;margin-bottom:6px;padding:8px;background:rgba(196,161,109,0.2);border-radius:10px;border:1px solid rgba(196,161,109,0.3)">';
+                    html += '<div style="font-size:0.6rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:1px">Seña a pagar</div>';
+                    html += '<div style="font-size:1.4rem;font-weight:700;color:#C4A16D">' + montoDisplay + '</div>';
+                    html += '</div>';
+                    html += '<div style="text-align:center;margin-bottom:4px">';
+                    html += '<a id="paymentLinkBtn" href="' + mpLink + '" target="_blank" onclick="blockDoublePayment(event, \'' + idTurnoStored + '\')" style="display:inline-block;background:#003366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;font-weight:600;cursor:pointer">💳 Pagar Seña con Tarjeta o Mercado Pago</a>';
+                    html += '</div>';
+                    html += '<p style="text-align:center;opacity:0.75;font-size:0.7rem;margin-bottom:2px">Pago 100% seguro</p>';
+                    html += '<div id="senaTimerBig" style="text-align:center;font-size:1.5rem;font-weight:700;color:#FFD700;margin:6px 0">';
+                    html += minRest + ":" + (segDisp < 10 ? "0" + segDisp : segDisp) + '</div>';
+                    html += '<p style="text-align:center;opacity:0.6;font-size:0.7rem;margin-bottom:4px">Tiempo restante para completar el pago</p>';
+                    html += '<button id="cancelarReservaBtn" style="display:block;margin:8px auto 4px;background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:10px 28px;font-size:0.9rem;border-radius:50px;cursor:pointer">Cancelar y elegir otro turno</button>';
+                    html += '</div>';
+                    senaDiv.innerHTML = html;
+                    
+                    // Reiniciar timer del timer
+                    if(window._senaTimerId) clearInterval(window._senaTimerId);
+                    var remainingSeconds = segRestantes;
+                    window._senaTimerId = setInterval(function() {
+                        if (!window._senaTimerId) return;
+                        remainingSeconds--;
+                        if (remainingSeconds <= 0) {
+                            clearInterval(window._senaTimerId);
+                            window._senaTimerId = null;
+                            console.log("⏰ [CONN] Timer llegó a 0 tras reconexión — ejecutando releaseTempReservation()");
+                            releaseTempReservation();
+                            return;
+                        }
+                        var m = Math.floor(remainingSeconds / 60);
+                        var s = remainingSeconds % 60;
+                        var td = m + ":" + ((s < 10 ? "0" : "") + s);
+                        var tb = document.getElementById("senaTimerBig");
+                        if (tb) tb.textContent = td;
+                    }, 1000);
+                    
+                    setTimeout(function() {
+                        var cb = document.getElementById("cancelarReservaBtn");
+                        if (cb) cb.addEventListener("click", function() { cancelarReservaTemporal(idTurnoStored); });
+                    }, 100);
                 }
-                
-                // Actualizar countdown cada segundo — cuando llegue a 0, ejecutar releaseTempReservation
-                var countdownEl = document.getElementById("reconnectCountdownText");
-                var _reconnectCountdownInterval = setInterval(function() {
-                    var remaining = parseInt(expiryTs, 10) - Date.now();
-                    if (remaining <= 0) {
-                        clearInterval(_reconnectCountdownInterval);
-                        var oldBanner2 = document.getElementById("reconnectCountdownBanner");
-                        if (oldBanner2) oldBanner2.remove();
-                        console.log("⏰ [CONN] Countdown llegó a 0 — ejecutando releaseTempReservation()");
-                        // Limpiar intervalo de countdown globalmente
-                        window._reconnectCountdownInterval = null;
-                        releaseTempReservation();
-                        return;
-                    }
-                    var rm = Math.floor(remaining / 1000);
-                    var rs = rm % 60;
-                    if (countdownEl) countdownEl.textContent = Math.floor(rm / 60) + ":" + (rs < 10 ? "0" + rs : rs);
-                }, 1000);
-                // Guardar referencia para poder limpiar si es necesario
-                window._reconnectCountdownInterval = _reconnectCountdownInterval;
                 
                 if (onDone) onDone();
                 return;
