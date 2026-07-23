@@ -2082,6 +2082,17 @@ function releaseTempReservation() {
     if (_mpFlowActive) {
         console.log("⏳ [RELEASE] _mpFlowActive=true — timer expiró pero MP sigue procesando");
         
+        // Verificar si ya se mostró NO EXITO — si sí, no mostrar spinner
+        if (window._noExitoAlertSent && window._noExitoAlertSent.has(idTurno)) {
+            console.log("🚨 [RELEASE] NO EXITO ya mostrado para este turno — no mostrar spinner");
+            if (window._senaTimerId) {
+                clearInterval(window._senaTimerId);
+                window._senaTimerId = null;
+            }
+            clearReservaFlowFlag();
+            return;
+        }
+        
         // Limpiar timer pero NO detener el polling existente
         if (window._senaTimerId) {
             clearInterval(window._senaTimerId);
@@ -2153,6 +2164,18 @@ function releaseTempReservation() {
     
     // Si NO hay _mpFlowActive (timer expiró sin MP activo), mostrar Tiempo Agotado directo
     if (!_mpFlowActive) {
+        // Verificar si ya se mostró NO EXITO — si sí, no hacer nada
+        if (window._noExitoAlertSent) {
+            var currentTurno = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
+            if (currentTurno && window._noExitoAlertSent.has(currentTurno)) {
+                console.log("🚨 [RELEASE] NO EXITO ya mostrado para turno actual — no sobrescribir");
+                if (window._senaTimerId) {
+                    clearInterval(window._senaTimerId);
+                    window._senaTimerId = null;
+                }
+                return;
+            }
+        }
         console.log("⏰ [RELEASE] _mpFlowActive=false — mostrando Tiempo Agotado");
         var sdRelease3 = document.getElementById('senaRequired');
         if (sdRelease3 && !_successShown) {
@@ -2520,6 +2543,16 @@ function showNoExitoModal(idTurno, hasPayment) {
     _connectionDetectionActive = false;
     _connectionCooldownUntil = Date.now() + 15000;
     console.log("🔕 [NO-EXITO] Detección de conexión DESACTIVADA — este es el resultado final");
+    
+    // LIMPIAR timer y flag de flujo MP — el NO EXITO es resultado final
+    // Esto evita que releaseTempReservation() muestre spinner cuando el timer llega a 0
+    if (window._senaTimerId) {
+        clearInterval(window._senaTimerId);
+        window._senaTimerId = null;
+        console.log("🧹 [NO-EXITO] Timer limpiado — ya no expirará");
+    }
+    _mpFlowActive = false;
+    console.log("🧹 [NO-EXITO] _mpFlowActive = false — releaseTempReservation() no se activará");
     
     var senaDiv = document.getElementById("senaRequired");
     if (!senaDiv) {
