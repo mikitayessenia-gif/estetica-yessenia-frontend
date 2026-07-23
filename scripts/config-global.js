@@ -10,7 +10,7 @@ var CONFIG = {
     // ========== DATOS DEL NEGOCIO ==========
     negocio: {
         nombre: "Yessenia Centro de Estetica",
-        nombreCorto: "Estética Yessenia.",
+        nombreCorto: "Estética Mikita Yessenia.",
         direccion: "Av. Acoyte 25",
         direccionShort: "Av. Acoyte 25, Piso 5, Of. C - Caballito",
         telefono: "+54 11 2317-8918",

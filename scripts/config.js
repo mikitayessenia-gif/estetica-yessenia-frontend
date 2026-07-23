@@ -69,7 +69,7 @@ function buildGoogleCalendarUrl(tratamiento, fecha, horaInicio, horaFin, ubicaci
     var titulo = encodeURIComponent(tratamiento + " - " + CONFIG.negocio.nombreCorto);
     
     // Detalles completos con toda la info relevante para el cliente
-    var detalles = "Estética Yessenia.\n\n";
+    var detalles = "Estética Mikita Yessenia.\n\n";
     if (nombreCliente) {
         detalles += "Cliente: " + nombreCliente + "\n\n";
     }
