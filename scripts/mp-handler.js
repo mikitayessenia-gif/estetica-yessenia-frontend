@@ -122,6 +122,16 @@ function removePaymentOverlay() {
     window.addEventListener('focus', function() {
         console.log("🔄 [PAGO] Ventana recupero foco - limpiando overlay");
         setTimeout(removePaymentOverlay, 500);
+        
+        // Si hay un turno activo y la deteccion de conexion sigue activa,
+        // verificar si recuperamos la conexion durante la ausencia
+        if (_connectionDetectionActive) {
+            var turnoActivo = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
+            if (turnoActivo && navigator.onLine) {
+                console.log("📶 [PAGO] Recuperamos foco + online — verificando conexion");
+                verificarYMostrarResultadoPorConexion(turnoActivo, function() {});
+            }
+        }
     });
 })();
 
@@ -3283,6 +3293,15 @@ function showSinConexionModal(idTurno, hasPaymentInAA) {
                 // Resetear flags para permitir nueva verificación
                 _sinConexionModalShown = false;
                 _verifyingConnection = false;
+                
+                // Si no hay conexion, mostrar spinner de intentando
+                if (!navigator.onLine) {
+                    var senaDiv = document.getElementById("senaRequired");
+                    if (senaDiv) {
+                        senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">🔄</div><h3 style="color:#FFD700;margin-bottom:8px">Intentando reconectar...</h3><div class="spinner" style="margin:20px auto"></div></div>';
+                    }
+                }
+                
                 verificarYMostrarResultadoPorConexion(idTurno);
             });
         }
