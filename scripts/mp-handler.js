@@ -127,6 +127,16 @@ function removePaymentOverlay() {
         // Si hay un turno activo, verificar si recuperamos la conexion durante la ausencia
         var turnoActivo = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
         if (turnoActivo && navigator.onLine) {
+            // NO verificar si ya se mostró NO EXITO para este turno
+            if (window._noExitoAlertSent && window._noExitoAlertSent.has(turnoActivo)) {
+                console.log("📴 [PAGO] NO EXITO ya mostrado para este turno — no verificar");
+                return;
+            }
+            // NO verificar si ya se mostró Tiempo Agotado
+            if (_tiempoAgotadoShown) {
+                console.log("📴 [PAGO] Tiempo Agotado ya mostrado — no verificar");
+                return;
+            }
             console.log("📶 [PAGO] Recuperamos foco + online — verificando conexion");
             verificarYMostrarResultadoPorConexion(turnoActivo, function() {}, true); // force
         }
@@ -2750,6 +2760,15 @@ function showNoExitoModal(idTurno, hasPayment) {
             return;
         }
         
+        // NO verificar si NO EXITO ya se mostró para este turno
+        if (window._noExitoAlertSent) {
+            var turnoActivoOnline = sessionStorage.getItem(STORAGE_KEY_ACTIVE_TURN);
+            if (turnoActivoOnline && window._noExitoAlertSent.has(turnoActivoOnline)) {
+                console.log("📴 [CONN] NO EXITO ya mostrado — no verificar");
+                return;
+            }
+        }
+        
         // Si el modal de sin conexión está visible, ocultarlo inmediatamente
         // (es TEMPORAL — se reemplaza por el resultado correcto)
         var sinConnModal = document.getElementById('senaRequired');
@@ -2827,6 +2846,12 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone, _force) {
     // Si la detección de conexión ya se desactivó (modal de resultado final mostrado) y no es force, no hacer nada
     if (!_force && !_connectionDetectionActive) {
         console.log("⏳ [CONN] Detección de conexión desactivada — saltando verificación");
+        if (onDone) onDone();
+        return;
+    }
+    // SIEMPRE verificar si NO EXITO ya se mostró para este turno — si sí, no hacer nada
+    if (window._noExitoAlertSent && window._noExitoAlertSent.has(idTurno)) {
+        console.log("⏳ [CONN] NO EXITO ya mostrado para turno " + idTurno + " — saltando verificación");
         if (onDone) onDone();
         return;
     }
