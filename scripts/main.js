@@ -7,6 +7,13 @@ window._reservaCheckCompleted = false;
 
 // 1. Initial page boot loader
 document.addEventListener("DOMContentLoaded", function() {
+    // Detectar ?reset= y forzar recarga sin cache
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('reset')) {
+        console.log("🔄 [MAIN] Reset detectado — recargando sin cache");
+        window.location.replace(window.location.pathname);
+        return;
+    }
     // Ocultar elementos de WhatsApp si no están habilitados
     if (!CONFIG.comportamiento.mostrarWhatsAppCta) {
         var waBtn = document.getElementById('whatsappBtn');

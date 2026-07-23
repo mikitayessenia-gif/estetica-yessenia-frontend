@@ -11,6 +11,7 @@ var _verifyingConnection = false; // Flag anti-duplicado para verificación tras
 var _tiempoAgotadoShown = false; // Flag para evitar que polling sobrescriba "Tiempo Agotado"
 var _connectionDetectionActive = true; // Desactivar cuando se muestra un modal de resultado final
 var _connectionCooldownUntil = 0; // Timestamp hasta el cual la detección de conexión está en cooldown (15s post-modal final)
+var _resetFromNoExito = false; // Flag para prevenir restauración de timer después de reset desde NO EXITO
 var _sinConnModalHasReintentar = true; // Si true, el modal tiene botón "Reintentar". Si false, es modal FINAL (sin reintentar)
 
 // ========== Helper fetch con timeout (BUGFIX #3) ==========
@@ -2637,30 +2638,9 @@ function showNoExitoModal(idTurno, hasPayment) {
                 var connBanner = document.getElementById('connectionStatusBanner');
                 if (connBanner) connBanner.remove();
                 
-                // Mostrar formulario limpio
-                var form = document.getElementById("bookingForm");
-                if (form) form.style.display = "block";
-                
-                var slotsContainer = document.getElementById("slotsContainer");
-                if (slotsContainer) slotsContainer.style.display = "block";
-                
-                // Mostrar header del formulario
-                var reservarSection = document.getElementById("reservar");
-                if (reservarSection) {
-                    var ctaContent = reservarSection.querySelector(".cta-content");
-                    if (ctaContent) {
-                        var h2 = ctaContent.querySelector("h2"); if (h2) h2.style.display = "";
-                        var firstP = ctaContent.querySelectorAll("p")[0]; if (firstP) firstP.style.display = "";
-                    }
-                }
-                
-                // Cargar slots disponibles
-                if (typeof loadAvailableSlots === 'function') {
-                    loadAvailableSlots();
-                }
-                
-                // Scroll arriba
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                // Recargar la página limpiamente para empezar desde cero
+                // Forzar recarga sin cache usando un timestamp en la URL
+                window.location.replace(window.location.pathname + '?reset=' + Date.now());
             });
         }
     }, 100);
