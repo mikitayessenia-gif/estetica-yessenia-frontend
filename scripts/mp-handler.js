@@ -2585,10 +2585,75 @@ function showNoExitoModal(idTurno, hasPayment) {
         waMsgFallback = encodeURIComponent(baseWA2);
     }
     
-    var noExitoHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu turno no se ha podido gestionar correctamente. No te preocupes, contactanos por WhatsApp y te lo solucionamos.</p><div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6"><p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p><p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div><a href="https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsgFallback + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button onclick="location.reload()" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
+    var noExitoHtml = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h3 style="color:#FFD700;margin-bottom:12px">Turno no confirmado</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu turno no se ha podido gestionar correctamente. No te preocupes, contactanos por WhatsApp y te lo solucionamos.</p><div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;margin:0 auto 16px;max-width:400px;text-align:left;font-size:0.85rem;line-height:1.6"><p style="margin:0 0 8px">Si tenes el comprobante de pago, envianoslo por WhatsApp (puede ser captura de pantalla).</p><p style="margin:0;opacity:0.7;font-size:0.8rem">Si no lo tenes a mano no te preocupes, escribinos igual y te ayudamos.</p></div><a href="https://wa.me/' + WHATSAPP_NUMBER + '?text=' + waMsgFallback + '" target="_blank" style="display:inline-block;background:#25D366;color:white;padding:14px 28px;font-size:1rem;border-radius:50px;text-decoration:none;margin-top:10px">📱 Enviar comprobante por WhatsApp</a><br><button id="volverInicioBtnNoExito" style="display:inline-block;margin:16px auto 0;background:transparent;color:#C4A16D;border:2px solid #C4A16D;padding:14px 28px;font-size:1rem;border-radius:50px;cursor:pointer">🔄 Volver al inicio</button></div>';
     
     senaDiv.innerHTML = noExitoHtml;
     console.log("✅ [NO-EXITO] Modal mostrado inmediatamente (fallback síncrono)");
+    
+    // Botón "Volver al inicio" — limpiar todo y permitir nueva reserva
+    setTimeout(function() {
+        var btn = document.getElementById('volverInicioBtnNoExito');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                console.log("🔄 [NO-EXITO] Usuario clickeó 'Volver al inicio' — limpiando todo para nueva reserva");
+                
+                // Limpiar TODOS los flags de estado
+                _successShown = false;
+                _tiempoAgotadoShown = false;
+                _sinConexionModalShown = false;
+                _connectionDetectionActive = true;
+                _connectionCooldownUntil = 0;
+                _mpFlowActive = false;
+                _sinConnModalHasReintentar = true;
+                
+                // Limpiar el set de NO EXITO para este turno
+                if (window._noExitoAlertSent) window._noExitoAlertSent.clear();
+                
+                // Limpiar timer
+                if (window._senaTimerId) {
+                    clearInterval(window._senaTimerId);
+                    window._senaTimerId = null;
+                }
+                
+                // Detener polling
+                if (typeof stopStatusPolling === 'function') stopStatusPolling();
+                if (typeof resetSinConnRetryCount === 'function') resetSinConnRetryCount();
+                
+                // Limpiar storage
+                clearActiveTurnoStorage();
+                if (typeof clearReservaFlowFlag === 'function') clearReservaFlowFlag();
+                
+                // Limpiar el div del modal
+                senaDiv.style.display = "none";
+                senaDiv.innerHTML = "";
+                
+                // Mostrar formulario limpio
+                var form = document.getElementById("bookingForm");
+                if (form) form.style.display = "block";
+                
+                var slotsContainer = document.getElementById("slotsContainer");
+                if (slotsContainer) slotsContainer.style.display = "block";
+                
+                // Mostrar header del formulario
+                var reservarSection = document.getElementById("reservar");
+                if (reservarSection) {
+                    var ctaContent = reservarSection.querySelector(".cta-content");
+                    if (ctaContent) {
+                        var h2 = ctaContent.querySelector("h2"); if (h2) h2.style.display = "";
+                        var firstP = ctaContent.querySelectorAll("p")[0]; if (firstP) firstP.style.display = "";
+                    }
+                }
+                
+                // Cargar slots disponibles
+                if (typeof loadAvailableSlots === 'function') {
+                    loadAvailableSlots();
+                }
+                
+                // Scroll arriba
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        }
+    }, 100);
     
     // Ahora consultar API en background para tener datos actualizados si el admin consulta
     console.log("📡 [NO-EXITO] Consultando DOBLE VERIFICACION en background...");
