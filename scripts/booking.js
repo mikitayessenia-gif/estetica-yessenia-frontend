@@ -1131,7 +1131,7 @@ function renderServicesFromData() {
         var wsPhone = CONFIG.negocio.telefonoRaw || "541123178918";
         if (!t.reservaManual) {
             var wsMsg = encodeURIComponent(t.msjWs || "Hola! Quiero reservar este turno. Me podrias indicar los horarios disponibles? Gracias.");
-            html += "<a href='https://wa.me/" + wsPhone + "?text=" + wsMsg + "' target='_blank' class='btn-book-ws'>Reserva solo disponible por WhatsApp</a>";
+            html += "<a href='https://wa.me/" + wsPhone + "?text=" + wsMsg + "' target='_blank' class='btn-book-ws'>Reserva disponible solo por WhatsApp</a>";
         } else {
             html += "<a href='#reservar' class='btn-book-sm' data-treatment-id='" + (t.id || '') + "' data-treatment-name='" + (t.nombre || '').replace(/'/g, "\\'") + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Ya</a>";
         }
