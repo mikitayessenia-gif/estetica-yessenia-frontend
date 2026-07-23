@@ -1209,7 +1209,7 @@ function openTreatmentModal(treatmentIndex) {
     var wsPhone = CONFIG.negocio.telefonoRaw || "541123178918";
     if (!t.reservaManual) {
         var wsMsgModal = encodeURIComponent(t.msjWs || "Hola! Quiero reservar este turno. Me podrias indicar los horarios disponibles? Gracias.");
-        modalHTML += "<div class='modal-cta'><a href='https://wa.me/" + wsPhone + "?text=" + wsMsgModal + "' target='_blank' class='btn-book-lg btn-book-ws'>Reservar por WhatsApp</a></div>";
+        modalHTML += "<div class='modal-cta'><a href='https://wa.me/" + wsPhone + "?text=" + wsMsgModal + "' target='_blank' class='btn-book-lg btn-book-ws'>Reserva disponible solo por WhatsApp</a></div>";
     } else {
         modalHTML += "<div class='modal-cta'><a href='#reservar' class='btn-book-lg' data-treatment-name='" + (t.nombre || '').replace(/'/g, "\\'") + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Este Tratamiento</a></div>";
     }
