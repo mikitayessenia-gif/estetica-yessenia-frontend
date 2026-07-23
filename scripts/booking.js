@@ -739,7 +739,6 @@ function mostrarErrorLimiteReservas(mensaje, tiempoRestanteMs, tiempoRestanteDis
     html += '<p style="margin:0;font-size:1.8rem;font-weight:700;color:#FFD700" id="limiteReservaCountdown">' + tiempoRestanteDisplay + '</p>';
     html += '<p style="margin:4px 0 0;font-size:0.85rem;opacity:0.8">Tiempo restante para que se libere una reserva</p>';
     html += '</div>';
-    html += '<p style="opacity:0.7;font-size:0.85rem;margin-top:12px">Mientras tanto, podés ver los demás turnos disponibles abajo 👇</p>';
     senaDiv.innerHTML = html;
     
     // Countdown en tiempo real
