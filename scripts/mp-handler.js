@@ -2870,25 +2870,43 @@ function verificarYMostrarResultadoPorConexion(idTurno, onDone) {
                 var segDisp = segRestantes % 60;
                 console.log("⏳ [CONN] Timer activo (" + segRestantes + "s restantes) — mostrando countdown, no mostrar Tiempo Agotado");
                 
-                // Mostrar UI de countdown al usuario
+                // Mostrar banner sutil de countdown ENCIMA del modal existente (sin reemplazar contenido)
                 var senaDiv = document.getElementById("senaRequired");
                 if (senaDiv) {
                     senaDiv.style.display = "block";
-                    senaDiv.innerHTML = '<div style="background:rgba(0,0,0,0.15);border-radius:16px;padding:32px 24px;max-width:550px;margin:0 auto;text-align:center;border:1px solid rgba(255,255,255,0.25)"><div style="font-size:3rem;margin-bottom:16px">⏳</div><h3 style="color:#FFD700;margin-bottom:8px">Esperando confirmación de Mercado Pago...</h3><p style="opacity:0.9;max-width:450px;margin:0 auto 16px">Tu tiempo para pagar sigue vigente. Mantén esta pestaña abierta.</p><div style="font-size:2rem;color:#FFD700;font-weight:bold" id="reconnectCountdown">' + minRest + ":" + (segDisp < 10 ? "0" + segDisp : segDisp) + '</div><p style="opacity:0.7;font-size:0.85rem;margin-top:8px">Tiempo restante</p></div>';
+                    
+                    // Limpiar banner anterior si existe
+                    var oldBanner = document.getElementById("reconnectCountdownBanner");
+                    if (oldBanner) oldBanner.remove();
+                    
+                    // Crear banner flotante sutil (NO reemplaza el contenido del modal)
+                    var banner = document.createElement('div');
+                    banner.id = "reconnectCountdownBanner";
+                    banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,50,100,0.9);color:#FFD700;padding:12px 24px;border-radius:50px;border:2px solid #C4A16D;z-index:999999;font-size:1.1rem;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,0.4);white-space:nowrap;';
+                    banner.innerHTML = '⏳ <span id="reconnectCountdownText">' + minRest + ":" + (segDisp < 10 ? "0" + segDisp : segDisp) + '</span> restantes — Esperando Mercado Pago...';
+                    document.body.appendChild(banner);
                 }
                 
-                // Actualizar countdown cada segundo
-                var countdownEl = document.getElementById("reconnectCountdown");
-                var countdownInterval = setInterval(function() {
+                // Actualizar countdown cada segundo — cuando llegue a 0, ejecutar releaseTempReservation
+                var countdownEl = document.getElementById("reconnectCountdownText");
+                var _reconnectCountdownInterval = setInterval(function() {
                     var remaining = parseInt(expiryTs, 10) - Date.now();
                     if (remaining <= 0) {
-                        clearInterval(countdownInterval);
+                        clearInterval(_reconnectCountdownInterval);
+                        var oldBanner2 = document.getElementById("reconnectCountdownBanner");
+                        if (oldBanner2) oldBanner2.remove();
+                        console.log("⏰ [CONN] Countdown llegó a 0 — ejecutando releaseTempReservation()");
+                        // Limpiar intervalo de countdown globalmente
+                        window._reconnectCountdownInterval = null;
+                        releaseTempReservation();
                         return;
                     }
                     var rm = Math.floor(remaining / 1000);
                     var rs = rm % 60;
                     if (countdownEl) countdownEl.textContent = Math.floor(rm / 60) + ":" + (rs < 10 ? "0" + rs : rs);
                 }, 1000);
+                // Guardar referencia para poder limpiar si es necesario
+                window._reconnectCountdownInterval = _reconnectCountdownInterval;
                 
                 if (onDone) onDone();
                 return;
