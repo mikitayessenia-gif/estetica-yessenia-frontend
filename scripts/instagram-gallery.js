@@ -5,13 +5,11 @@ function renderInstagramGallery() {
     var grid = document.getElementById("instagramGrid");
     if (!grid) return;
 
-    // Intentar cargar desde Google Sheets primero
-    var sheetUrl = (typeof API_URL !== 'undefined' ? API_URL : '') + '?action=obtenerReelsPublic&token=' + encodeURIComponent(typeof API_TOKEN !== 'undefined' ? API_TOKEN : '');
-
-    fetch(sheetUrl, { method: 'GET', mode: 'cors' })
-        .then(function(r) { return r.json(); })
+    // Carga inicial: usa el bundle compartido (1 sola llamada al backend para
+    // tratamientos + reels + resenas). Ver scripts/landing-data.js
+    getLandingData()
         .then(function(data) {
-            if (data.success && data.reels && data.reels.length > 0) {
+            if (data.ok && data.reels && data.reels.length > 0) {
                 renderReelsGrid(grid, data.reels);
             } else {
                 // Fallback: usar CONFIG.reels del array en config-global.js

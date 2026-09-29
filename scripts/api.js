@@ -539,8 +539,9 @@ function stopStatusPolling() {
 var treatmentsLoaded = false;
 
 function loadTreatmentsFromAPI() {
-    fetch(API_URL + "?action=obtenerTratamientos&token=" + encodeURIComponent(API_TOKEN))
-        .then(function(r){return r.json()})
+    // Carga inicial: usa el bundle compartido (1 sola llamada al backend para
+    // tratamientos + reels + resenas). Ver scripts/landing-data.js
+    getLandingData()
         .then(function(data) {
             // Detectar error de validacion de datos de Google Sheets
             if (data.error && data.error.includes("infringen las reglas de validaci")) {

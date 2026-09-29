@@ -272,19 +272,13 @@
     ];
 
     // Carga las reseñas desde el backend
+    // Carga inicial: usa el bundle compartido (1 sola llamada al backend para
+    // tratamientos + reels + resenas). Ver scripts/landing-data.js
     async function loadResenas() {
         try {
-            const url = API_BASE + '?action=obtenerResenasPublic&token=' + encodeURIComponent(API_TKN);
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                mode: 'cors',
-                cache: 'no-cache'
-            });
-            
-            const data = await response.json();
-            
-            if (data.success && data.resenas && data.resenas.length > 0) {
+            const data = await getLandingData();
+
+            if (data.ok && data.resenas && data.resenas.length > 0) {
                 allReviews = data.resenas;
                 renderCarousel(allReviews);
             } else {
