@@ -241,6 +241,39 @@ button { cursor: pointer; border: none; font-family: inherit; }
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
+/* Placeholder lazy-load: visible hasta que el embed de Instagram se activa */
+.reel-placeholder {
+    aspect-ratio: 9 / 16;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 16px;
+    background: linear-gradient(160deg, var(--light-gray) 0%, var(--aqua-light) 100%);
+    text-align: center;
+}
+.reel-placeholder .ph-emoji { font-size: 2.2rem; }
+.reel-placeholder .ph-text {
+    font-size: 0.9rem;
+    color: var(--gray);
+    max-width: 95%;
+    line-height: 1.4;
+}
+.reel-placeholder .ph-link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 20px;
+    background: var(--aqua);
+    color: var(--white);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.reel-placeholder .ph-link:hover { background: var(--aqua-dark); }
+
 /* Mobile: always show caption */
 @media (max-width: 768px) {
     .reel-caption-overlay {

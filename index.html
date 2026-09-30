@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=v26">
 </head>
 <body>
     <div class="announcement-bar" id="announcementBar">
@@ -99,7 +99,38 @@
                 <p id="reviewsTrustText">Cargando...</p>
             </div>
             <!-- Google Reviews Widget (review-widget.net) - Calificacion en tiempo real -->
-            <script type="text/javascript" src="https://grwapi.net/widget.min.js" async></script>
+            <!-- v26: carga diferida — el script (2MB) solo se descarga cuando el usuario se acerca a la sección -->
+            <script>
+            (function () {
+                function loadGrw() {
+                    if (window.__grwLoaded) return;
+                    window.__grwLoaded = true;
+                    var s = document.createElement("script");
+                    s.src = "https://grwapi.net/widget.min.js";
+                    s.async = true;
+                    document.body.appendChild(s);
+                }
+                function init() {
+                    // Pausa de 1.5s: al hacer DCL la pagina aun esta "corta"
+                    // (tratamientos/galeria se renderizan ~400ms despues con el
+                    // JSON estatico). Esperar evita que la seccion de resenas
+                    // parezca "cerca" del viewport y dispare la carga temprano.
+                    setTimeout(function() {
+                        var target = document.querySelector(".review-widget_net");
+                        if (!target || !("IntersectionObserver" in window)) { loadGrw(); return; }
+                        var io = new IntersectionObserver(function (entries) {
+                            for (var i = 0; i < entries.length; i++) {
+                                if (entries[i].isIntersecting) { io.disconnect(); loadGrw(); }
+                            }
+                        }, { rootMargin: "1000px 0px" });
+                        io.observe(target);
+                    }, 1500);
+                }
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", init);
+                } else { init(); }
+            })();
+            </script>
             <div class="review-widget_net" data-uuid="ac590562-0991-4514-8446-9d5402af8c16" data-template="10" data-lang="es" data-theme="light"></div>
             <!-- Reseñas Destacadas (Google Sheets) - Carrusel automatico -->
             <p id="reviewsSubtitle" style="text-align:center;color:var(--gray);margin-top:40px;font-size:0.95rem;margin-bottom:8px">Cargando...</p>
@@ -365,7 +396,7 @@
     <script src="scripts/config.js?v=v23"></script>
     <script src="scripts/utils.js?v=v23"></script>
     <script src="scripts/landing-data.js?v=v6"></script>
-  <script src="scripts/instagram-gallery.js?v=v25"></script>
+  <script src="scripts/instagram-gallery.js?v=v26"></script>
     <script src="scripts/featured-reviews.js?v=v25"></script>
     <script src="scripts/google-reviews.js?v=v23"></script>
     
