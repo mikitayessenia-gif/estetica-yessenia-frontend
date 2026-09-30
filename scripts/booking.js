@@ -1094,6 +1094,10 @@ function renderServicesFromData() {
             var match = imgSrc.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
             if (match && match[1]) imgSrc = "https://drive.google.com/uc?id=" + match[1];
         }
+        // v27: pedir la version redimensionada del CDN de Google (~5x mas
+        // liviana que el archivo original). La tarjeta muestra ~350px max.
+        var lh3 = imgSrc.match(/^(https:\/\/lh[0-9]\.googleusercontent\.com\/d\/[a-zA-Z0-9_-]+)/);
+        if (lh3) imgSrc = lh3[1] + "=w800";
         
         var shortDesc = t.descripcionCorta || "";
         if (!shortDesc && t.descripcionLarga) {
@@ -1162,6 +1166,13 @@ function openTreatmentModal(treatmentIndex) {
     overlay.setAttribute('data-treatment-index', treatmentIndex);
     
     var imgSrc = t.imagen ? t.imagen : "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&h=400&fit=crop";
+    if (imgSrc.includes('drive.google.com/file/d/')) {
+        var match = imgSrc.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) imgSrc = "https://drive.google.com/uc?id=" + match[1];
+    }
+    // v27: version redimensionada del CDN de Google (~5x mas liviana)
+    var lh3 = imgSrc.match(/^(https:\/\/lh[0-9]\.googleusercontent\.com\/d\/[a-zA-Z0-9_-]+)/);
+    if (lh3) imgSrc = lh3[1] + "=w800";
     
     var modalHTML = "<div class='treatment-modal'>";
     modalHTML += "<div class='modal-header'><button class='modal-close' aria-label='Cerrar'>&#10005;</button><div class='modal-image-wrapper'><img src='" + imgSrc + "' alt='" + t.nombre + "' class='modal-image' loading='lazy'></div></div>";
