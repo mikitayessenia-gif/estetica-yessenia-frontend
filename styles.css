@@ -214,7 +214,7 @@ button { cursor: pointer; border: none; font-family: inherit; }
 }
 
 /* Reel caption overlay */
-.reel-wrapper { position: relative; }
+.reel-wrapper { position: relative; aspect-ratio: 9 / 16; min-height: 280px; }
 .reel-caption-overlay {
     position: absolute;
     bottom: 0;
@@ -241,10 +241,14 @@ button { cursor: pointer; border: none; font-family: inherit; }
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
-/* Placeholder lazy-load: visible hasta que el embed de Instagram se activa */
+/* Placeholder lazy-load: v27 — overlay absoluto ENCIMA del embed hasta que
+   el iframe carga de verdad (el wrapper ancla la altura 9:16). Al cargar,
+   .ig-loaded lo desvanece y se retira. Si el embed no carga, el placeholder
+   (con su link "Ver en Instagram") se queda y la tarjeta no se rompe. */
 .reel-placeholder {
-    aspect-ratio: 9 / 16;
-    min-height: 280px;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -253,7 +257,9 @@ button { cursor: pointer; border: none; font-family: inherit; }
     padding: 20px 16px;
     background: linear-gradient(160deg, var(--light-gray) 0%, var(--aqua-light) 100%);
     text-align: center;
+    transition: opacity 0.4s ease;
 }
+.reel-placeholder.ig-loaded { opacity: 0; pointer-events: none; }
 .reel-placeholder .ph-emoji { font-size: 2.2rem; }
 .reel-placeholder .ph-text {
     font-size: 0.9rem;

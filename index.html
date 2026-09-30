@@ -7,8 +7,11 @@
     <meta name="description" content="Tratamientos esteticos profesionales: limpieza facial, peeling quimico, dermoabrasion. Reservate tu turno online.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- v27: preconnect a los dominios de los embeds de Instagram (ahorra el handshake DNS/TLS de ~100-300ms por origen) -->
+    <link rel="preconnect" href="https://www.instagram.com">
+    <link rel="preconnect" href="https://static.xx.fbcdn.net" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=v26">
+    <link rel="stylesheet" href="styles.css?v=v27">
 </head>
 <body>
     <div class="announcement-bar" id="announcementBar">
@@ -138,7 +141,7 @@
                                     for (var j = 0; j < entries.length; j++) {
                                         if (entries[j].isIntersecting) { io.disconnect(); fn(); }
                                     }
-                                }, { rootMargin: "1000px 0px" });
+                                }, { rootMargin: "2000px 0px" });
                                 io.observe(el);
                             })(pairs[i][0], pairs[i][1]);
                         }
@@ -415,7 +418,7 @@
     <script src="scripts/config.js?v=v23"></script>
     <script src="scripts/utils.js?v=v23"></script>
     <script src="scripts/landing-data.js?v=v7"></script>
-  <script src="scripts/instagram-gallery.js?v=v26"></script>
+    <script src="scripts/instagram-gallery.js?v=v27"></script>
     <script src="scripts/featured-reviews.js?v=v25"></script>
     <script src="scripts/google-reviews.js?v=v23"></script>
     

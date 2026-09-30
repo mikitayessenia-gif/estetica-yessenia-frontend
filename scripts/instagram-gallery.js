@@ -49,7 +49,6 @@ function __igActivateCard(card) {
 
     var url = wrapper.getAttribute("data-embed-url");
     var placeholder = wrapper.querySelector(".reel-placeholder");
-    if (placeholder) placeholder.remove();
     if (!url) return; // Sin URL de embed: se queda el placeholder con link
 
     var bq = document.createElement("blockquote");
@@ -58,6 +57,40 @@ function __igActivateCard(card) {
     bq.setAttribute("data-instgrm-version", "14");
     bq.style.cssText = "background:#FFF;border:0;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin:0;padding:0;width:100%";
     wrapper.insertBefore(bq, wrapper.firstChild);
+
+    // v27: el placeholder se mantiene VISIBLE (encima del embed) hasta que
+    // el iframe cargue de verdad. Antes se quitaba al activar y el usuario
+    // veia una caja blanca varios segundos mientras Instagram servia el
+    // contenido (el embed document + sus resources tardan 5-30 s en redes
+    // moviles). Con el placeholder encima la espera se ve intencional y
+    // cada reel aparece "llenandose" a medida que llega.
+    if (placeholder) {
+        var quitarPlaceholder = function() {
+            placeholder.classList.add("ig-loaded");
+            setTimeout(function() {
+                if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+            }, 500);
+        };
+        var verIframes = function() {
+            var iframes = wrapper.querySelectorAll("iframe");
+            for (var m = 0; m < iframes.length; m++) {
+                if (iframes[m].getAttribute("data-ig-watch") === "1") continue;
+                iframes[m].setAttribute("data-ig-watch", "1");
+                iframes[m].addEventListener("load", quitarPlaceholder);
+            }
+        };
+        if (typeof MutationObserver !== "undefined") {
+            var mo = new MutationObserver(function() {
+                verIframes();
+                if (wrapper.querySelector("iframe")) mo.disconnect();
+            });
+            mo.observe(wrapper, { childList: true, subtree: true });
+        }
+        verIframes();
+        // Red de seguridad: si el iframe no llega a cargar (embed.js caido,
+        // Instagram bloqueando, etc.), el placeholder se queda con su link
+        // "Ver en Instagram" y la tarjeta no se rompe ni queda en blanco.
+    }
 
     __igEnsureEmbedScript();
     if (typeof ig !== "undefined" && typeof ig.embeds === "function") {
