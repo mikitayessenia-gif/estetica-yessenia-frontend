@@ -1,7 +1,8 @@
 ﻿// Cargar configuración desde Google Sheets al iniciar
+// Carga inicial: usa el bundle compartido (1 sola llamada al backend para
+// tratamientos + reels + resenas + config). Ver scripts/landing-data.js
 function loadConfigFromAPI() {
-    return fetch(API_URL + "?action=obtenerConfiguracion&token=" + encodeURIComponent(API_TOKEN))
-        .then(function(r){return r.json()})
+    return getLandingData()
         .then(function(data) {
             if (data.error && data.error.includes("infringen las reglas de validaci")) {
                 console.error("ERROR CRITICO: Validacion de datos bloquea la API.", data.error);
