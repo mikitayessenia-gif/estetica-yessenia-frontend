@@ -28,7 +28,10 @@
 //      esperar 15 s ni disparar 4 llamadas de golpe.
 //   3) Solo si AMBOS intentos fallan, se reintentan las 4 llamadas
 //      viejas por separado (fallback defensivo; siguen existiendo y
-//      funcionando en el backend).
+//      funcionando en el backend). CADA llamada vieja tiene su propio
+//      timeout de 10 s y se usa Promise.allSettled: si el relay suelta
+//      alguna, esa seccion usa su respaldo estatico y la pagina NUNCA
+//      queda en loading eterno (caso real del 30/09 11:10).
 //
 // Nota: si el backend RESPONDE pero con un error logico (backend
 // viejo sin el endpoint, error de validacion de Sheets), re-pedir el
@@ -41,6 +44,9 @@
 var LANDING_DATA_TIMEOUT_MS = 8000;
 // Pausa entre el intento 1 y el intento 2 (re-pedido desde la cache)
 var LANDING_DATA_RETRY_DELAY_MS = 2000;
+// Timeout de cada una de las 4 llamadas viejas del fallback: sin esto,
+// una llamada que el relay suelta cuelga la pagina para siempre
+var LEGACY_CALL_TIMEOUT_MS = 10000;
 
 window.getLandingData = (function() {
     var _promise = null;
@@ -98,23 +104,55 @@ window.getLandingData = (function() {
             .then(function(v) { limpiarTimer(); return v; }, function(e) { limpiarTimer(); throw e; });
     }
 
-    // Fallback defensivo: las 4 llamadas viejas (siguen funcionando en el backend)
+    // Fallback defensivo: las 4 llamadas viejas (siguen funcionando en el backend).
+    //
+    // IMPORTANTE: cada llamada lleva su propio timeout (LEGACY_CALL_TIMEOUT_MS)
+    // y se usa Promise.allSettled. Sin esto, si el relay de Google suelta UNA
+    // sola de las 4 respuestas, ese fetch cuelga para siempre y la Promise
+    // compartida nunca se resuelve: la pagina queda en loading eterno (caso
+    // real observado el 30/09 11:10: el bundle cayo 2 veces, de las 4 legacy
+    // solo 2 llegaron al backend y la seccion de tratamientos NUNCA cargo).
+    // Con timeout + allSettled la pagina SIEMPRE se resuelve: lo que llego se
+    // pinta con datos reales y lo que no, usa el respaldo estatico de cada
+    // consumidor (CONFIG.reels, FALLBACK_REVIEWS, etc).
+    function fetchConTimeout(url) {
+        var controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        var timeoutId = controller ? setTimeout(function() { controller.abort(); }, LEGACY_CALL_TIMEOUT_MS) : null;
+        var limpiar = function() { if (timeoutId) clearTimeout(timeoutId); };
+        return fetch(url, { method: 'GET', mode: 'cors', signal: controller ? controller.signal : undefined })
+            .then(function(r) { return r.json(); })
+            .then(function(v) { limpiar(); return v; }, function(e) { limpiar(); throw e; });
+    }
+
     function fetchLegacy() {
         var token = encodeURIComponent(API_TOKEN);
-        return Promise.all([
-            fetch(API_URL + "?action=obtenerTratamientos&token=" + token, { method: 'GET', mode: 'cors' }).then(function(r) { return r.json(); }),
-            fetch(API_URL + "?action=obtenerReelsPublic&token=" + token, { method: 'GET', mode: 'cors' }).then(function(r) { return r.json(); }),
-            fetch(API_URL + "?action=obtenerResenasPublic&token=" + token, { method: 'GET', mode: 'cors' }).then(function(r) { return r.json(); }),
-            fetch(API_URL + "?action=obtenerConfiguracion&token=" + token, { method: 'GET', mode: 'cors' }).then(function(r) { return r.json(); })
+        var nombres = ['tratamientos', 'reels', 'resenas', 'config'];
+        return Promise.allSettled([
+            fetchConTimeout(API_URL + "?action=obtenerTratamientos&token=" + token),
+            fetchConTimeout(API_URL + "?action=obtenerReelsPublic&token=" + token),
+            fetchConTimeout(API_URL + "?action=obtenerResenasPublic&token=" + token),
+            fetchConTimeout(API_URL + "?action=obtenerConfiguracion&token=" + token)
         ]).then(function(results) {
+            var data = [null, null, null, null];
+            var warnings = ["Bundle falló: se usaron las 4 llamadas viejas como respaldo"];
+            var error = null;
+            results.forEach(function(r, i) {
+                if (r.status === 'fulfilled' && r.value) {
+                    data[i] = r.value;
+                } else {
+                    var reason = (r.reason && r.reason.message) ? r.reason.message : 'sin respuesta a tiempo';
+                    warnings.push('llamada vieja ' + nombres[i] + ' no llego: ' + reason);
+                    if (!error) error = reason;
+                }
+            });
             return {
                 ok: true,
-                tratamientos: (results[0] && results[0].tratamientos) || [],
-                reels: (results[1] && results[1].reels) || [],
-                resenas: (results[2] && results[2].resenas) || [],
-                config: (results[3] && results[3].config) || null,
-                warnings: ["Bundle falló: se usaron las 4 llamadas viejas como respaldo"],
-                error: results[0].error || results[1].error || results[2].error || results[3].error || null
+                tratamientos: (data[0] && data[0].tratamientos) || [],
+                reels: (data[1] && data[1].reels) || [],
+                resenas: (data[2] && data[2].resenas) || [],
+                config: (data[3] && data[3].config) || null,
+                warnings: warnings,
+                error: error
             };
         });
     }
