@@ -600,7 +600,11 @@ function loadTreatmentsFromAPI() {
             renderFooterTratamientos([]);
         });
 
-    // If fetch takes too long, show message instead of wrong fallback data
+    // If the bundle takes too long, show message instead of wrong fallback data.
+    // Red de seguridad de UX: si tras 15 s el usuario sigue sin ver tratamientos
+    // (peor caso de landing-data.js: 2 intentos del bundle + 4 llamadas viejas),
+    // se le muestra un mensaje de espera. Si los datos llegan despues, el .then()
+    // de arriba los pinta igual (self-healing).
     setTimeout(function() {
         if (!treatmentsLoaded) {
             treatmentsLoaded = true;
@@ -616,7 +620,7 @@ function loadTreatmentsFromAPI() {
             }
             // No mostrar tarjeta grande — el mensaje sutil de booking.js (showError) ya se encarga
         }
-    }, 8000);
+    }, 15000);
 }
 
 // Render footer treatments list dynamically from API data
