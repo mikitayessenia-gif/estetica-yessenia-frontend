@@ -1110,7 +1110,7 @@ function renderServicesFromData() {
         var cardStyle = t.colorBorde ? "border-left: 4px solid " + t.colorBorde : "";
         html += "<div class='service-card' data-treatment-id='" + (t.id || '') + "' data-category='" + t.category + "' style='" + cardStyle + "'>";
         html += "<div class='service-card-image-wrapper'>";
-        html += "<img src='" + imgSrc + "' alt='" + t.nombre + "' class='service-card-image'>";
+        html += "<img src='" + imgSrc + "' alt='" + t.nombre + "' class='service-card-image' loading='lazy'>";
         if (t.badge) html += "<span class='service-badge'>" + t.badge + "</span>";
         html += "</div>";
         html += "<div class='service-card-body'>";
@@ -1164,7 +1164,7 @@ function openTreatmentModal(treatmentIndex) {
     var imgSrc = t.imagen ? t.imagen : "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&h=400&fit=crop";
     
     var modalHTML = "<div class='treatment-modal'>";
-    modalHTML += "<div class='modal-header'><button class='modal-close' aria-label='Cerrar'>&#10005;</button><div class='modal-image-wrapper'><img src='" + imgSrc + "' alt='" + t.nombre + "' class='modal-image'></div></div>";
+    modalHTML += "<div class='modal-header'><button class='modal-close' aria-label='Cerrar'>&#10005;</button><div class='modal-image-wrapper'><img src='" + imgSrc + "' alt='" + t.nombre + "' class='modal-image' loading='lazy'></div></div>";
     modalHTML += "<div class='modal-body'>";
     
     // Header with name, price, duration
