@@ -259,20 +259,12 @@
   ],
   "reels": [
     {
-      "id": "reel_8",
-      "url": "",
-      "embedUrl": "",
-      "caption": "",
-      "emoji": "",
-      "orden": 1
-    },
-    {
       "id": "reel_003",
       "url": "https://www.instagram.com/reel/DVgFx9hjo96",
       "embedUrl": "https://www.instagram.com/p/DVgFx9hjo96/embed/",
       "caption": "Lo que dicen los pacientes del consultorio",
       "emoji": "💉",
-      "orden": 2
+      "orden": 1
     },
     {
       "id": "reel_004",
@@ -280,7 +272,7 @@
       "embedUrl": "https://www.instagram.com/p/Da2ZZsSAbyM/embed/",
       "caption": "Nuestro espacio",
       "emoji": "🏠",
-      "orden": 3
+      "orden": 2
     },
     {
       "id": "reel_001",
@@ -288,7 +280,7 @@
       "embedUrl": "https://www.instagram.com/p/DaQaTaTgzsJ/embed/",
       "caption": "Limpieza facial profunda",
       "emoji": "",
-      "orden": 5
+      "orden": 4
     },
     {
       "id": "reel_006",
@@ -296,7 +288,7 @@
       "embedUrl": "",
       "caption": "Proyecto solidario adolescentes acné",
       "emoji": "",
-      "orden": 6
+      "orden": 5
     },
     {
       "id": "reel_008",
@@ -304,7 +296,7 @@
       "embedUrl": "https://www.instagram.com/p/DYrW_7vgOZq/embed/",
       "caption": "",
       "emoji": "",
-      "orden": 7
+      "orden": 6
     },
     {
       "id": "reel_007",
@@ -312,23 +304,7 @@
       "embedUrl": "https://www.instagram.com/p/DZ3fAeOpEKo/embed/",
       "caption": "2x1  Tratamiento facial",
       "emoji": "",
-      "orden": 8
-    },
-    {
-      "id": "reel_9",
-      "url": "",
-      "embedUrl": "",
-      "caption": "",
-      "emoji": "",
-      "orden": 9
-    },
-    {
-      "id": "reel_10",
-      "url": "",
-      "embedUrl": "",
-      "caption": "",
-      "emoji": "",
-      "orden": 10
+      "orden": 7
     }
   ],
   "resenas": [
@@ -585,5 +561,5 @@
     "Admin_Email_Notificacion_Recordatorios": 0
   },
   "warnings": [],
-  "generatedAt": "2026-09-30T18:40:01.654Z"
+  "generatedAt": "2026-09-30T18:42:20.217Z"
 }
