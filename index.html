@@ -98,8 +98,8 @@
                 <h2>Lo que dicen nuestras clientas</h2>
                 <p id="reviewsTrustText">Cargando...</p>
             </div>
-            <!-- Google Reviews Widget (review-widget.net) - Calificacion en tiempo real -->
-            <!-- v26: carga diferida — el script (2MB) solo se descarga cuando el usuario se acerca a la sección -->
+            <!-- Carga diferida (v26/v28): el widget de resenas (2MB) y el iframe del mapa
+                 (varios MB de JS de Google Maps) solo se cargan cuando el usuario se acerca a cada seccion -->
             <script>
             (function () {
                 function loadGrw() {
@@ -110,20 +110,38 @@
                     s.async = true;
                     document.body.appendChild(s);
                 }
+                function loadMaps() {
+                    if (window.__mapsLoaded) return;
+                    window.__mapsLoaded = true;
+                    var holder = document.querySelector(".location-map");
+                    if (!holder) return;
+                    var f = document.createElement("iframe");
+                    f.src = "https://www.google.com/maps?q=Av.+Acoyte+25,+Caballito,+CABA&output=embed&z=17";
+                    f.setAttribute("allowfullscreen", "");
+                    f.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+                    holder.appendChild(f);
+                }
                 function init() {
                     // Pausa de 1.5s: al hacer DCL la pagina aun esta "corta"
                     // (tratamientos/galeria se renderizan ~400ms despues con el
-                    // JSON estatico). Esperar evita que la seccion de resenas
-                    // parezca "cerca" del viewport y dispare la carga temprano.
+                    // JSON estatico). Esperar evita que las secciones inferiores
+                    // parezcan "cerca" del viewport y disparen la carga temprano.
                     setTimeout(function() {
-                        var target = document.querySelector(".review-widget_net");
-                        if (!target || !("IntersectionObserver" in window)) { loadGrw(); return; }
-                        var io = new IntersectionObserver(function (entries) {
-                            for (var i = 0; i < entries.length; i++) {
-                                if (entries[i].isIntersecting) { io.disconnect(); loadGrw(); }
-                            }
-                        }, { rootMargin: "1000px 0px" });
-                        io.observe(target);
+                        var pairs = [
+                            [document.querySelector(".review-widget_net"), loadGrw],
+                            [document.querySelector(".location-map"), loadMaps]
+                        ];
+                        for (var i = 0; i < pairs.length; i++) {
+                            (function (el, fn) {
+                                if (!el || !("IntersectionObserver" in window)) { fn(); return; }
+                                var io = new IntersectionObserver(function (entries) {
+                                    for (var j = 0; j < entries.length; j++) {
+                                        if (entries[j].isIntersecting) { io.disconnect(); fn(); }
+                                    }
+                                }, { rootMargin: "1000px 0px" });
+                                io.observe(el);
+                            })(pairs[i][0], pairs[i][1]);
+                        }
                     }, 1500);
                 }
                 if (document.readyState === "loading") {
@@ -148,7 +166,8 @@
             </div>
             <div class="location-grid">
                 <div class="location-map">
-                    <iframe src="https://www.google.com/maps?q=Av.+Acoyte+25,+Caballito,+CABA&output=embed&z=17" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <!-- v28: el iframe del mapa se inyecta bajo demanda (IntersectionObserver, ver bloque de scripts de carga diferida). Placeholder hasta entonces. -->
+                    <div class="map-placeholder"><span class="map-ph-icon">📍</span><span>Av. Acoyte 25, Caballito, CABA</span></div>
                 </div>
                 <div class="location-info">
                     <h3>Visitanos en nuestro consultorio</h3>

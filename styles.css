@@ -600,7 +600,9 @@ button { cursor: pointer; border: none; font-family: inherit; }
 /* ========== LOCATION ========== */
 .location-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
 .location-map { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-lg); height: 450px; position: relative; }
-.location-map iframe { width: 100%; height: 100%; border: 0; }
+.location-map iframe { width: 100%; height: 100%; border: 0; position: relative; z-index: 1; }
+.map-placeholder { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, rgba(255,193,7,0.10), rgba(0,146,178,0.10)); color: var(--gray); font-size: 0.95rem; text-align: center; padding: 16px; z-index: 0; }
+.map-placeholder .map-ph-icon { font-size: 2.2rem; }
 .map-note { position: absolute; bottom: 16px; left: 16px; background: white; padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; box-shadow: var(--shadow); }
 .location-info h3 { font-size: 1.75rem; margin-bottom: 32px; }
 .info-item { display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start; }
