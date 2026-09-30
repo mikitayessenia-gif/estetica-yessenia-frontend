@@ -414,7 +414,7 @@
     <script src="scripts/config-global.js?v=v23"></script>
     <script src="scripts/config.js?v=v23"></script>
     <script src="scripts/utils.js?v=v23"></script>
-    <script src="scripts/landing-data.js?v=v6"></script>
+    <script src="scripts/landing-data.js?v=v7"></script>
   <script src="scripts/instagram-gallery.js?v=v26"></script>
     <script src="scripts/featured-reviews.js?v=v25"></script>
     <script src="scripts/google-reviews.js?v=v23"></script>
@@ -617,7 +617,7 @@
             }
             
             // Load sheet data if not loaded yet
-            // Carga inicial: usa el bundle compartido (1 sola llamada al backend). Ver scripts/landing-data.js
+            // Carga inicial: JSON estatico (CDN) con fallback a las 4 llamadas legacy. Ver scripts/landing-data.js
             if (!sheetReviewsLoaded) {
                 try {
                     getLandingData()
