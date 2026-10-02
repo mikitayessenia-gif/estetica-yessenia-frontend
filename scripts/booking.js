@@ -1083,6 +1083,15 @@ function parseTratamientoLargo(texto) {
     }
 }
 
+// Escape para atributos HTML delimitados por comilla simple: en HTML el
+// backslash NO es escape, asi que la vieja .replace(/'/g, "\\'") dejaba el
+// valor del atributo truncado en la primera comilla (rompia data-treatment-name
+// de tratamientos cuyo nombre trae apostrofe, ej. "masaje facial 10'").
+// Con &#39; el navegador decodifica de vuelta a ' al leer getAttribute.
+function escAttr(s) {
+    return (s || '').replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+}
+
 // ========== Render treatments dynamic HTML ==========
 function renderServicesFromData() {
     var grid = document.getElementById("servicesGrid");
@@ -1136,7 +1145,7 @@ function renderServicesFromData() {
             var wsMsg = encodeURIComponent(t.msjWs || "Hola! Quiero reservar este turno. Me podrias indicar los horarios disponibles? Gracias.");
             html += "<a href='https://wa.me/" + wsPhone + "?text=" + wsMsg + "' target='_blank' class='btn-book-ws'>Reserva disponible solo por WhatsApp</a>";
         } else {
-            html += "<a href='#reservar' class='btn-book-sm' data-treatment-id='" + (t.id || '') + "' data-treatment-name='" + (t.nombre || '').replace(/'/g, "\\'") + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Ya</a>";
+            html += "<a href='#reservar' class='btn-book-sm' data-treatment-id='" + (t.id || '') + "' data-treatment-name='" + escAttr(t.nombre || '') + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Ya</a>";
         }
         html += "</div></div></div>";
     });
@@ -1221,7 +1230,7 @@ function openTreatmentModal(treatmentIndex) {
         var wsMsgModal = encodeURIComponent(t.msjWs || "Hola! Quiero reservar este turno. Me podrias indicar los horarios disponibles? Gracias.");
         modalHTML += "<div class='modal-cta'><a href='https://wa.me/" + wsPhone + "?text=" + wsMsgModal + "' target='_blank' class='btn-book-lg btn-book-ws'>Reserva disponible solo por WhatsApp</a></div>";
     } else {
-        modalHTML += "<div class='modal-cta'><a href='#reservar' class='btn-book-lg' data-treatment-name='" + (t.nombre || '').replace(/'/g, "\\'") + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Este Tratamiento</a></div>";
+        modalHTML += "<div class='modal-cta'><a href='#reservar' class='btn-book-lg' data-treatment-name='" + escAttr(t.nombre || '') + "' onclick=\"window.selectTreatmentAndScroll(this.getAttribute('data-treatment-name'));return false;\">Reservar Este Tratamiento</a></div>";
     }
     
     modalHTML += "</div></div>";
