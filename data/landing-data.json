@@ -48,7 +48,7 @@
     },
     {
       "id": "TRAT-004",
-      "nombre": "Glow primaveral. Exfoliación  laboratorio once primaveral + Dermapen con Exosomas,PDRN o principios activos médicos de mesoterapia+ Cabina LED  + máscara  niacinamida, pantenol o centella asiática coreana + protector solar. ( Rostro, Cuello y Escote, de regalo exfoliación de manos y nutrición.",
+      "nombre": "Tratamiento facial 3 en 1 – Longevidad cutánea. RenovadorcelularPrimaveral+ radiofrecuencia + Dermapen con Exosomas,PDRN o principios activos médicos de mesoterapia+ Cabina LED  + máscara  niacinamida, pantenol o centella asiática coreana + protector solar. ( Rostro, Cuello y Escote, de regalo exfoliación de manos y nutrición.",
       "precio": 50000,
       "duracionFilas": 1,
       "duracionTexto": "2 horas",
@@ -64,7 +64,7 @@
     {
       "id": "TRAT-005",
       "nombre": "Resplandor Primaveral .Limpieza suave + Radiofrecuencia rostro, cuello y escote + Dermapen con PDRN de salmón + máscara coreana de Sentella asiática  y protector solar.",
-      "precio": 55000,
+      "precio": 50000,
       "duracionFilas": 1,
       "duracionTexto": "2 horas",
       "linkSena": "",
@@ -569,5 +569,5 @@
     "Admin_Email_Notificacion_Recordatorios": 0
   },
   "warnings": [],
-  "generatedAt": "2026-10-30T03:33:43.185Z"
+  "generatedAt": "2026-10-30T09:33:43.092Z"
 }
