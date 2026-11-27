@@ -34,7 +34,7 @@
     {
       "id": "TRAT-003",
       "nombre": "PIEL RADIANTE PRIMAVERAL Dermoabrasión Punta de Diamante corporal . Cuello, escote, abdomen, pelvis, piernas, brazos, glúteos, espalda y pies . Se termina con un exfoliante suave de láctico + peeling pies para mejorar las durezas de la piel. Queres que tu crema penetre  a tu piel y tengas un mejor BRONCEADO, este tratamiento es adecuado para vos. Oferta octubre",
-      "precio": 60000,
+      "precio": 70000,
       "duracionFilas": 1,
       "duracionTexto": "2 horas",
       "linkSena": "",
@@ -252,6 +252,21 @@
       "descripcionLarga": "{\"intro\":\"Qué incluye el tratamiento? ✔️ Evaluación personalizada de la piel. ✔️ Limpieza profunda. ✔️ Exfoliación. ✔️ Peeling médico, según las necesidades de tu piel. ✔️ Extracciones. ✔️ Máscara calmante e hidratante. ✔️ Sérums específicos.\\nBeneficios: 🌿 Elimina impurezas y puntos negros. 🌿 Ayuda a disminuir granitos y comedones. 🌿 Reduce el exceso de oleosidad. 🌿 Mejora la textura y luminosidad de la piel. 🌿 Favorece la renovación celular. 🌿 Deja la espalda más suave, limpia y saludable.\",\"sections\":[]}",
       "categoria": "Corporal",
       "descripcionCorta": "✨ 2x1 en Limpieza Profunda de Espalda para que vengas con quien quieras.\nLa piel de tu espalda tiene puntos negros, granitos, exceso de oleosidad o marcas? Es el momento ideal para tratarla.",
+      "reservaManual": true,
+      "msjWs": "",
+      "colorBorde": "#c4a16d"
+    },
+    {
+      "id": "TRAT-019",
+      "nombre": "Tratamiento spa integral urbano.  (Un tratamiento personalizado, donde trabajamos distintas zonas según lo que tu piel y tu cuerpo necesitan).",
+      "precio": 70000,
+      "duracionFilas": 1,
+      "duracionTexto": "2hs",
+      "linkSena": "",
+      "imagen": "https://lh3.googleusercontent.com/d/1wPU48Z6IyVfEUtkLS6qF7I-ohgmF0xxi",
+      "descripcionLarga": "{\"intro\":\"Tratamiento facial \\nPiernas \\nBrazos \\nAparatología,  masaje,  lo que tu piel necesite.\",\"sections\":[{\"title\":\"Facial radiofrecuencia \",\"iconType\":\"check\",\"items\":[{\"text\":\"Facial dermapen\",\"iconType\":\"check\"},{\"text\":\"Masaje facial\",\"iconType\":\"check\"},{\"text\":\"Exfoliación brazos +\\\"nutrición\",\"iconType\":\"check\"},{\"text\":\"Exfoliación piernas + nutrición\",\"iconType\":\"check\"},{\"text\":\"Peeling pies\",\"iconType\":\"check\"}]}]}",
+      "categoria": "General",
+      "descripcionCorta": "TRATAMIENTO INTEGRAL | 2 HORAS PARA VOS ✨\nUn espacio dedicado a cuidar tu piel y tu cuerpo de manera personalizada.\nRostro, cuello, escote, brazos, piernas, pies… trabajamos las zonas que tu cuerpo necesite.\nCada tratamiento se adapta a una evaluación previa, porque no todas las pieles ni todos los cuerpos necesitan lo mismo.\n🌿 Renovar, hidratar, revitalizar y mejorar la calidad de la piel.\nDos horas para vos. Para cuidarte, relajarte y sentirte bien.",
       "reservaManual": true,
       "msjWs": "",
       "colorBorde": "#c4a16d"
@@ -569,5 +584,5 @@
     "Admin_Email_Notificacion_Recordatorios": 0
   },
   "warnings": [],
-  "generatedAt": "2026-11-27T03:33:45.806Z"
+  "generatedAt": "2026-11-27T09:33:43.341Z"
 }
